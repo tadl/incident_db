@@ -1,0 +1,38 @@
+<div id="rule_modal" class="modal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><%= @action %> Infraction</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div id="edit_rule_form" class="modal-body">
+        <div id="messages"></div>
+        <div class="form-outline">
+          <textarea class="form-control" id="rule_description" rows="3"><%= @rule.description %></textarea>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="track_options" id="type_a" value="A" <%= am_i_checked(@rule.track,'A') %> />
+          <label class="form-check-label" for="type_a">Track A</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="track_options" id="type_b" value="B" <%= am_i_checked(@rule.track,'B') %> />
+          <label class="form-check-label" for="type_b">Track B</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="" id="legacy" <%= am_i_checked(@rule.legacy, true) %>>
+          <label class="form-check-label" for="legacy">Legacy Infraction (will not appear for new incidents)</label>
+</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+           <%= icon('fa-solid', 'xmark') %> 
+          Close
+        </button>
+        <button type="button" class="btn btn-primary" onclick="save_rule(<%= @rule.id %>)">
+          <%= icon('fa-solid', 'check') %> 
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,10 @@
+<% if @updated == true %>
+    $('#messages').html('<p class="text-success">Rule was successfully saved!</p>')
+    $('.modal-content').addClass('animate__animated animate__rollOut animate__delay-1s')
+    setTimeout(function(){ window.location.reload() }, 1400);
+<% else %>
+    $('#messages').html('')
+    <% @rule.errors.messages.values.flatten.each do |e| %>
+        $("#messages").append( '<p class="text-danger">Error: <%= escape_javascript(e) %></p>' );
+    <% end %>
+<% end %>

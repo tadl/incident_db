@@ -12,7 +12,6 @@ gem 'omniauth-rails_csrf_protection'
 gem 'omniauth-google-oauth2'
 gem 'dotenv-rails'
 
-
 #- DEFAULT GEMS
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"

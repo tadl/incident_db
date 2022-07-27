@@ -1,0 +1,3 @@
+$('#rule_modal_containter').html("<%= escape_javascript(render 'rule_form')%>")
+var myModal = new bootstrap.Modal(document.getElementById("rule_modal"), {});
+myModal.show();

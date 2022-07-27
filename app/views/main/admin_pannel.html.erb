@@ -1,0 +1,57 @@
+<h2><%= icon('fa-solid', 'gear') %> Admin Pannel</h2>
+<h3>Infraction Types</h3>
+<button type="button" class="btn btn-primary mb-2" onclick="new_rule()">
+  <%= icon('fa-solid', 'plus') %> 
+  Create A New Infraction Type
+</button>
+<div class="card mb-2">
+  <div class="card-body">
+    <h5 class="card-title">Type A</h5>
+    <div>
+      <% @a_infractions.each do |i| %>
+        <div class="mb-2">
+          <button type="button" class="btn btn-outline-primary btn-sm" onclick="edit_rule(<%= i.id %>)">
+            <%= icon('fa-solid', 'pen') %> 
+            Edit
+          </button> 
+          <%= i.description %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<div class="card mb-2">
+  <div class="card-body">
+    <h5 class="card-title">Type B</h5>
+      <% @b_infractions.each do |i| %>
+        <div class="mb-2">
+          <button type="button" class="btn btn-outline-primary btn-sm" onclick="edit_rule(<%= i.id %>)">
+            <%= icon('fa-solid', 'pen') %> 
+            Edit
+          </button> 
+          <%= i.description %>
+        </div>
+      <% end %>
+  </div>
+</div>
+<% if @legacy_infractions.count > 0 %>
+  <div class="card mb-2">
+    <div class="card-body">
+      <h5 class="card-title">Legacy</h5>
+      <div>
+        <% @legacy_infractions.each do |i| %>
+          <div class="mb-2">
+            <button type="button" class="btn btn-outline-primary btn-sm" onclick="edit_rule(<%= i.id %>)">
+              <%= icon('fa-solid', 'pen') %> 
+              Edit
+            </button> 
+            <%= i.description %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>
+<div id="rule_modal_containter">
+</div>
