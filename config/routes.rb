@@ -16,4 +16,8 @@ Rails.application.routes.draw do
   match 'edit_rule', to: 'admin#edit_rule', via: [:post]
   match 'save_rule', to: 'admin#save_rule', via: [:post]
 
+  #Incidents
+  match 'incidents', to: 'incidents#all', via: [:get, :post]
+  match '/incidents/new', to: 'incidents#new', via: [:get, :post]
+  match '/incidents/save', to: 'incidents#save', via: [:post]
 end

@@ -1,0 +1,46 @@
+<h2><%= icon('fa-solid', 'file-pen') %> Create a New Incident Report</h2>
+<div class="mt-3 mb-3">
+    <label for="title" class="form-label">Title</label>
+    <input type="text" class="form-control" id="title">
+</div>
+<div class="row mb-3">
+    <div class="col-lg-3 col-sm">
+        <label for="date_of" class="form-label">Date and Time of Incident</label>
+        <div class='input-group' id='datetimepicker1' data-td-target-input='nearest' data-td-target-toggle='nearest'>
+            <input id='date_of' type='text' class='form-control' data-td-target='#datetimepicker1' autocomplete="off" value="<%= @incident.date_of || @date_time_today %>"/>
+            <span class='input-group-text' data-td-target='#datetimepicker1'data-td-toggle='datetimepicker'>
+                <span class='fa-solid fa-calendar'></span>
+            </span>
+        </div>
+    </div>
+    <div class="col-lg-3 col-sm">
+        <label for="locaiton" class="form-label">Location</label>
+        <select id="location" class="form-select" aria-label="location">
+            <% Settings.locations.each do |l| %>
+                <option value="<%= l %>"><%= l %></option>
+            <% end %>
+        </select>
+    </div>
+</div>
+<div class="mb-3">
+    <label for="description" class="form-label">Description</label>
+    <textarea class="form-control" id="description" rows="10"></textarea>
+</div>
+<div id="messages" class="mb-3">
+</div>
+<div class="mb-3">
+    <button type="button" class="btn btn-primary btn-lg" onclick="save_incident()"><%= icon('fa-solid', 'plus') %> Publish</button>
+    <button type="button" class="btn btn-secondary btn-lg" onclick="save_incident('draft')"><%= icon('fa-solid', 'floppy-disk') %> Save as Draft</button>
+</div>
+<script>
+    const picker = new tempusDominus.TempusDominus(document.getElementById('datetimepicker1'),{
+        allowInputToggle: true,
+        display: {
+            theme: 'light',
+            viewMode: 'clock',
+            components:{
+                decades: false,
+            },
+        }    
+    });
+</script>

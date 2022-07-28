@@ -1,0 +1,13 @@
+<% if @updated == true %>
+    $('#messages').html('')
+    <% if @incident.draft %>
+        $('#messages').html('<p class="text-success">Incident successfully saved as a draft.</p>')
+    <% else %>
+        $('#messages').html('<p class="text-success">Incident successfully published.</p>')
+    <% end %>
+<% else %>
+    $('#messages').html('')
+    <% @incident.errors.messages.values.flatten.each do |e| %>
+        $("#messages").append( '<p class="text-danger">Error: <%= escape_javascript(e) %></p>' );
+    <% end %>
+<% end %>
