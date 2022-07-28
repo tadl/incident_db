@@ -1,0 +1,8 @@
+<h2><%= @incident.title %></h2>
+<div class="mt-1 mb-2">
+    <b>Date of Incident:</b> <%= @incident.date_of.in_time_zone("Eastern Time (US & Canada)").strftime("%m/%d/%Y at %l:%M %p") %>
+    <b>Location:</b> <%= @incident.location %>
+</div>
+<div class="mb-3">
+    <%= @incident.description %>
+</div>

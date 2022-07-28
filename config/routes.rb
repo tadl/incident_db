@@ -20,4 +20,6 @@ Rails.application.routes.draw do
   match 'incidents', to: 'incidents#all', via: [:get, :post]
   match '/incidents/new', to: 'incidents#new', via: [:get, :post]
   match '/incidents/save', to: 'incidents#save', via: [:post]
+  match '/incidents/view', to: 'incidents#view', via: [:get, :post]
+  match '/incidents/edit', to: 'incidents#edit', via: [:get, :post]
 end

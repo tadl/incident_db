@@ -1,0 +1,5 @@
+<%= render 'incident_full' %>
+<div class="mb-3">
+    <a type="button" class="btn btn-primary btn-lg" href="/incidents/edit?id=<%= @incident.id %>"><%= icon('fa-solid', 'pen') %> Edit</a>
+    <button type="button" class="btn btn-danger btn-lg"><%= icon('fa-solid', 'trash') %> Delete</button>
+</div>
