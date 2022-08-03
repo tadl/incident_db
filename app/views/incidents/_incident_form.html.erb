@@ -1,12 +1,12 @@
 <div class="mt-3 mb-3">
     <label for="title" class="form-label">Title</label>
-    <input type="text" class="form-control" id="title" value="<%= @incident.title %>">
+    <input type="text" class="form-control" id="title" value="<%= @incident.title %>" autocomplete="off">
 </div>
 <div class="row mb-3">
     <div class="col-lg-3 col-sm">
         <label for="date_of" class="form-label">Date and Time of Incident</label>
         <div class='input-group' id='datetimepicker1' data-td-target-input='nearest' data-td-target-toggle='nearest'>
-            <input id='date_of' type='text' class='form-control' data-td-target='#datetimepicker1' autocomplete="off" value="<%= @incident.date_of.in_time_zone("Eastern Time (US & Canada)").strftime("%m/%d/%Y,  %H:%M") || @date_time_today %>"/>
+            <input id='date_of' type='text' class='form-control' data-td-target='#datetimepicker1' autocomplete="off" value="<%= incident_time_helper(@incident, @date_time_today) %>"/>
             <span class='input-group-text' data-td-target='#datetimepicker1'data-td-toggle='datetimepicker'>
                 <span class='fa-solid fa-calendar'></span>
             </span>
@@ -14,7 +14,7 @@
     </div>
     <div class="col-lg-3 col-sm">
         <label for="locaiton" class="form-label">Location</label>
-        <select id="location" class="form-select" aria-label="location">
+        <select id="location" class="form-select" aria-label="location" autocomplete="off">
             <% Settings.locations.each do |l| %>
                 <option value="<%= l %>"><%= l %></option>
             <% end %>
@@ -23,8 +23,15 @@
 </div>
 <div class="mb-3">
     <label for="description" class="form-label">Description</label>
-    <textarea class="form-control" id="description" rows="10"><%= @incident.description %></textarea>
+    <textarea class="form-control" id="description" rows="10" autocomplete="off"><%= @incident.description %></textarea>
 </div>
+<div class="mb-3">
+  <input class="form-check-input" type="checkbox" value="" id="no_patrons" onchange="no_patron_check(this)" <%if @incident.no_patrons == true%> checked <% end %> autocomplete="off">
+  <label class="form-check-label" for="no_patrons">
+    No patrons where involved in this incident.
+  </label>
+</div>
+<div id="incident_id" style="display:none"><%= @incident.id %></div>
 <div id="messages" class="mb-3">
 </div>
 <script>

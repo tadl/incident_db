@@ -1,2 +1,17 @@
-<h1>Incidents#all</h1>
-<p>Find me in app/views/incidents/all.html.erb</p>
+<h2><%= icon('fa-solid', 'person-falling-burst') %> Incidents</h2>
+<% @incidents.each do |i| %>
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title"><%= i.title %></h4>
+            <b>Date of Incident:</b> <%= i.date_of_in_time_zone %>
+            <p class="card-text"><%= i.description %></p>
+            <b>Published On:</b> <%= i.created_by_name %> on <%= i.published_on_in_time_zone %>
+            <br>
+            <% if i.last_edit_by %>
+                <b>Last Edited by:</b> <%= i.last_edit_by_name %> on <%= i.updated_at_in_time_zone %>
+            <% end %>
+            <br>
+            <a href="/incidents/edit?id=<%= i.id %>" class="btn btn-primary">Edit</a>
+        </div>
+    </div>
+<% end %>

@@ -1,8 +1,11 @@
 <h2><%= icon('fa-solid', 'file-pen') %> Create a New Incident Report</h2>
 
 <%= render 'incident_form' %>
-
-<div class="mb-3">
-    <button type="button" class="btn btn-primary btn-lg" onclick="save_incident()"><%= icon('fa-solid', 'plus') %> Publish</button>
-    <button type="button" class="btn btn-secondary btn-lg" onclick="save_incident('draft')"><%= icon('fa-solid', 'floppy-disk') %> Save as Draft</button>
+<div id="add_patron_to_incident_button">
+    <button type="button" class="btn btn-primary btn-lg" onclick="save_incident('true','true')"><%= icon('fa-solid', 'person') %> Add Patron to Incident</button>
+</div>
+<div id="add_patron"></div>
+<div id="save_incident_buttons" class="mb-3" style="display: none">
+    <button type="button" class="btn btn-primary btn-lg" onclick="save_incident('false','false')"><%= icon('fa-solid', 'plus') %> Publish</button>
+    <button type="button" class="btn btn-secondary btn-lg" onclick="save_incident('true','false')"><%= icon('fa-solid', 'floppy-disk') %> Save as Draft</button>
 </div>

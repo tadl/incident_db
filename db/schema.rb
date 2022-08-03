@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_07_28_174944) do
+ActiveRecord::Schema[7.0].define(version: 2022_08_03_204604) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -26,6 +26,27 @@ ActiveRecord::Schema[7.0].define(version: 2022_07_28_174944) do
     t.string "created_by"
     t.string "last_edit_by"
     t.boolean "draft", default: false
+    t.boolean "published", default: false
+    t.datetime "published_on"
+    t.boolean "no_patrons", default: false
+  end
+
+  create_table "patrons", force: :cascade do |t|
+    t.string "first_name"
+    t.string "middle_name"
+    t.string "last_name"
+    t.string "gender"
+    t.boolean "no_name"
+    t.boolean "no_address"
+    t.string "address"
+    t.string "city"
+    t.string "state"
+    t.integer "zip"
+    t.string "alias"
+    t.string "description"
+    t.string "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "rules", force: :cascade do |t|

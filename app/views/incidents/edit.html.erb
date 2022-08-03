@@ -1,7 +1,17 @@
 <h2><%= icon('fa-solid', 'pen') %> Editing Incident Report</h2>
 
 <%= render 'incident_form' %>
-
+<div id="add_patron_to_incident_button" <% if @incident.no_patrons == true %>style='display:none'<% end %>>
+    <button type="button" class="btn btn-primary btn-lg" onclick="save_incident('true','true')"><%= icon('fa-solid', 'person') %> Add Patron to Incident</button>
+</div>
+<div id="add_patron"></div>
 <div class="mb-3">
-    <button type="button" class="btn btn-primary btn-lg" onclick="save_incident()"><%= icon('fa-solid', 'floopy-disk') %> Save</button>
+    <div id="save_incident_buttons">
+        <% if @incident.published != true %>
+            <button type="button" class="btn btn-primary btn-lg" onclick="save_incident('false','false')"><%= icon('fa-solid', 'plus') %> Publish</button>
+            <button type="button" class="btn btn-secondary btn-lg" onclick="save_incident('true, false')"><%= icon('fa-solid', 'floppy-disk') %> Save as Draft</button>
+        <% else %>
+            <button type="button" class="btn btn-primary btn-lg" onclick="save_incident('false','false')"><%= icon('fa-solid', 'arrows-rotate') %> Update</button>
+        <% end %>
+    </div>
 </div>

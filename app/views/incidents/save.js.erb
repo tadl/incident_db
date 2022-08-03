@@ -1,11 +1,26 @@
 <% if @updated == true %>
     $('#messages').html('')
     <% if @incident.draft %>
-        $('#messages').html('<p class="text-success">Incident successfully saved as a draft.</p>')
+        <% if @add_patron == true %>
+            $('#add_patron').html("<%= escape_javascript(render 'patron_form')%>")
+             $('#incident_id').html('<%= @incident.id %>')
+        <% else %>
+            $('#messages').html('<p class="text-success">Incident successfully saved as a draft.</p>')
+            setTimeout(function(){ window.location.href="/incidents/view?id=<%= escape_javascript(@incident.id)%>" }, 1400);
+        <% end %>
     <% else %>
-        $('#messages').html('<p class="text-success">Incident successfully published.</p>')
+        <% if @add_patron == true %>
+            $('#add_patron').html("<%= escape_javascript(render 'patron_form')%>")
+            $('#incident_id').html('<%= @incident.id %>')
+        <% else %>
+            <% if @new_publish == true %>
+                $('#messages').html('<p class="text-success">Incident successfully published.</p>')
+            <% else %>
+                $('#messages').html('<p class="text-success">Incident successfully updated.</p>')
+            <% end %>
+            setTimeout(function(){ window.location.href="/incidents/view?id=<%= escape_javascript(@incident.id)%>" }, 1400);
+        <% end %>
     <% end %>
-    setTimeout(function(){ window.location.href="/incidents/view?id=<%= escape_javascript(@incident.id)%>" }, 1400);
 <% else %>
     $('#messages').html('')
     <% @incident.errors.messages.values.flatten.each do |e| %>

@@ -2,7 +2,7 @@ class IncidentsController < ApplicationController
   skip_before_action :verify_authenticity_token
 
   def all
-    @incidents = Incident.all
+    @incidents = Incident.all.where(draft: false)
   end
 
   def view
@@ -21,11 +21,26 @@ class IncidentsController < ApplicationController
   end
 
   def save
-    if params[:id]
-        id = params[:id].to_i
-        @incident = Incident.find(id)
+    if params[:id] && params[:id] != ''
+      id = params[:id].to_i
+      @incident = Incident.find(id)
+      @incident.last_edit_by = current_user.id
+      unless params[:draft] == 'true'
+        if @incident.draft == true
+          @incident.draft = false
+          @incident.published_on = DateTime.now
+          @incident.published = true
+          @new_publish = true
+        end
+      end
     else
-        @incident = Incident.new
+      @incident = Incident.new
+      @incident.created_by = current_user.id
+      unless params[:draft] == 'true'
+        @incident.published_on = DateTime.now
+        @incident.published = true
+        @new_publish = true
+      end
     end
     if @incident
       @incident.assign_attributes(incident_params)
@@ -33,6 +48,11 @@ class IncidentsController < ApplicationController
       if @incident.valid?
         @incident.save
         @updated = true
+        if params[:add_patron] == "true"
+          @add_patron = true
+        else
+          @add_patron = false
+        end
       else
         @updated = false
       end
@@ -47,7 +67,7 @@ class IncidentsController < ApplicationController
   private
 
   def incident_params
-      params.permit(:title, :description, :location, :draft)
+      params.permit(:title, :description, :location, :draft, :no_patrons)
   end
 
 end
