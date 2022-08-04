@@ -3,6 +3,7 @@
     <% if @incident.draft %>
         <% if @add_patron == true %>
             $('#add_patron').html("<%= escape_javascript(render 'patron_form')%>")
+            $('#no_patron_div').hide()
             $('#add_patron').show()
             $('#incident_id').html('<%= @incident.id %>')
             $('#add_patron_to_incident_button').hide()
@@ -13,6 +14,7 @@
     <% else %>
         <% if @add_patron == true %>
             $('#add_patron').html("<%= escape_javascript(render 'patron_form')%>")
+            $('#no_patron_div').hide()
             $('#add_patron').show()
             $('#incident_id').html('<%= @incident.id %>')
             $('#add_patron_to_incident_button').hide()

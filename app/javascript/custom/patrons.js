@@ -24,7 +24,11 @@ window.no_address_check = no_address_check
 function cancel_add_patron(){
     $('#add_patron').hide()
     $('#add_patron').find('input').val('')
-    $('#add_patron_to_incident_button').show()   
+    $('#add_patron_to_incident_button').show()
+    var patrons_in_incident = $('.patron_violation_form').length;
+    if(patrons_in_incident == 0){
+        $('#no_patron_div').show() 
+    }  
 }
 window.cancel_add_patron = cancel_add_patron
 
@@ -49,3 +53,25 @@ function save_patron(){
     $.post("/patrons/save.js", params);
 }
 window.save_patron = save_patron
+
+function show_violation_modal(track, patron_id){
+    var params = {}
+    params['track'] = track
+    params['patron_id'] = patron_id
+    $.post("/patrons/load_violation_modal.js", params);
+}
+window.show_violation_modal = show_violation_modal
+
+function save_violations(patron_id){
+    var target_div = '#violation_modal_containter_' + patron_id + ' input:checked'
+    var violations = [];
+        $(target_div).each(function() {
+        violations.push($(this).val());
+    });
+    var params = {}
+    params['violation_ids'] = violations
+    params['patron_id'] = patron_id
+    params['incident_id'] = $('#incident_id').html()
+    $.post("/patrons/save_violations.js", params);
+}
+window.save_violations = save_violations

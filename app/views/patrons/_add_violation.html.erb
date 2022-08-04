@@ -1,1 +1,10 @@
-<h4><%= @patron.full_name %></h4>
+<div id="patron_<% @patron_id %>" class="patron_violation_form mb-3 mt-3">
+    <h4><%= @patron.full_name %></h4>
+</div>
+
+<button type="button" class="btn btn-sm btn-danger mb-3" onclick="show_violation_modal('A', <%= @patron.id %>)">Add A Level Violations</button>
+<button type="button" class="btn btn-sm btn-warning mb-3" onclick="show_violation_modal('B', <%= @patron.id %>)">Add B Level Violations</button>
+<button type="button" class="btn btn-sm btn-primary mb-3">Patron Did Not Commit Any Violaitons</button>
+
+<div id="violation_modal_containter_<%=@patron.id %>">
+</div>

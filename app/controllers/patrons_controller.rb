@@ -24,6 +24,36 @@ class PatronsController < ApplicationController
   def show
   end
 
+  def load_violation_modal
+    if params[:track] == 'A'
+      @violations = a_rules
+    end
+    if params[:track] == 'B'
+      @violations = b_rules
+    end
+    @patron_id = params[:patron_id]
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def save_violations
+    @violation_ids = params[:violation_ids]
+    @patron_id = params[:patron_id]
+    @incident_id = params[:incident_id]
+    @violation_ids.each do |v|
+      violation = Violation.new
+      violation.patron_id = @patron_id
+      violation.incident_id = @incident_id
+      rule = Rule.find(v)
+      violation.description = rule.violation_format
+      violation.save
+    end
+    respond_to do |format|
+      format.js
+    end
+  end
+
   private
 
   def patron_params
