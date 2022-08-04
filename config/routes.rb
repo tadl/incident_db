@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  get 'patron/save'
+  get 'patron/edit'
+  get 'patron/list'
+  get 'patron/show'
   get 'main/index'
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
@@ -22,4 +26,10 @@ Rails.application.routes.draw do
   match '/incidents/save', to: 'incidents#save', via: [:post]
   match '/incidents/view', to: 'incidents#view', via: [:get, :post]
   match '/incidents/edit', to: 'incidents#edit', via: [:get, :post]
+
+  #Patrons
+  match '/patrons/save', to: 'patrons#save', via: [:post]
+  match '/patrons/edit', to: 'patrons#edit', via: [:post]
+
+
 end

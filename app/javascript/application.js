@@ -3,4 +3,5 @@ import "./popper";
 import "./bootstrap.min";
 import 'custom/admin'
 import 'custom/incidents'
+import 'custom/patrons'
 import 'jquery'

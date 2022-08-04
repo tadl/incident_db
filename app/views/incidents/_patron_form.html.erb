@@ -1,1 +1,80 @@
-<h1>I am new Patron</h1>
+<div class="mt-3">
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a class="nav-link tab-link active" aria-current="page" href="#">Creating New Patron</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link tab-link" href="#">Add Patron from Previous Incidents</a>
+      </li>
+    </ul>
+</div>
+<div class="row mt-3" id="name_div">
+    <div class="col-lg-4 col-sm">
+        <label for="first_name" class="form-label">First Name</label>
+        <input type="text" class="form-control" id="first_name" value="" autocomplete="off">
+    </div>
+    <div class="col-lg-4 col-sm">
+        <label for="middle_name" class="form-label">Middle Name</label>
+        <input type="text" class="form-control" id="middle_name" value="" autocomplete="off">
+    </div>
+    <div class="col-lg-4 col-sm">
+        <label for="last_name" class="form-label">Last Name</label>
+        <input type="text" class="form-control" id="last_name" value="" autocomplete="off">
+    </div>
+</div>
+<div class="row mt-3" id="alias_div" style="display: none">
+    <div class="col-lg-4 col-sm">
+        <label for="alias" class="form-label">Alisa</label>
+        <input type="text" class="form-control" id="alias" value="" autocomplete="off">
+    </div>
+</div>
+<div class="row mt-3">
+    <div class="col-lg-4 col-sm">
+        <input class="form-check-input" type="checkbox" value="" id="no_name" onchange="no_name_check(this)" autocomplete="off">
+        <label class="form-check-label" for="no_name">
+            Patron's name is unknown.
+        </label>
+    </div>
+</div>
+<div class="row mt-3" id="address_div">
+    <div class="col-lg-5 col-sm">
+        <label for="address" class="form-label">Address</label>
+        <input type="text" class="form-control" id="address" value="" autocomplete="off">
+    </div>
+    <div class="col-lg-3 col-sm">
+        <label for="city" class="form-label">City</label>
+        <input type="text" class="form-control" id="city" value="" autocomplete="off">
+    </div>
+    <div class="col-lg-1 col-sm">
+        <label for="state" class="form-label">State</label>
+        <input type="text" class="form-control" id="state" value="" autocomplete="off">
+    </div>
+    <div class="col-lg-2 col-sm">
+        <label for="zip" class="form-label">Zip Code</label>
+        <input type="text" class="form-control" id="zip" value="" autocomplete="off">
+    </div>
+</div>
+<div class="row mt-3">
+    <div class="col-lg-4 col-sm">
+        <input class="form-check-input" type="checkbox" value="" id="no_address" onchange="no_address_check(this)" autocomplete="off">
+        <label class="form-check-label" for="no_address">
+            Patron's address is unknown.
+        </label>
+    </div>
+</div>
+<div class="row mt-3">
+    <div class="col-lg-5 col-sm">
+        <label for="card_number" class="form-label">Library Card #</label>
+        <input type="text" class="form-control" id="card_number" value="" autocomplete="off">
+    </div>
+</div>
+<div class="row mt-3 mb-3">
+    <div class="col-lg-12 col-sm">
+        <label for="patron_description" class="form-label">Description</label>
+        <textarea class="form-control" id="patron_description" rows="4" autocomplete="off"></textarea>
+    </div>
+</div>
+<div class="mb-3">
+    <button type="button" class="btn btn-success btn-lg" onclick="save_patron()"><%= icon('fa-solid', 'floppy-disk') %> Save Patron and Add Violations</button>
+    <button type="button" class="btn btn-danger btn-lg" onclick="cancel_add_patron()"><%= icon('fa-solid', 'ban') %> Cancel</button>
+</div>

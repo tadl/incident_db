@@ -3,7 +3,9 @@
     <% if @incident.draft %>
         <% if @add_patron == true %>
             $('#add_patron').html("<%= escape_javascript(render 'patron_form')%>")
-             $('#incident_id').html('<%= @incident.id %>')
+            $('#add_patron').show()
+            $('#incident_id').html('<%= @incident.id %>')
+            $('#add_patron_to_incident_button').hide()
         <% else %>
             $('#messages').html('<p class="text-success">Incident successfully saved as a draft.</p>')
             setTimeout(function(){ window.location.href="/incidents/view?id=<%= escape_javascript(@incident.id)%>" }, 1400);
@@ -11,7 +13,9 @@
     <% else %>
         <% if @add_patron == true %>
             $('#add_patron').html("<%= escape_javascript(render 'patron_form')%>")
+            $('#add_patron').show()
             $('#incident_id').html('<%= @incident.id %>')
+            $('#add_patron_to_incident_button').hide()
         <% else %>
             <% if @new_publish == true %>
                 $('#messages').html('<p class="text-success">Incident successfully published.</p>')
