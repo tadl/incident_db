@@ -34,6 +34,8 @@ window.cancel_add_patron = cancel_add_patron
 
 function save_patron(){
     var params = {}
+    $('#add_patron_to_incident_button').show()
+    params['incident_id'] = $('#incident_id').html()
     params['first_name'] = $('#first_name').val()
     params['middle_name'] = $('#middle_name').val()
     params['last_name'] = $('#last_name').val()
@@ -75,3 +77,20 @@ function save_violations(patron_id){
     $.post("/patrons/save_violations.js", params);
 }
 window.save_violations = save_violations
+
+function remove_violation(patron_id, violation_id){
+    var params = {}
+    params['incident_id'] = $('#incident_id').html()
+    params['patron_id'] = patron_id
+    params['violation_id'] = violation_id
+    $.post("/patrons/remove_violation.js", params);
+}
+window.remove_violation = remove_violation
+
+function remove_patron_from_incident(patron_id){
+    var params = {}
+    params['incident_id'] = $('#incident_id').html()
+    params['patron_id'] = patron_id
+    $.post("/patrons/remove_patron_from_incident.js", params);
+}
+window.remove_patron_from_incident = remove_patron_from_incident

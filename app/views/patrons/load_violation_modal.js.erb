@@ -1,3 +1,3 @@
 $('#violation_modal_containter_<%=@patron_id %>').html("<%= escape_javascript(render 'violation_modal')%>")
-var myModal = new bootstrap.Modal(document.getElementById("violation_modal"), {});
+var myModal = new bootstrap.Modal(document.getElementById("violation_modal_<%=@patron_id %>"), {});
 myModal.show();

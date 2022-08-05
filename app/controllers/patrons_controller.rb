@@ -10,6 +10,14 @@ class PatronsController < ApplicationController
     end
     @patron.assign_attributes(patron_params)
     @patron.save
+    if params[:incident_id]
+      violation = Violation.new
+      violation.patron_id = @patron.id
+      violation.incident_id = params[:incident_id].to_i
+      violation.description = 'None'
+      violation.save
+      @violations = Violation.where(patron_id: @patron.id, incident_id:params[:incident_id].to_i).order('description DESC')
+    end
     respond_to do |format|
       format.js
     end
@@ -41,13 +49,39 @@ class PatronsController < ApplicationController
     @violation_ids = params[:violation_ids]
     @patron_id = params[:patron_id]
     @incident_id = params[:incident_id]
-    @violation_ids.each do |v|
-      violation = Violation.new
-      violation.patron_id = @patron_id
-      violation.incident_id = @incident_id
-      rule = Rule.find(v)
-      violation.description = rule.violation_format
-      violation.save
+    if !@violation_ids.nil?
+      @violation_ids.each do |v|
+        violation = Violation.new
+        violation.patron_id = @patron_id
+        violation.incident_id = @incident_id
+        rule = Rule.find(v)
+        violation.description = rule.violation_format
+        violation.save
+      end
+    end
+    @violations = Violation.where(patron_id: @patron_id, incident_id:@incident_id).order('description DESC')
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def remove_violation
+    violation = Violation.find(params[:violation_id].to_i)
+    violation.destroy
+    @patron_id = params[:patron_id]
+    @incident_id = params[:incident_id]
+    @violations = Violation.where(patron_id: @patron_id, incident_id:@incident_id).order('description DESC')
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def remove_patron_from_incident
+    @patron_id = params[:patron_id]
+    @incident_id = params[:incident_id]
+    violations = Violation.where(patron_id: @patron_id, incident_id:@incident_id)
+    violations.each do |v|
+      v.destroy
     end
     respond_to do |format|
       format.js

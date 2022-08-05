@@ -1,3 +1,4 @@
-<% @violation_ids.each do |v| %>
-    alert(<%= v %>)
-<% end %>
+$("#patron_violations_<%= @patron_id %>").html("<%= escape_javascript(render 'violation_per_incident')%>")
+var myModalEl = document.getElementById('violation_modal_<%= @patron_id %>');
+var modal = bootstrap.Modal.getInstance(myModalEl)
+modal.hide();
