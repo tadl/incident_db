@@ -1,4 +1,6 @@
 class Patron < ApplicationRecord
+    has_many :violations
+    has_many :incidents, through: :violations
 
     def full_name
         if self.no_name == true

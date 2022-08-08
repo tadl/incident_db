@@ -1,11 +1,13 @@
-<h2><%= icon('fa-solid', 'person-falling-burst') %> Incidents</h2>
+<h2 class="mb-3"><%= icon('fa-solid', 'person-falling-burst') %> Incidents</h2>
 <% @incidents.each do |i| %>
-    <div class="card">
+    <div class="card mb-3">
         <div class="card-body">
             <h4 class="card-title"><%= i.title %></h4>
             <b>Date of Incident:</b> <%= i.date_of_in_time_zone %>
             <p class="card-text"><%= i.description %></p>
-            <b>Published On:</b> <%= i.created_by_name %> on <%= i.published_on_in_time_zone %>
+            <% if i.published == true %>
+                <b>Published On:</b> <%= i.created_by_name %> on <%= i.published_on_in_time_zone %>
+            <% end %>
             <br>
             <% if i.last_edit_by %>
                 <b>Last Edited by:</b> <%= i.last_edit_by_name %> on <%= i.updated_at_in_time_zone %>

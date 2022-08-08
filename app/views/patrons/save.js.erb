@@ -1,3 +1,3 @@
 $('#add_patron').html('')
-$('#patron_list').append("<%= escape_javascript(render 'add_violation')%>")
+$('#patron_list').append("<%= escape_javascript(render 'add_violation', patron: @patron, incident: @incident)%>")
 $('#save_incident_buttons').show()

@@ -10,13 +10,13 @@ class PatronsController < ApplicationController
     end
     @patron.assign_attributes(patron_params)
     @patron.save
-    if params[:incident_id]
+    @incident = Incident.find(params[:incident_id].to_i)
+    if @incident
       violation = Violation.new
       violation.patron_id = @patron.id
-      violation.incident_id = params[:incident_id].to_i
+      violation.incident_id = @incident.id
       violation.description = 'None'
       violation.save
-      @violations = Violation.where(patron_id: @patron.id, incident_id:params[:incident_id].to_i).order('description DESC')
     end
     respond_to do |format|
       format.js
@@ -47,19 +47,19 @@ class PatronsController < ApplicationController
 
   def save_violations
     @violation_ids = params[:violation_ids]
-    @patron_id = params[:patron_id]
-    @incident_id = params[:incident_id]
+    @patron = Patron.find(params[:patron_id].to_i)
+    @incident = Incident.find(params[:incident_id].to_i)
     if !@violation_ids.nil?
       @violation_ids.each do |v|
         violation = Violation.new
-        violation.patron_id = @patron_id
-        violation.incident_id = @incident_id
+        violation.patron_id = @patron.id
+        violation.incident_id = @incident.id
         rule = Rule.find(v)
         violation.description = rule.violation_format
         violation.save
       end
     end
-    @violations = Violation.where(patron_id: @patron_id, incident_id:@incident_id).order('description DESC')
+    @violations = Violation.where(patron_id: @patron.id, incident_id:@incident.id).order('description DESC')
     respond_to do |format|
       format.js
     end
@@ -68,9 +68,9 @@ class PatronsController < ApplicationController
   def remove_violation
     violation = Violation.find(params[:violation_id].to_i)
     violation.destroy
-    @patron_id = params[:patron_id]
-    @incident_id = params[:incident_id]
-    @violations = Violation.where(patron_id: @patron_id, incident_id:@incident_id).order('description DESC')
+    @patron = Patron.find(params[:patron_id].to_i)
+    @incident = Incident.find(params[:incident_id].to_i)
+    @violations = Violation.where(patron_id: @patron.id, incident_id:@incident.id).order('description DESC')
     respond_to do |format|
       format.js
     end

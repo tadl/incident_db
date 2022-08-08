@@ -1,10 +1,10 @@
 <b>Violations:</b>
 <br>
-<% @violations.each do |v| %>
-    <% unless @violations.size > 1 && v.description == 'None' %>
+<% violations.each do |v| %>
+    <% unless violations.size > 1 && v.description == 'None' %>
         <%= v.description %>
             <% unless v.description == 'None' %>
-                <button type="button" class="btn btn-danger btn-sm mb-1" onclick="remove_violation(<%= @patron_id %>,<%= v.id %>)">
+                <button type="button" class="btn btn-danger btn-sm mb-1" onclick="remove_violation(<%= patron.id %>,<%= v.id %>)">
                     <%= icon('fa-solid', 'xmark') %>
                 </button>
             <% end %>

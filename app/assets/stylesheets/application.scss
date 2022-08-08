@@ -3,16 +3,16 @@
 @import "*";
 
 .nav-link{
-    color: white;
+    color: white !important;
     text-decoration: none;
 
     &:visited{
-        color: white;
+        color: white !important;
         text-decoration: none;
         opacity: 0.42;
     }
     &:hover{
-        color: white;
+        color: white !important;
         opacity: 0.7;
         text-decoration: underline;
     }

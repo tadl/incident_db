@@ -26,6 +26,7 @@ Rails.application.routes.draw do
   match '/incidents/save', to: 'incidents#save', via: [:post]
   match '/incidents/view', to: 'incidents#view', via: [:get, :post]
   match '/incidents/edit', to: 'incidents#edit', via: [:get, :post]
+  match '/incidents/delete_image', to: 'incidents#delete_image', via: [:post]
 
   #Patrons
   match '/patrons/save', to: 'patrons#save', via: [:post]

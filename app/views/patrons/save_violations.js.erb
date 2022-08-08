@@ -1,4 +1,4 @@
-$("#patron_violations_<%= @patron_id %>").html("<%= escape_javascript(render 'violation_per_incident')%>")
-var myModalEl = document.getElementById('violation_modal_<%= @patron_id %>');
+$("#patron_violations_<%= @patron.id %>").html("<%= escape_javascript(render 'violation_per_incident', patron: @patron, violations: @patron.violations.where(incident: @incident) )%>")
+var myModalEl = document.getElementById('violation_modal_<%= @patron.id %>');
 var modal = bootstrap.Modal.getInstance(myModalEl)
 modal.hide();

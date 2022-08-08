@@ -25,6 +25,15 @@
     <label for="description" class="form-label">Description</label>
     <textarea class="form-control" id="description" rows="10" autocomplete="off"><%= @incident.description %></textarea>
 </div>
+<div class="mb-3">
+    <div class="row mt-3" id="incident_pics_<%= @incident.id %>">
+        <%= render 'incident_pics' %>
+    </div>
+<div class="mb-3">
+    <label for="image" class="form-label">Add Images of Incident Report</label>
+    <br>
+    <%= file_field_tag 'incident_images', multiple: true, accept: 'image/png,image/gif,image/jpeg', autocomplete: "off" %>
+</div>
 <div id="incident_id" style="display:none"><%= @incident.id %></div>
 <div id="messages" class="mb-3">
 </div>

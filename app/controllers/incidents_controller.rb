@@ -2,7 +2,13 @@ class IncidentsController < ApplicationController
   skip_before_action :verify_authenticity_token
 
   def all
-    @incidents = Incident.all.where(draft: false)
+    if params[:just_mine] == 'true'
+      @incidents = Incident.all.where(draft: false, created_by: current_user.id)
+    elsif params[:just_drafts] == 'true'
+      @incidents = Incident.all.where(draft: true, created_by: current_user.id)
+    else
+      @incidents = Incident.all.where(draft: false)
+    end
   end
 
   def view
@@ -45,6 +51,7 @@ class IncidentsController < ApplicationController
     if @incident
       @incident.assign_attributes(incident_params)
       @incident.date_of = params[:date_of].to_datetime
+      @incident.images.attach(params[:images])
       if @incident.valid?
         @incident.save
         @updated = true
@@ -61,6 +68,16 @@ class IncidentsController < ApplicationController
     end
     respond_to do |format|
         format.js
+    end
+  end
+
+  def delete_image
+    @image = ActiveStorage::Attachment.find_by(id: params[:image_id])
+    @image.purge
+    @incident = Incident.find(params[:incident_id])
+    
+    respond_to do |format|
+      format.js
     end
   end
 

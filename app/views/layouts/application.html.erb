@@ -26,9 +26,17 @@
           <li class="nav-item">
             <a class="nav-link white-link" href="/incidents/new">New Incident</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link white-link" href="/incidents">Incidents</a>
-          </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle white-link" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Incidents
+          </a>
+          <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="/incidents/new">New Incident</a></li>
+            <li><a class="dropdown-item" href="/incidents">All Incidents</a></li>
+            <li><a class="dropdown-item" href="/incidents?just_mine=true">My Incidents</a></li>
+            <li><a class="dropdown-item" href="/incidents?just_drafts=true">My Draft Incidents</a></li>
+          </ul>
+        </li>
           <li class="nav-item">
             <a class="nav-link white-link" href="#">Patrons</a>
           </li>
