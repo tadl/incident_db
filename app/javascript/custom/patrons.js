@@ -32,7 +32,7 @@ function cancel_add_patron(){
 }
 window.cancel_add_patron = cancel_add_patron
 
-function save_patron(){
+function save_patron(patron_id){
     var params = {}
     $('#add_patron_to_incident_button').show()
     params['incident_id'] = $('#incident_id').html()
@@ -52,7 +52,32 @@ function save_patron(){
     if($('#no_address').is(':checked')){
         params['no_address'] = true 
     }
-    $.post("/patrons/save.js", params);
+
+    params['incident_id'] = $('#incident_id').html()
+
+    var patron_params = new FormData()
+    $.each(params, function(k,v){
+        patron_params.append(k, v)
+    });
+
+    var patron_images = $('#patron_images').prop("files");
+    if(patron_images && patron_images[0]){
+        $.each(patron_images, function(i){
+            patron_params.append('images[]', this)
+        });
+    }
+
+    if(patron_id){
+        patron_params.append('patron_id', patron_id)
+    }
+
+    $.ajax({
+        url: "/patrons/save.js",
+        data: patron_params,
+        type:'POST',
+        contentType: false,
+        processData: false,
+    });
 }
 window.save_patron = save_patron
 
@@ -94,3 +119,39 @@ function remove_patron_from_incident(patron_id){
     $.post("/patrons/remove_patron_from_incident.js", params);
 }
 window.remove_patron_from_incident = remove_patron_from_incident
+
+function edit_patron(patron_id, from_incident){
+    var params = {}
+    params['incident_id'] = $('#incident_id').html()
+    params['patron_id'] = patron_id
+    $.post("/patrons/edit.js", params);
+}
+window.edit_patron = edit_patron
+
+function cancel_patron_images(){
+    $('#patron_images').val(null)
+}
+window.cancel_patron_images = cancel_patron_images
+
+function delete_patron_image(image_id, patron_id){
+    var params = {}
+    params['patron_id'] = patron_id
+    params['incident_id'] = $('#incident_id').html()
+    params['image_id'] = image_id
+    $.post("/patrons/delete_image.js", params);
+}
+window.delete_patron_image = delete_patron_image
+
+function load_patron_search(){
+    var params = {}
+    params['incident_id'] = $('#incident_id').html()
+    $.post("/patrons/load_patron_search.js", params);
+}
+window.load_patron_search = load_patron_search
+
+function load_new_patron_form(){
+    var params = {}
+    params['incident_id'] = $('#incident_id').html()
+    $.post("/patrons/load_new_patron_form.js", params);
+}
+window.load_new_patron_form = load_new_patron_form

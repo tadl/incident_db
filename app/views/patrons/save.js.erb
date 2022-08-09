@@ -1,3 +1,10 @@
-$('#add_patron').html('')
-$('#patron_list').append("<%= escape_javascript(render 'add_violation', patron: @patron, incident: @incident)%>")
-$('#save_incident_buttons').show()
+<% if @edit %>
+    var myModalEl = document.getElementById('patron_edit_modal_<%= @patron.id %>');
+    var modal = bootstrap.Modal.getInstance(myModalEl)
+    modal.hide();
+    $('#patron_<%= @patron.id %>').replaceWith("<%= escape_javascript(render 'add_violation', patron: @patron, incident: @incident)%>");
+<% else %>
+    $('#add_patron').html('')
+    $('#patron_list').append("<%= escape_javascript(render 'add_violation', patron: @patron, incident: @incident)%>")
+    $('#save_incident_buttons').show()
+<% end %>

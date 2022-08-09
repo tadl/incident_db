@@ -1,0 +1,11 @@
+<% patron.images.each do |i| %>
+    <div class="col-lg-3 col-md-6">
+        <a href="<%= url_for(i) %>" target="_blank">
+            <%= image_tag i.variant(:thumb), class: 'img-thumbnail' %>
+        </a>
+        <br>
+        <button type="button" class="btn btn-danger btn-sm mb-1 mt-1" onclick="delete_patron_image(<%= i.id %>,<%= patron.id %>)">
+            <%= icon('fa-solid', 'trash') %> Delete Image
+        </button>
+    </div>
+<% end %>

@@ -1,0 +1,63 @@
+<div class="row mt-3" id="name_div">
+    <div class="col-lg-4 col-sm">
+        <label for="first_name" class="form-label">First Name</label>
+        <input type="text" class="form-control" id="first_name" value="<%= patron.first_name %>" autocomplete="off">
+    </div>
+    <div class="col-lg-4 col-sm">
+        <label for="middle_name" class="form-label">Middle Name</label>
+        <input type="text" class="form-control" id="middle_name" value="<%= patron.middle_name %>" autocomplete="off">
+    </div>
+    <div class="col-lg-4 col-sm">
+        <label for="last_name" class="form-label">Last Name</label>
+        <input type="text" class="form-control" id="last_name" value="<%= patron.last_name %>" autocomplete="off">
+    </div>
+</div>
+<div class="row mt-3" id="alias_div">
+    <div class="col-lg-4 col-sm">
+        <label for="alias" class="form-label">Alisa</label>
+        <input type="text" class="form-control" id="alias" value="<%= patron.alias %>" autocomplete="off">
+    </div>
+</div>
+<div class="row mt-3" id="address_div">
+    <div class="col-lg-5 col-sm">
+        <label for="address" class="form-label">Address</label>
+        <input type="text" class="form-control" id="address" value="<%= patron.address %>" autocomplete="off">
+    </div>
+    <div class="col-lg-3 col-sm">
+        <label for="city" class="form-label">City</label>
+        <input type="text" class="form-control" id="city" value="<%= patron.city %>" autocomplete="off">
+    </div>
+    <div class="col-lg-1 col-sm">
+        <label for="state" class="form-label">State</label>
+        <input type="text" class="form-control" id="state" value="<%= patron.state %>" autocomplete="off">
+    </div>
+    <div class="col-lg-2 col-sm">
+        <label for="zip" class="form-label">Zip Code</label>
+        <input type="text" class="form-control" id="zip" value="<%= patron.zip %>" autocomplete="off">
+    </div>
+</div>
+<div class="row mt-3">
+    <div class="col-lg-5 col-sm">
+        <label for="card_number" class="form-label">Library Card #</label>
+        <input type="text" class="form-control" id="card_number" value="<%= patron.card_number %>" autocomplete="off">
+    </div>
+</div>
+<div class="row mt-3 mb-3">
+    <div class="col-lg-12 col-sm">
+        <label for="patron_description" class="form-label">Description</label>
+        <textarea class="form-control" id="patron_description" rows="4" autocomplete="off">
+            <%= patron.description %>
+        </textarea>
+    </div>
+</div>
+<div class="mb-3">
+    <div class="row mt-3" id="patron_pics_<%= patron.id %>">
+        <%= render 'patrons/patron_pics', patron: patron %>
+    </div>
+<div class="mb-3">
+    <label for="image" class="form-label">Add Images to Patron Record</label>
+    <br>
+    <%= file_field_tag 'patron_images', multiple: true, accept: 'image/png,image/gif,image/jpeg', autocomplete: "off" %>
+    <br>
+    <button class="btn-small btn-secondary mt-3" onclick="cancel_patron_images()">Cancel Image Upload</button>
+</div>

@@ -1,0 +1,23 @@
+<div id="patron_edit_modal_<%= patron.id %>" class="modal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Patron Recrod</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <%= render '/patrons/patron_form', patron: patron %>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <%= icon('fa-solid', 'xmark') %> 
+                    Close
+                </button>
+                <button type="button" class="btn btn-primary" onclick="save_patron('<%= patron.id %>')">
+                    <%= icon('fa-solid', 'check') %> 
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

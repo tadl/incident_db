@@ -2,7 +2,7 @@
     $('#messages').html('')
     <% if @incident.draft %>
         <% if @add_patron == true %>
-            $('#add_patron').html("<%= escape_javascript(render 'patron_form')%>")
+            $('#add_patron').html("<%= escape_javascript(render 'add_patron_form', patron: Patron.new)%>")
             $('#no_patron_div').hide()
             $('#add_patron').show()
             $('#incident_id').html('<%= @incident.id %>')
@@ -13,7 +13,7 @@
         <% end %>
     <% else %>
         <% if @add_patron == true %>
-            $('#add_patron').html("<%= escape_javascript(render 'patron_form')%>")
+            $('#add_patron').html("<%= escape_javascript(render 'add_patron_form', patron: Patron.new)%>")
             $('#no_patron_div').hide()
             $('#add_patron').show()
             $('#incident_id').html('<%= @incident.id %>')
@@ -27,6 +27,7 @@
             setTimeout(function(){ window.location.href="/incidents/view?id=<%= escape_javascript(@incident.id)%>" }, 1400);
         <% end %>
     <% end %>
+    window.history.replaceState('', 'New Incident', '/incidents/edit?id=<%= @incident.id %>')
 <% else %>
     $('#messages').html('')
     <% @incident.errors.messages.values.flatten.each do |e| %>

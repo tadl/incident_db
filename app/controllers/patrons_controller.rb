@@ -2,21 +2,24 @@ class PatronsController < ApplicationController
   skip_before_action :verify_authenticity_token
 
   def save
-    if params[:id] && params[:id] != ''
-      id = param[:id].to_i
-      @patron = Patron.find(id)
+    if params[:patron_id] && params[:patron_id] != ''
+      @patron = Patron.find(params[:patron_id])
+      @edit = true
     else
       @patron = Patron.new
     end
     @patron.assign_attributes(patron_params)
+    @patron.images.attach(params[:images])
     @patron.save
-    @incident = Incident.find(params[:incident_id].to_i)
-    if @incident
-      violation = Violation.new
-      violation.patron_id = @patron.id
-      violation.incident_id = @incident.id
-      violation.description = 'None'
-      violation.save
+    if params[:incident_id]
+      @incident = Incident.find(params[:incident_id].to_i)
+      if @incident
+        violation = Violation.new
+        violation.patron_id = @patron.id
+        violation.incident_id = @incident.id
+        violation.description = 'None'
+        violation.save
+      end
     end
     respond_to do |format|
       format.js
@@ -24,6 +27,10 @@ class PatronsController < ApplicationController
   end
 
   def edit
+    @patron = Patron.find(params[:patron_id])
+    respond_to do |format|
+      format.js
+    end
   end
 
   def list
@@ -83,6 +90,28 @@ class PatronsController < ApplicationController
     violations.each do |v|
       v.destroy
     end
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def delete_image
+    @image = ActiveStorage::Attachment.find_by(id: params[:image_id])
+    @image.purge
+    @patron = Patron.find(params[:patron_id])
+    @incident = Incident.find(params[:incident_id])
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def load_patron_search
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def load_new_patron_form
     respond_to do |format|
       format.js
     end

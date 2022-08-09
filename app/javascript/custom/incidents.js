@@ -44,3 +44,8 @@ function delete_incident_image(image_id){
     $.post("/incidents/delete_image.js", params);
 }
 window.delete_incident_image = delete_incident_image
+
+function cancel_incident_images(){
+    $('#incident_images').val(null)
+}
+window.cancel_incident_images = cancel_incident_images

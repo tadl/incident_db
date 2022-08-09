@@ -30,9 +30,11 @@
         <%= render 'incident_pics' %>
     </div>
 <div class="mb-3">
-    <label for="image" class="form-label">Add Images of Incident Report</label>
+    <label for="image" class="form-label">Add Images to Incident Report</label>
     <br>
     <%= file_field_tag 'incident_images', multiple: true, accept: 'image/png,image/gif,image/jpeg', autocomplete: "off" %>
+    <br>
+    <button class="btn-small btn-secondary mt-3" onclick="cancel_incident_images()">Cancel Image Upload</button>
 </div>
 <div id="incident_id" style="display:none"><%= @incident.id %></div>
 <div id="messages" class="mb-3">

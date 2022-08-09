@@ -1,0 +1,15 @@
+<div class="mt-3">
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a class="nav-link tab-link active" aria-current="page" href="#">Create a New Patron</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link tab-link" onclick="load_patron_search()">Add a Patron from a Previous Incidents</a>
+      </li>
+    </ul>
+</div>
+<%= render 'patrons/patron_form', patron: Patron.new %>
+<div class="mb-3">
+    <button type="button" class="btn btn-primary btn-lg" onclick="save_patron(<%= patron.id %>)"><%= icon('fa-solid', 'plus') %> Add This Patron to Incident</button>
+    <button type="button" class="btn btn-danger btn-lg" onclick="cancel_add_patron()"><%= icon('fa-solid', 'ban') %> Cancel</button>
+</div>

@@ -1,0 +1,3 @@
+$('#patron_edit_modal_containter_<%=@patron.id %>').html("<%= escape_javascript(render 'patron_edit_modal', patron: @patron)%>")
+var myModal = new bootstrap.Modal(document.getElementById("patron_edit_modal_<%=@patron.id %>"), {});
+myModal.show();

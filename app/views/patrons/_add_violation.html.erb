@@ -1,17 +1,26 @@
-<div id="patron_<%= patron.id %>" class="patron_violation_form mb-3 mt-3">
+<div id="patron_<%= patron.id %>" class="patron_violation_form mb-3 mt-3">    
+    <div id="patron_image_<%= patron.id %>">
+        <% if patron.images.first %>
+            <%= image_tag patron.images.first.variant(:thumb), class: 'img-thumbnail' %>
+        <% end %>
+    </div>
     <h4>
         <%= patron.full_name %>            
-        <button type="button" class="btn btn-danger btn-sm mb-1" onclick="remove_patron_from_incident(<%= patron.id %>)">
-            <%= icon('fa-solid', 'xmark') %>
-        </button>
-    </h4>     
+    </h4>
+    <button type="button" class="btn btn-danger btn-sm mb-3 mt-1" onclick="remove_patron_from_incident(<%= patron.id %>)">
+        <%= icon('fa-solid', 'xmark') %> Remove Patron from Incident
+    </button>
+    <button type="button" class="btn btn-secondary btn-sm mb-3 mt-1" onclick="edit_patron(<%= patron.id %>, true)">
+        <%= icon('fa-solid', 'pencil') %> Edit Patron Record
+    </button>        
 
     <div id="patron_violations_<%= patron.id %>" class="mb-3">
         <%= render '/patrons/violation_per_incident', violations: patron.violations.where(incident: @incident), patron: patron %>
     </div>
 
-    <button type="button" class="btn btn-sm btn-danger mb-3" onclick="show_violation_modal('A', <%= patron.id %>)">Add A Level Violations</button>
-    <button type="button" class="btn btn-sm btn-warning mb-3" onclick="show_violation_modal('B', <%= patron.id %>)">Add B Level Violations</button>
+    <button type="button" class="btn btn-sm btn-outline-danger mb-3" onclick="show_violation_modal('A', <%= patron.id %>)">Add A Level Violations</button>
+    <button type="button" class="btn btn-sm btn-outline-dark mb-3" onclick="show_violation_modal('B', <%= patron.id %>)">Add B Level Violations</button>
 
     <div id="violation_modal_containter_<%= patron.id %>"></div>
+    <div id="patron_edit_modal_containter_<%= patron.id %>"></div>
 </div>

@@ -23,16 +23,16 @@
 };
 
 .tab-link{
-    color: black;
+    color: black !important;
     text-decoration: none;
 
     &:visited{
-        color: black;
+        color: black !important;
         text-decoration: none;
         opacity: 0.42;
     }
     &:hover{
-        color: black;
+        color: black !important;
         opacity: 0.7;
         text-decoration: underline;
     }

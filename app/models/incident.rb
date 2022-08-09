@@ -4,7 +4,8 @@ class Incident < ApplicationRecord
     has_many_attached :images do |attachable|
         attachable.variant :thumb, resize_to_fill: [250, 250]
     end
-    
+
+    validates :images, blob: { content_type: ['image/png', 'image/jpg', 'image/jpeg'], size_range: 1..(5.megabytes) }
     validates :location, presence: { message: 'Location required' }, allow_blank: false
     validates :date_of, presence: { message: 'Date and Time of Incident Required' }, allow_blank: false
     validates :title, presence: { message: 'Title required'}, allow_blank: false
