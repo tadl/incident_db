@@ -10,6 +10,7 @@
     <button type="button" class="btn btn-primary btn-lg" onclick="save_incident('true','true')"><%= icon('fa-solid', 'person') %> Add Patron to Incident</button>
 </div>
 <div id="add_patron"></div>
+<div id="messages" class="mb-3"></div>
 <div class="mb-3">
     <div id="save_incident_buttons">
         <% if @incident.published != true || @incident.draft == true %>

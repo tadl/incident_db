@@ -31,6 +31,7 @@ Rails.application.routes.draw do
   #Patrons
   match '/patrons/save', to: 'patrons#save', via: [:post]
   match '/patrons/edit', to: 'patrons#edit', via: [:post]
+  match '/patrons/search', to: 'patrons#search', via: [:get, :post]
   match '/patrons/load_violation_modal', to: 'patrons#load_violation_modal', via: [:post] 
   match '/patrons/save_violations', to: 'patrons#save_violations', via: [:post]
   match '/patrons/remove_violation', to: 'patrons#remove_violation', via: [:post]
@@ -38,4 +39,5 @@ Rails.application.routes.draw do
   match '/patrons/delete_image', to: 'patrons#delete_image', via: [:post]
   match '/patrons/load_patron_search', to: 'patrons#load_patron_search', via: [:post]
   match '/patrons/load_new_patron_form', to: 'patrons#load_new_patron_form', via: [:post]
+  match '/patrons/add_existing_to_incident', to: 'patrons#add_existing_to_incident', via: [:post]
 end

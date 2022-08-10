@@ -32,9 +32,12 @@ function cancel_add_patron(){
 }
 window.cancel_add_patron = cancel_add_patron
 
+
 function save_patron(patron_id){
+    function isEmpty(value){
+        return value == null || value == "";
+    }    
     var params = {}
-    $('#add_patron_to_incident_button').show()
     params['incident_id'] = $('#incident_id').html()
     params['first_name'] = $('#first_name').val()
     params['middle_name'] = $('#middle_name').val()
@@ -54,6 +57,12 @@ function save_patron(patron_id){
     }
 
     params['incident_id'] = $('#incident_id').html()
+
+    $.each(params, function( k, v ) {
+        if(isEmpty(params[k])){
+            delete params[k]
+        }
+    });
 
     var patron_params = new FormData()
     $.each(params, function(k,v){
@@ -78,6 +87,7 @@ function save_patron(patron_id){
         contentType: false,
         processData: false,
     });
+    $('#add_patron_to_incident_button').show()
 }
 window.save_patron = save_patron
 
@@ -149,9 +159,26 @@ function load_patron_search(){
 }
 window.load_patron_search = load_patron_search
 
+function patron_search(){
+    var params = {}
+    params['incident_id'] = $('#incident_id').html()
+    params['query'] = $('#patron_query').val()
+    $.post("/patrons/search.js", params);
+}
+window.patron_search = patron_search
+
 function load_new_patron_form(){
     var params = {}
     params['incident_id'] = $('#incident_id').html()
     $.post("/patrons/load_new_patron_form.js", params);
 }
 window.load_new_patron_form = load_new_patron_form
+
+function add_existing_to_incident(patron_id){
+    var params = {}
+    params['patron_id'] = patron_id
+    params['incident_id'] = $('#incident_id').html()
+    $.post("/patrons/add_existing_to_incident.js", params);
+    $('#add_patron_to_incident_button').show()
+}
+window.add_existing_to_incident = add_existing_to_incident

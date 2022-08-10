@@ -1,0 +1,4 @@
+<% @patrons.each do |p| %>
+    <a onclick="add_existing_to_incident(<%= p.id %>)"><%= p.full_name %></a>
+    <br>
+<% end %>

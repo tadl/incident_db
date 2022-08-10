@@ -26,6 +26,21 @@ class PatronsController < ApplicationController
     end
   end
 
+  def add_existing_to_incident
+    @patron = Patron.find(params[:patron_id])
+    @incident = Incident.find(params[:incident_id].to_i)
+    if @incident
+      violation = Violation.new
+      violation.patron_id = @patron.id
+      violation.incident_id = @incident.id
+      violation.description = 'None'
+      violation.save
+    end
+    respond_to do |format|
+      format.js
+    end
+  end
+
   def edit
     @patron = Patron.find(params[:patron_id])
     respond_to do |format|
@@ -106,6 +121,17 @@ class PatronsController < ApplicationController
   end
 
   def load_patron_search
+    incidents = Incident.all.includes(:patrons, :violations).order('date_of DESC').first(20)
+    @incident = Incident.find(params[:incident_id])
+    @patrons = []
+    incidents.each do |i|
+      i.patrons.each do |p|
+        unless p.incidents.exists?(@incident.id)
+          @patrons.push(p)
+        end
+      end
+    end
+    @patrons = @patrons.uniq
     respond_to do |format|
       format.js
     end
@@ -113,6 +139,21 @@ class PatronsController < ApplicationController
 
   def load_new_patron_form
     respond_to do |format|
+      format.js
+    end
+  end
+
+  def search
+    all_patrons = Patron.search_by_name_alias_description(params[:query]).with_pg_search_rank.first(10)
+    @incident = Incident.find(params[:incident_id])
+    @patrons = []
+    all_patrons.each do |p|
+      unless p.incidents.exists?(@incident.id)
+        @patrons.push(p)
+      end
+    end
+    respond_to do |format|
+      format.json {render :json => @patrons}
       format.js
     end
   end

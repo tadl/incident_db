@@ -2,7 +2,38 @@
 <div class="mt-1 mb-2">
     <b>Date of Incident:</b> <%= @incident.date_of_in_time_zone %>
     <b>Location:</b> <%= @incident.location %>
+    <b> Submitted by:</b> <%= @incident.created_by_name %>
+</div>
+<div class="row mt-3 mb-3">
+    <% @incident.images.each do |i| %>
+        <div class="col-lg-3 col-md-6">
+            <a href="<%= url_for(i) %>" target="_blank">
+                <%= image_tag i.variant(:thumb), class: 'img-thumbnail' %>
+            </a>
+        </div>
+    <% end %>
 </div>
 <div class="mb-3">
     <%= @incident.description %>
 </div>
+<% if @incident.patrons %>
+    <h3>Patrons involved:</h3>
+    <% @incident.patrons.uniq.each do |p| %>
+        <h5><%= p.full_name %></h5>
+        <% if p.images.first %>
+            <div class="mt-3 mb-3">
+                <%= image_tag p.images.first.variant(:thumb), class: 'img-thumbnail' %>
+            </div>
+        <% end %>
+        <div class="mb-3">
+            <b>Violations:</b>
+            <br>
+            <% p.violations_from_incident(@incident.id).each do |v| %>
+                <% unless p.violations.size > 1 && v.description == 'None' %>
+                    <%= v.description %>
+                    <br>
+                <% end %>
+            <% end %> 
+        </div>       
+    <% end %>
+<% end %>
