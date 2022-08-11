@@ -3,11 +3,11 @@ class IncidentsController < ApplicationController
 
   def all
     if params[:just_mine] == 'true'
-      @incidents = Incident.all.where(draft: false, created_by: current_user.id)
+      @incidents = Incident.all.where(published: true, created_by: current_user.id)
     elsif params[:just_drafts] == 'true'
       @incidents = Incident.all.where(draft: true, created_by: current_user.id)
     else
-      @incidents = Incident.all.where(draft: false)
+      @incidents = Incident.all.where(published: true)
     end
   end
 
@@ -27,9 +27,8 @@ class IncidentsController < ApplicationController
   end
 
   def save
-    if params[:id] && params[:id] != ''
-      id = params[:id].to_i
-      @incident = Incident.find(id)
+    if params[:incident_id] && params[:incident_id] != ''
+      @incident = Incident.find(params[:incident_id])
       @incident.last_edit_by = current_user.id
       unless params[:draft] == 'true'
         if @incident.draft == true

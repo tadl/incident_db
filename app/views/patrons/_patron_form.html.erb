@@ -15,7 +15,7 @@
 <div class="row mt-3" id="alias_div">
     <div class="col-lg-4 col-sm">
         <label for="alias" class="form-label">Alisa</label>
-        <input type="text" class="form-control" id="alias" value="<%= patron.alias %>" autocomplete="off">
+        <input type="text" class="form-control" id="alias" value="<%= patron.known_as %>" autocomplete="off">
     </div>
 </div>
 <div class="row mt-3" id="address_div">
@@ -45,9 +45,7 @@
 <div class="row mt-3 mb-3">
     <div class="col-lg-12 col-sm">
         <label for="patron_description" class="form-label">Description</label>
-        <textarea class="form-control" id="patron_description" rows="4" autocomplete="off">
-            <%= patron.description %>
-        </textarea>
+        <textarea class="form-control" id="patron_description" rows="4" autocomplete="off"><%= patron.description %></textarea>
     </div>
 </div>
 <div class="mb-3">
@@ -60,4 +58,6 @@
     <%= file_field_tag 'patron_images', multiple: true, accept: 'image/png,image/gif,image/jpeg', autocomplete: "off" %>
     <br>
     <button class="btn-small btn-secondary mt-3" onclick="cancel_patron_images()">Cancel Image Upload</button>
+</div>
+<div id="patron_messages" class="mb-3">
 </div>

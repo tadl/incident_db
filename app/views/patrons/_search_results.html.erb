@@ -1,4 +1,26 @@
 <% @patrons.each do |p| %>
-    <a onclick="add_existing_to_incident(<%= p.id %>)"><%= p.full_name %></a>
-    <br>
+    <div class="row mt-3 mb-3">
+        <div class="col-lg-3">
+            <% if p.images.first %>
+                <%= image_tag p.images.first.variant(:thumb), class: 'img-thumbnail', style: 'width: 250px' %>
+            <% end %>
+        </div>
+        <div class="col-lg-9">
+            <h5><a onclick="add_existing_to_incident(<%= p.id %>)"><%= p.full_name %></a></h5>
+            <% if p.description && !p.description.blank? %>
+                <b>Description:</b>
+                <br>
+                <%= p.description %>
+                <br>
+            <% end %>
+            <% if p.incidents.size >= 1 %>
+                <b>Previous Incidents:</b>
+                <br>
+                <% p.unique_incidents.uniq.last(4).each do |i| %>
+                        <a href="/incidents/view?id=<%=i.id%>" target="_blank"><%= i.title %></a>
+                    <br>
+                <% end %>
+            <% end %>
+        </div>
+    </div>
 <% end %>

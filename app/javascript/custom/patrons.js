@@ -42,7 +42,7 @@ function save_patron(patron_id){
     params['first_name'] = $('#first_name').val()
     params['middle_name'] = $('#middle_name').val()
     params['last_name'] = $('#last_name').val()
-    params['alias'] = $('#alias').val()
+    params['known_as'] = $('#alias').val()
     params['address'] = $('#address').val()
     params['city'] = $('#city').val()
     params['state'] = $('#state').val()
@@ -57,12 +57,6 @@ function save_patron(patron_id){
     }
 
     params['incident_id'] = $('#incident_id').html()
-
-    $.each(params, function( k, v ) {
-        if(isEmpty(params[k])){
-            delete params[k]
-        }
-    });
 
     var patron_params = new FormData()
     $.each(params, function(k,v){

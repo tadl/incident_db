@@ -7,7 +7,11 @@
     <% end %>
 </div>
 <div id="add_patron_to_incident_button" <% if @incident.no_patrons == true %>style='display:none'<% end %>>
-    <button type="button" class="btn btn-primary btn-lg" onclick="save_incident('true','true')"><%= icon('fa-solid', 'person') %> Add Patron to Incident</button>
+    <% if @incident.published != true || @incident.draft == true %>
+        <button type="button" class="btn btn-primary btn-lg" onclick="save_incident('true','true')"><%= icon('fa-solid', 'person') %> Add Patron to Incident</button>
+    <% else %>
+        <button type="button" class="btn btn-primary btn-lg" onclick="save_incident('false','true')"><%= icon('fa-solid', 'person') %> Add Patron to Incident</button>
+    <% end %>
 </div>
 <div id="add_patron"></div>
 <div id="messages" class="mb-3"></div>

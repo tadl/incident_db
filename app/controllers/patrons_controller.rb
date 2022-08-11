@@ -10,16 +10,20 @@ class PatronsController < ApplicationController
     end
     @patron.assign_attributes(patron_params)
     @patron.images.attach(params[:images])
-    @patron.save
-    if params[:incident_id]
-      @incident = Incident.find(params[:incident_id].to_i)
-      if @incident
-        violation = Violation.new
-        violation.patron_id = @patron.id
-        violation.incident_id = @incident.id
-        violation.description = 'None'
-        violation.save
+    if @patron.valid?
+      @patron.save
+      if params[:incident_id]
+        @incident = Incident.find(params[:incident_id].to_i)
+        if @incident
+          violation = Violation.new
+          violation.patron_id = @patron.id
+          violation.incident_id = @incident.id
+          violation.description = 'None'
+          violation.save
+        end
       end
+    else
+      @error = true
     end
     respond_to do |format|
       format.js
@@ -161,7 +165,7 @@ class PatronsController < ApplicationController
   private
 
   def patron_params
-    params.permit(:first_name, :middle_name, :last_name, :no_name, :no_address, :city, :state, :zip, :alias, :description, :notes, :card_number)
+    params.permit(:first_name, :middle_name, :last_name, :no_name, :no_address, :city, :state, :zip, :known_as, :description, :notes, :card_number)
   end
 
 end

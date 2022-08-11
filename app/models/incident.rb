@@ -34,4 +34,21 @@ class Incident < ApplicationRecord
     def published_on_in_time_zone
         return self.published_on.in_time_zone("Eastern Time (US & Canada)").strftime("%m/%d/%Y at %l:%M %p")
     end
+
+    def primary_pic
+        if self.images.size >= 1
+            return self.images[0]
+        elsif self.patrons
+            patron_pics = []
+            self.patrons.each do |p|
+                if p.images[0]
+                    patron_pics.push(p.images[0])
+                end
+            end
+            if patron_pics[0]
+                return patron_pics[0]
+            end
+        end
+    end
+
 end

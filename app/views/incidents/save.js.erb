@@ -6,6 +6,8 @@
             $('#no_patron_div').hide()
             $('#add_patron').show()
             $('#incident_id').html('<%= @incident.id %>')
+            $('#incident_pics').html('<%= escape_javascript(render "incident_pics")%>')
+            $('#incident_images').val(null)
             $('#add_patron_to_incident_button').hide()
         <% else %>
             $('#messages').html('<p class="text-success">Incident successfully saved as a draft.</p>')
@@ -17,6 +19,8 @@
             $('#no_patron_div').hide()
             $('#add_patron').show()
             $('#incident_id').html('<%= @incident.id %>')
+            $('#incident_pics').html('<%= escape_javascript(render "incident_pics")%>')
+            $('#incident_images').val(null)
             $('#add_patron_to_incident_button').hide()
         <% else %>
             <% if @new_publish == true %>

@@ -12,19 +12,42 @@ class Patron < ApplicationRecord
     end
 
     validates :images, blob: { content_type: ['image/png', 'image/jpg', 'image/jpeg'], size_range: 1..(5.megabytes) }
+    validate :at_least_one_name
+
+    def at_least_one_name
+        if (first_name.blank? && middle_name.blank? && last_name.blank? && known_as.blank?)
+            errors.add(:first_name, :blank, message: 'Must include a name or alias')
+        end
+    end
 
     def full_name
-        if self.no_name == true
-            return self.alias
-        else
-            full_name = first_name
-            full_name += ' ' + middle_name if middle_name
-            full_name += ' ' + last_name if last_name
-            return full_name
-        end
+        full_name = ''
+        full_name += self.first_name if self.first_name
+        full_name += ' ' + self.middle_name if self.middle_name
+        full_name += ' ' + self.last_name if self.last_name
+        full_name += ' AKA: ' + self.known_as if self.known_as && self.known_as != ''
+        return full_name
     end
 
     def violations_from_incident(incident_id)
         self.violations.where(incident_id: incident_id)
+    end
+
+    def unique_incidents
+    #     unique_incident_ids = []
+    #     unique_incidents = []
+    #     self.incidents.each do |i|
+    #         if  unique_incident_ids.include? (i.id)
+    #         else
+    #             unique_incident_ids.push(i.id)
+    #             unique_incidents.push(i)
+    #         end
+    #     end
+    #     if unique_incidents.size >= 1
+    #         return unique_incidents
+    #    else
+    #         return
+    #    end
+        return self.incidents
     end
 end

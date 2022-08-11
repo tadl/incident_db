@@ -13,7 +13,7 @@ function save_incident(draft, add_patron){
     if($('#no_patrons').is(':checked')){
         params['no_patrons'] = true 
     }
-    params['id'] = $('#incident_id').html()
+    params['incident_id'] = $('#incident_id').html()
     
     var incident_params = new FormData()
     $.each(params, function(k,v){
