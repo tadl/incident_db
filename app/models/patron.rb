@@ -1,7 +1,7 @@
 class Patron < ApplicationRecord
     include PgSearch::Model
     pg_search_scope :search_by_name_alias_description, 
-    against: [:first_name, :last_name, :middle_name, :alias, :description],
+    against: [:first_name, :last_name, :middle_name, :known_as, :description],
     using: {
       tsearch: {prefix: true}
     }
@@ -33,6 +33,15 @@ class Patron < ApplicationRecord
         self.violations.where(incident_id: incident_id)
     end
 
+    def full_address
+        address = ''
+        address += self.address if self.address
+        address += ' ' + self.city if self.city
+        address += ' ' + self.state if self.state
+        address += ' ' + self.zip.to_s if self.zip
+        return address
+    end
+
     def unique_incidents
     #     unique_incident_ids = []
     #     unique_incidents = []
@@ -48,6 +57,19 @@ class Patron < ApplicationRecord
     #    else
     #         return
     #    end
-        return self.incidents
+        return self.incidents.order(date_of: :desc).uniq
+    end
+
+    def violations_per_incident(incident_id)
+        all_violations_for_incidents = self.violations.where(incident_id: incident_id).to_a
+        if all_violations_for_incidents.size > 1
+            violations = []
+            all_violations_for_incidents.each do |v|
+                violations.push(v) unless v.description == "None"
+            end
+        else
+            violations = all_violations_for_incidents
+        end
+        return violations
     end
 end

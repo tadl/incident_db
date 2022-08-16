@@ -15,6 +15,8 @@ gem 'config'
 gem 'image_processing', '>= 1.2'
 gem 'activestorage-validator'
 gem 'pg_search'
+gem 'will_paginate', '~> 3.3'
+gem 'will_paginate-bootstrap-style'
 
 #- DEFAULT GEMS
 

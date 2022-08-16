@@ -3,11 +3,17 @@ class IncidentsController < ApplicationController
 
   def all
     if params[:just_mine] == 'true'
-      @incidents = Incident.all.where(published: true, created_by: current_user.id)
+      @title = 'My'
+      @search_param = 'just_mine'
+      @incidents = Incident.paginate(page: params[:page], per_page: 5).where(published: true, created_by: current_user.id).order(date_of: :desc)
     elsif params[:just_drafts] == 'true'
-      @incidents = Incident.all.where(draft: true, created_by: current_user.id)
+      @title = 'My Draft'
+      @incidents = Incident.paginate(page: params[:page], per_page: 5).where(draft: true, created_by: current_user.id).order(date_of: :desc)
+      @search_param = 'just_drafts'
     else
-      @incidents = Incident.all.where(published: true)
+      @title = 'All'
+      @incidents = Incident.paginate(page: params[:page], per_page: 5).where(published: true).order(date_of: :desc)
+      @search_param = 'all'
     end
   end
 
@@ -77,6 +83,15 @@ class IncidentsController < ApplicationController
     
     respond_to do |format|
       format.js
+    end
+  end
+
+  def search
+    @query = params[:query]
+    @incidents = Incident.paginate(page: params[:page], per_page: 5).where(published: true).search(params[:query])
+    respond_to do |format|
+      format.html
+      format.json {render :json => @incidents}
     end
   end
 

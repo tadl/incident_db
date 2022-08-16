@@ -1,0 +1,3 @@
+<h2 class="mb-3"><%= icon('fa-solid', 'pen') %> Edit Patron Record</h2>
+<%= render 'patron_form', patron: @patron %>
+<a class="btn btn-success mt-3 mb-3" onclick="save_patron(<%= @patron.id %>)"><%= icon('fa-solid', 'check') %> Save Patron Record </a>

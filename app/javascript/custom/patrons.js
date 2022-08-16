@@ -126,6 +126,7 @@ window.remove_patron_from_incident = remove_patron_from_incident
 
 function edit_patron(patron_id, from_incident){
     var params = {}
+    params['from_inciden'] = from_incident
     params['incident_id'] = $('#incident_id').html()
     params['patron_id'] = patron_id
     $.post("/patrons/edit.js", params);
@@ -153,11 +154,13 @@ function load_patron_search(){
 }
 window.load_patron_search = load_patron_search
 
-function patron_search(){
+function patron_search(from_incident){
     var params = {}
-    params['incident_id'] = $('#incident_id').html()
     params['query'] = $('#patron_query').val()
-    $.post("/patrons/search.js", params);
+    if(from_incident == true){
+        params['incident_id'] = $('#incident_id').html()
+        $.post("/patrons/search.js", params);
+    }
 }
 window.patron_search = patron_search
 
@@ -176,3 +179,9 @@ function add_existing_to_incident(patron_id){
     $('#add_patron_to_incident_button').show()
 }
 window.add_existing_to_incident = add_existing_to_incident
+
+function search_incidents(){
+    var query = $('#query').val()
+    window.location.href = '/incidents/search?query=' + query
+}
+window.search_incidents = search_incidents

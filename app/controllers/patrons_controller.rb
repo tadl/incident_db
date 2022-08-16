@@ -12,7 +12,7 @@ class PatronsController < ApplicationController
     @patron.images.attach(params[:images])
     if @patron.valid?
       @patron.save
-      if params[:incident_id]
+      if params[:incident_id] && params[:incident_id].to_i != 0
         @incident = Incident.find(params[:incident_id].to_i)
         if @incident
           violation = Violation.new
@@ -21,6 +21,8 @@ class PatronsController < ApplicationController
           violation.description = 'None'
           violation.save
         end
+      else
+        @editing_without_incident = true
       end
     else
       @error = true
@@ -48,6 +50,7 @@ class PatronsController < ApplicationController
   def edit
     @patron = Patron.find(params[:patron_id])
     respond_to do |format|
+      format.html
       format.js
     end
   end
@@ -55,7 +58,8 @@ class PatronsController < ApplicationController
   def list
   end
 
-  def show
+  def view
+    @patron = Patron.find(params[:id])
   end
 
   def load_violation_modal
@@ -165,7 +169,7 @@ class PatronsController < ApplicationController
   private
 
   def patron_params
-    params.permit(:first_name, :middle_name, :last_name, :no_name, :no_address, :city, :state, :zip, :known_as, :description, :notes, :card_number)
+    params.permit(:first_name, :middle_name, :last_name, :no_name, :no_address, :address, :city, :state, :zip, :known_as, :description, :notes, :card_number)
   end
 
 end

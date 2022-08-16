@@ -1,4 +1,6 @@
 class Incident < ApplicationRecord
+    include PgSearch::Model
+    
     has_many :violations
     has_many :patrons, through: :violations
     has_many_attached :images do |attachable|
@@ -13,6 +15,11 @@ class Incident < ApplicationRecord
     validates :description, presence: { message: 'Description required' }, allow_blank: false
     validates :description, uniqueness: { message: 'An incident type with this description already exisits'}
 
+    pg_search_scope :search, against: [:title, :description], associated_against: {
+        patrons: [:first_name, :last_name, :middle_name, :known_as, :description],
+        violations: :description
+      }
+
     def created_by_name
         user = User.find(self.created_by)
         return user.name
@@ -25,6 +32,10 @@ class Incident < ApplicationRecord
 
     def date_of_in_time_zone
         return self.date_of.in_time_zone("Eastern Time (US & Canada)").strftime("%m/%d/%Y at %l:%M %p")
+    end
+    
+    def date_of_in_time_zone_minus_time
+        return self.date_of.in_time_zone("Eastern Time (US & Canada)").strftime("%m/%d/%Y")
     end
 
     def updated_at_in_time_zone
@@ -50,5 +61,4 @@ class Incident < ApplicationRecord
             end
         end
     end
-
 end

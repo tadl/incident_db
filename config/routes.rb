@@ -27,10 +27,12 @@ Rails.application.routes.draw do
   match '/incidents/view', to: 'incidents#view', via: [:get, :post]
   match '/incidents/edit', to: 'incidents#edit', via: [:get, :post]
   match '/incidents/delete_image', to: 'incidents#delete_image', via: [:post]
+  match '/incidents/search', to: 'incidents#search', via: [:get, :post]
 
   #Patrons
   match '/patrons/save', to: 'patrons#save', via: [:post]
-  match '/patrons/edit', to: 'patrons#edit', via: [:post]
+  match '/patrons/edit', to: 'patrons#edit', via: [:get, :post]
+  match '/patrons/view', to: 'patrons#view', via: [:get, :post]
   match '/patrons/search', to: 'patrons#search', via: [:get, :post]
   match '/patrons/load_violation_modal', to: 'patrons#load_violation_modal', via: [:post] 
   match '/patrons/save_violations', to: 'patrons#save_violations', via: [:post]
