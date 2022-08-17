@@ -17,10 +17,16 @@
     <div id="patron_violations_<%= patron.id %>" class="mb-3">
         <%= render '/patrons/violation_per_incident', violations: patron.violations.where(incident: @incident), patron: patron %>
     </div>
+    <div id="patron_suspension_<%= patron.id %>" class="mb-3">
+        <% if patron.suspension_for(@incident.id) %>
+            <b>Suspended Until:</b> <%= patron.suspension_for_details(@incident.id) %>
+        <% end %>
+    </div>
+    <button type="button" class="btn btn-sm btn-dark mb-3" onclick="show_violation_modal('A', <%= patron.id %>)">Add A Level Violations</button>
+    <button type="button" class="btn btn-sm btn-secondary mb-3" onclick="show_violation_modal('B', <%= patron.id %>)">Add B Level Violations</button>
+    <button type="button" class="btn btn-sm btn-danger mb-3" onclick="show_suspension_modal(<%= patron.id %>)">Suspend Patron</button>
 
-    <button type="button" class="btn btn-sm btn-outline-danger mb-3" onclick="show_violation_modal('A', <%= patron.id %>)">Add A Level Violations</button>
-    <button type="button" class="btn btn-sm btn-outline-dark mb-3" onclick="show_violation_modal('B', <%= patron.id %>)">Add B Level Violations</button>
-
+    <div id="suspension_modal_container_<%= patron.id %>"></div>
     <div id="violation_modal_containter_<%= patron.id %>"></div>
     <div id="patron_edit_modal_containter_<%= patron.id %>"></div>
 </div>

@@ -1,0 +1,3 @@
+$('#suspension_modal_container_<%=@patron.id %>').html("<%= escape_javascript(render 'suspension_form')%>")
+var myModal = new bootstrap.Modal(document.getElementById("suspension_modal_<%=@patron.id %>"), {});
+myModal.show();

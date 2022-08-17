@@ -6,6 +6,7 @@ class Patron < ApplicationRecord
       tsearch: {prefix: true}
     }
     has_many :violations
+    has_many :suspensions
     has_many :incidents, through: :violations
     has_many_attached :images do |attachable|
         attachable.variant :thumb, resize_to_fill: [250, 250]
@@ -33,6 +34,19 @@ class Patron < ApplicationRecord
         self.violations.where(incident_id: incident_id)
     end
 
+    def suspension_for(incident_id)
+        self.suspensions.where(incident_id: incident_id).first
+    end
+
+    def suspension_for_details(incident_id)
+        suspension = self.suspensions.where(incident_id: incident_id).first
+        message = suspension.until.strftime("%m/%d/%Y") + '.'
+        message += ' Please call 911 immediately if seen on property.' if suspension.call_police
+        message += ' Letter has been mailed.' if suspension.letter_sent
+        message += ' Letter has not been mailed.' if suspension.letter_sent == false
+        return message
+    end
+
     def full_address
         address = ''
         address += self.address if self.address
@@ -57,7 +71,7 @@ class Patron < ApplicationRecord
     #    else
     #         return
     #    end
-        return self.incidents.order(date_of: :desc).uniq
+        return self.incidents.where(published: true).order(date_of: :desc).uniq
     end
 
     def violations_per_incident(incident_id)

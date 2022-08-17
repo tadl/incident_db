@@ -151,6 +151,36 @@ class PatronsController < ApplicationController
     end
   end
 
+  def load_suspension_form
+    @patron = Patron.find(params[:patron_id])
+    @incident = Incident.find(params[:incident_id])
+    @suspension = Suspension.where(incident_id: @incident.id, patron_id: @patron.id).first
+    if @suspension.nil?
+      @suspension = Suspension.new
+      @title = 'Creating New Suspension'
+    else
+      @title = 'Editing Suspension'
+    end
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def save_suspension
+    @incident = Incident.find(params[:incident_id])
+    @patron = Patron.find(params[:patron_id])
+    if params[:suspension_id] && params[:suspension_id] != ''
+      @suspension = Suspension.find(params[:suspension_id])
+    else
+      @suspension = Suspension.new
+    end
+    @suspension.assign_attributes(suspension_params)
+    @suspension.save
+    respond_to do |format|
+      format.js
+    end
+  end
+
   def search
     all_patrons = Patron.search_by_name_alias_description(params[:query]).with_pg_search_rank.first(10)
     @incident = Incident.find(params[:incident_id])
@@ -170,6 +200,10 @@ class PatronsController < ApplicationController
 
   def patron_params
     params.permit(:first_name, :middle_name, :last_name, :no_name, :no_address, :address, :city, :state, :zip, :known_as, :description, :notes, :card_number)
+  end
+
+  def suspension_params
+    params.permit(:until, :call_police, :letter_sent, :patron_id, :incident_id)
   end
 
 end

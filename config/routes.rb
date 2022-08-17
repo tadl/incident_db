@@ -42,4 +42,6 @@ Rails.application.routes.draw do
   match '/patrons/load_patron_search', to: 'patrons#load_patron_search', via: [:post]
   match '/patrons/load_new_patron_form', to: 'patrons#load_new_patron_form', via: [:post]
   match '/patrons/add_existing_to_incident', to: 'patrons#add_existing_to_incident', via: [:post]
+  match '/patrons/load_suspension_form', to: 'patrons#load_suspension_form', via: [:post]
+  match '/patrons/save_suspension', to: 'patrons#save_suspension', via: [:post]
 end

@@ -2,6 +2,7 @@ class Incident < ApplicationRecord
     include PgSearch::Model
     
     has_many :violations
+    has_many :suspensions
     has_many :patrons, through: :violations
     has_many_attached :images do |attachable|
         attachable.variant :thumb, resize_to_fill: [250, 250]

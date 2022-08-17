@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  patron: one
+  incident: one
+  until: 2022-08-16
+  letter_sent: false
+  call_police: false
+
+two:
+  patron: two
+  incident: two
+  until: 2022-08-16
+  letter_sent: false
+  call_police: false

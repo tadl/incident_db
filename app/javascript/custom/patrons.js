@@ -1,26 +1,3 @@
-function no_name_check(self){
-    if($(self).is(':checked')){
-        $('#name_div').hide()
-        $('#name_div').find('input').val('');
-        $('#alias_div').show()
-    }else{
-        $('#name_div').show()
-        $('#alias_div').hide()
-        $('#alias_div').find('input').val('')
-    }
-}
-window.no_name_check = no_name_check
-
-function no_address_check(self){
-    if($(self).is(':checked')){
-        $('#address_div').hide()
-        $('#address_div').find('input').val('')
-    }else{
-        $('#address_div').show()
-    }
-}
-window.no_address_check = no_address_check
-
 function cancel_add_patron(){
     $('#add_patron').hide()
     $('#add_patron').find('input').val('')
@@ -36,34 +13,30 @@ window.cancel_add_patron = cancel_add_patron
 function save_patron(patron_id){
     function isEmpty(value){
         return value == null || value == "";
-    }    
+    }
+    if (typeof patron_id === "undefined"){
+        patron_id =''
+    };
+
     var params = {}
     params['incident_id'] = $('#incident_id').html()
-    params['first_name'] = $('#first_name').val()
-    params['middle_name'] = $('#middle_name').val()
-    params['last_name'] = $('#last_name').val()
-    params['known_as'] = $('#alias').val()
-    params['address'] = $('#address').val()
-    params['city'] = $('#city').val()
-    params['state'] = $('#state').val()
-    params['zip'] = $('#zip').val()
-    params['card_number'] = $('#card_number').val()
-    params['description'] = $('#patron_description').val()
-    if($('#no_name').is(':checked')){
-        params['no_name'] = true 
-    }
-    if($('#no_address').is(':checked')){
-        params['no_address'] = true 
-    }
-
-    params['incident_id'] = $('#incident_id').html()
+    params['first_name'] = $('#first_name_' + patron_id).val()
+    params['middle_name'] = $('#middle_name_' + patron_id).val()
+    params['last_name'] = $('#last_name_' + patron_id).val()
+    params['known_as'] = $('#alias_' + patron_id).val()
+    params['address'] = $('#address_' + patron_id).val()
+    params['city'] = $('#city_' + patron_id).val()
+    params['state'] = $('#state_' + patron_id).val()
+    params['zip'] = $('#zip_' + patron_id).val()
+    params['card_number'] = $('#card_number_' + patron_id).val()
+    params['description'] = $('#patron_description_' + patron_id).val()
 
     var patron_params = new FormData()
     $.each(params, function(k,v){
         patron_params.append(k, v)
     });
 
-    var patron_images = $('#patron_images').prop("files");
+    var patron_images = $('#patron_images_' + patron_id).prop("files");
     if(patron_images && patron_images[0]){
         $.each(patron_images, function(i){
             patron_params.append('images[]', this)
@@ -185,3 +158,31 @@ function search_incidents(){
     window.location.href = '/incidents/search?query=' + query
 }
 window.search_incidents = search_incidents
+
+function show_suspension_modal(patron_id){
+    var params = {}
+    params['patron_id'] = patron_id
+    params['incident_id'] = $('#incident_id').html()
+    $.post("/patrons/load_suspension_form.js", params);
+}
+window.show_suspension_modal = show_suspension_modal
+
+function save_suspension(patron_id){
+    var params = {}
+    params['patron_id'] = patron_id
+    params['incident_id'] = $('#incident_id').html()
+    params['suspension_id'] = $('#suspension_id_' + patron_id ).html()
+    params['until'] = $('#until_' + patron_id ).val()
+    if ($('#letter_sent_' + patron_id).is(":checked")){
+        params['letter_sent'] = true
+    }else{
+        params['letter_sent'] = false
+    }
+    if ($('#call_police_' + patron_id).is(":checked")){
+        params['call_police'] = true
+    }else{
+        params['call_police'] = false
+    }
+    $.post("/patrons/save_suspension.js", params);
+}
+window.save_suspension = save_suspension
