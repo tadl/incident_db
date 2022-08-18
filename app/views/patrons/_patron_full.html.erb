@@ -1,15 +1,26 @@
-<div class="row mt-3 mb-3">
+<div class="row mt-3 mb-2">
     <div class="col-lg-3">
         <% if p.images.size >= 1 %>
-            <% p.images.each do |pic| %>
-                <a href="<%= url_for(pic) %>>" target="_blank">
-                    <%= image_tag pic.variant(:thumb), class: 'img-thumbnail', style: 'width: 250px' %>
+            <% if stub == true %>
+                <a href="<%= url_for(p.images.first) %>>" target="_blank">
+                    <%= image_tag p.images.first.variant(:thumb), class: 'img-thumbnail', style: 'width: 250px' %>
                 </a>
+            <% else %>
+                <% p.images.each do |pic| %>
+                    <a href="<%= url_for(pic) %>>" target="_blank">
+                        <%= image_tag pic.variant(:thumb), class: 'img-thumbnail', style: 'width: 250px' %>
+                    </a>
+                <% end %>
             <% end %>
         <% end %>
     </div>
     <div class="col-lg-9">
-        <h5><%= p.full_name %></h5>
+        <h5>
+            <%= p.full_name %>
+            <% if p.is_suspended %>
+                - Suspended Until <%= p.suspended_until %>
+            <% end %> 
+        </h5>
         <% if p.description && !p.description.blank? %>
             <b>Description:</b>
             <br>
@@ -29,10 +40,19 @@
             <br>
         <% end %>
         <% if p.incidents.size >= 1 %>
-            <b>Incidents:</b>
+            <% if stub == true %>
+                <b>Most Recent Incidents</b>
+            <% else %>
+                <b>Incidents:</b>
+            <% end %>
             <br>
-            <% p.unique_incidents.each do |i| %>
-                    <%= i.date_of_in_time_zone_minus_time %> <a href="/incidents/view?id=<%=i.id%>" target="_blank"><%= i.title %></a>
+            <% if stub == true %>
+                <% incidents = p.unique_incidents.first(2) %>
+            <% else %>
+                <% incidents = p.unique_incidents %>
+            <% end %>
+            <% incidents.each do |i| %>
+                    <%= i.date_of_in_time_zone_minus_time %> <b><a href="/incidents/view?id=<%=i.id%>" target="_blank"><%= i.title %></b></a>
                     <div class="ms-3">
                         <b>Violations:</b>
                         <ul>
@@ -40,11 +60,17 @@
                                 <li><%= v.description %></li>
                             <% end %>
                         </ul>
+                        <% if p.suspension_for(i.id) %>
+                            <b>Suspended for this Incident Until:</b> <%= p.suspension_for_details(i.id) %>
+                        <% end %> 
                     </div>
             <% end %>
         <% end %>
+        <div class="mt-3">
+            <% if stub == true %>
+                <a href="/patrons/view?id=<%= p.id %>" class="btn btn-primary mb-3"><%= icon('fa-solid', 'eye') %> View Full Patron Record</a>
+            <% end %>
+            <a href="/patrons/edit?patron_id=<%= p.id %>" class="btn btn-secondary mb-3"><%= icon('fa-solid', 'pen') %> Edit Patron Record</a>
+        </div>
     </div>
-</div>
-<div class="mt-3 mb-3">
-    <a href="/patrons/edit?patron_id=<%= p.id %>" class="btn btn-primary"><%= icon('fa-solid', 'pen') %> Edit Patron Record</a>
 </div>

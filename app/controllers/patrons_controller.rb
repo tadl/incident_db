@@ -56,6 +56,17 @@ class PatronsController < ApplicationController
   end
 
   def list
+    if params[:suspended] == 'true'
+      @title = "Currently Suspended Patrons"
+      @patrons = Patron.order(created_at: :desc).joins(:incidents).where(incidents: { published: true }).select { |p| p.is_suspended == true }.uniq.paginate(page: params[:page], per_page: 5)
+    else
+      @title = "All Patrons"
+      @patrons = Patron.all.joins(:incidents).where(incidents: { published: true }).order(created_at: :desc).uniq.paginate(page: params[:page], per_page: 5)
+    end
+    respond_to do |format|
+      format.html
+      format.json {render :json => @patrons}
+    end
   end
 
   def view
@@ -112,6 +123,10 @@ class PatronsController < ApplicationController
     violations = Violation.where(patron_id: @patron_id, incident_id:@incident_id)
     violations.each do |v|
       v.destroy
+    end
+    suspensions = Suspension.where(patron_id: @patron_id, incident_id:@incident_id)
+    suspensions.each do |s|
+      s.destroy
     end
     respond_to do |format|
       format.js
@@ -181,16 +196,32 @@ class PatronsController < ApplicationController
     end
   end
 
-  def search
-    all_patrons = Patron.search_by_name_alias_description(params[:query]).with_pg_search_rank.first(10)
+  def delete_suspension
     @incident = Incident.find(params[:incident_id])
-    @patrons = []
-    all_patrons.each do |p|
-      unless p.incidents.exists?(@incident.id)
-        @patrons.push(p)
+    @patron = Patron.find(params[:patron_id])
+    @suspension = Suspension.find(params[:suspension_id])
+    @suspension.destroy
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def search
+    if params[:incident_id]
+      all_patrons = Patron.search_by_name_alias_description(params[:query]).with_pg_search_rank.first(10)
+      @incident = Incident.find(params[:incident_id])
+      @patrons = []
+      all_patrons.each do |p|
+        unless p.incidents.exists?(@incident.id)
+          @patrons.push(p)
+        end
       end
+    else
+      @query = params[:query]
+      @patrons = Patron.joins(:incidents).where(incidents: { published: true }).search_by_name_alias_description(params[:query]).order(created_at: :desc).uniq.paginate(page: params[:page], per_page: 5)
     end
     respond_to do |format|
+      format.html
       format.json {render :json => @patrons}
       format.js
     end

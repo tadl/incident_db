@@ -49,3 +49,9 @@ function cancel_incident_images(){
     $('#incident_images').val(null)
 }
 window.cancel_incident_images = cancel_incident_images
+
+function search_incidents(){
+    var query = $('#query').val()
+    window.location.href = '/incidents/search?query=' + query
+}
+window.search_incidents = search_incidents

@@ -1,0 +1,4 @@
+var myModalEl = document.getElementById('suspension_modal_<%= @patron.id %>');
+var modal = bootstrap.Modal.getInstance(myModalEl)
+$("#patron_<%= @patron.id %>").html("<%= escape_javascript(render 'add_violation', patron: @patron, incident: @incident)%>")
+modal.hide();

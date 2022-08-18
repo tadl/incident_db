@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-dialog-centered modal-md">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Suspension</h5>
+                <h5 class="modal-title"><%= @title %></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -15,7 +15,7 @@
                 <div class="row">
                     <div class="col-lg-6 col-sm">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="letter_sent_<%= @patron.id %>">
+                            <input class="form-check-input" type="checkbox" value="" id="letter_sent_<%= @patron.id %>" <%= am_i_checked(@suspension.letter_sent, true) %>>
                             <label class="form-check-label" for="letter_sent_<%= @patron.id %>">
                                 Letter Sent
                             </label>
@@ -23,7 +23,7 @@
                     </div>
                     <div class="col-lg-6 col-sm">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="call_police_<%= @patron.id %>">
+                            <input class="form-check-input" type="checkbox" value="" id="call_police_<%= @patron.id %>" <%= am_i_checked(@suspension.call_police, true) %>>
                             <label class="form-check-label" for="call_police_<%= @patron.id %>">
                                 Call Police on Sight
                             </label>
@@ -37,7 +37,13 @@
                     <%= icon('fa-solid', 'xmark') %> 
                     Close
                 </button>
-                <button type="button" class="btn btn-primary" onclick="save_suspension('<%= @patron.id %>')">
+                <% if @suspension.id %>
+                    <button type="button" class="btn btn-danger" onclick="delete_suspension('<%= @suspension.id %>','<%= @patron.id %>', '<%= @incident.id %>')">
+                        <%= icon('fa-solid', 'trash') %> 
+                        Revoke Suspension
+                    </button>
+                <% end %>
+                <button type="button" class="btn btn-success" onclick="save_suspension('<%= @patron.id %>')">
                     <%= icon('fa-solid', 'check') %> 
                     Save
                 </button>

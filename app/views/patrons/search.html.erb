@@ -1,0 +1,26 @@
+<h2 class="mb-3"><%= icon('fa-solid', 'person') %> Searching Patrons</h2>
+ <div class="row mt-3 mb-3">
+    <div class="col-lg-6">
+      <div class="input-group mb-3">
+            <input type="text" class="form-control" id="patron_query" aria-describedby="patron_search" maxlength="50" autocomplete="off" value="<%= @query %>">
+            <button type="submit" class="btn btn-primary btn-sm" onclick="patron_search(false)"><%= icon('fa-solid', 'search') %> Search Patrons</button>
+      </div>
+    </div>
+</div>
+<%= will_paginate @patrons, renderer: WillPaginate::ActionView::BootstrapLinkRenderer %>
+<% @patrons.each do |p| %>
+    <div class="card mb-3">
+        <div class="card-body">
+            <%= render 'patron_full', p: p, stub: true %>
+        </div>
+    </div>
+<% end %>
+<%= will_paginate @patrons, renderer: WillPaginate::ActionView::BootstrapLinkRenderer %>
+<script>
+    document.getElementById("patron_query").addEventListener("keyup", function(event) {
+        event.preventDefault();
+        if (event.keyCode === 13) {
+            patron_search()
+        }
+    });
+</script>

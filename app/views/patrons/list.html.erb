@@ -1,2 +1,10 @@
-<h1>Patron#list</h1>
-<p>Find me in app/views/patron/list.html.erb</p>
+<h2 class="mb-3"><%= icon('fa-solid', 'person') %> <%= @title %></h2>
+<%= will_paginate @patrons, renderer: WillPaginate::ActionView::BootstrapLinkRenderer %>
+<% @patrons.each do |p| %>
+    <div class="card mb-3">
+        <div class="card-body">
+            <%= render 'patron_full', p: p, stub: true %>
+        </div>
+    </div>
+<% end %>
+<%= will_paginate @patrons, renderer: WillPaginate::ActionView::BootstrapLinkRenderer %>

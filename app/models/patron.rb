@@ -56,6 +56,22 @@ class Patron < ApplicationRecord
         return address
     end
 
+    def is_suspended
+        today = Date.today
+        suspension = self.suspensions
+        suspension.each do |s|
+            if s.until > today && s.incident.published == true
+                return true
+            end
+        end
+        return false
+    end
+
+    def suspended_until
+        suspension = self.suspensions.joins(:incident).where(incidents: { published: true }).order(until: :desc).first
+        return suspension.until.strftime("%m/%d/%Y")
+    end
+
     def unique_incidents
     #     unique_incident_ids = []
     #     unique_incidents = []

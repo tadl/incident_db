@@ -36,8 +36,15 @@
               <li><a class="dropdown-item" href="/incidents/search">Search Incidents</a></li>
             </ul>
           </li>
-          <li class="nav-item">
-            <a class="nav-link white-link" href="#">Patrons</a>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle white-link" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Patrons
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDropdown">
+              <li><a class="dropdown-item" href="/patrons/list">All Patrons</a></li>
+              <li><a class="dropdown-item" href="/patrons/list?suspended=true">Currently Suspended Patrons</a></li>
+              <li><a class="dropdown-item" href="/patrons/search">Search Patrons</a></li>
+            </ul>
           </li>
           <li class="nav-item">
             <a class="nav-link white-link" href="/admin">Admin Pannel</a>

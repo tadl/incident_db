@@ -5,7 +5,10 @@
         <% end %>
     </div>
     <h4>
-        <%= patron.full_name %>            
+        <%= patron.full_name %> 
+        <% if patron.is_suspended %>
+            - Suspended Until <%= patron.suspended_until %>
+        <% end %>           
     </h4>
     <button type="button" class="btn btn-danger btn-sm mb-3 mt-1" onclick="remove_patron_from_incident(<%= patron.id %>)">
         <%= icon('fa-solid', 'xmark') %> Remove Patron from Incident
@@ -19,13 +22,16 @@
     </div>
     <div id="patron_suspension_<%= patron.id %>" class="mb-3">
         <% if patron.suspension_for(@incident.id) %>
-            <b>Suspended Until:</b> <%= patron.suspension_for_details(@incident.id) %>
+            <b>Suspended for this Incident Until:</b> <%= patron.suspension_for_details(@incident.id) %>
         <% end %>
     </div>
     <button type="button" class="btn btn-sm btn-dark mb-3" onclick="show_violation_modal('A', <%= patron.id %>)">Add A Level Violations</button>
     <button type="button" class="btn btn-sm btn-secondary mb-3" onclick="show_violation_modal('B', <%= patron.id %>)">Add B Level Violations</button>
-    <button type="button" class="btn btn-sm btn-danger mb-3" onclick="show_suspension_modal(<%= patron.id %>)">Suspend Patron</button>
-
+    <% if patron.suspension_for(@incident.id) %>
+        <button type="button" class="btn btn-sm btn-danger mb-3" onclick="show_suspension_modal(<%= patron.id %>)">Edit Suspension</button>
+    <% else %>
+        <button type="button" class="btn btn-sm btn-danger mb-3" onclick="show_suspension_modal(<%= patron.id %>)">Suspend Patron</button>
+    <% end %>
     <div id="suspension_modal_container_<%= patron.id %>"></div>
     <div id="violation_modal_containter_<%= patron.id %>"></div>
     <div id="patron_edit_modal_containter_<%= patron.id %>"></div>

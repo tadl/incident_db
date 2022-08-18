@@ -133,6 +133,8 @@ function patron_search(from_incident){
     if(from_incident == true){
         params['incident_id'] = $('#incident_id').html()
         $.post("/patrons/search.js", params);
+    }else{
+        window.location.href = '/patrons/search?query=' + params['query']
     }
 }
 window.patron_search = patron_search
@@ -152,12 +154,6 @@ function add_existing_to_incident(patron_id){
     $('#add_patron_to_incident_button').show()
 }
 window.add_existing_to_incident = add_existing_to_incident
-
-function search_incidents(){
-    var query = $('#query').val()
-    window.location.href = '/incidents/search?query=' + query
-}
-window.search_incidents = search_incidents
 
 function show_suspension_modal(patron_id){
     var params = {}
@@ -186,3 +182,12 @@ function save_suspension(patron_id){
     $.post("/patrons/save_suspension.js", params);
 }
 window.save_suspension = save_suspension
+
+function delete_suspension(suspension_id, patron_id, incident_id){
+    var params = {}
+    params['incident_id'] = incident_id
+    params['suspension_id'] = suspension_id
+    params['patron_id'] = patron_id
+    $.post("/patrons/delete_suspension.js", params);
+}
+window.delete_suspension = delete_suspension

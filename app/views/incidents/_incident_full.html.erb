@@ -1,4 +1,9 @@
-<h2><%= @incident.title %></h2>
+<h2>
+   <% if @incident.draft %>
+    Draft: 
+   <% end %> 
+   <%= @incident.title %>
+</h2>
 <div class="mt-1 mb-2">
     <b>Date of Incident:</b> <%= @incident.date_of_in_time_zone %>
     <b>Location:</b> <%= @incident.location %>
@@ -21,7 +26,10 @@
 <% if @incident.patrons.size >= 1 %>
     <h3>Patrons involved:</h3>
     <% @incident.patrons.uniq.each do |p| %>
-        <h5><%= p.full_name %></h5>
+        <h5>
+            <%= p.full_name %>
+
+        </h5>
         <% if p.images.first %>
             <div class="mt-3 mb-3">
                 <%= image_tag p.images.first.variant(:thumb), class: 'img-thumbnail' %>
@@ -35,10 +43,12 @@
             <% else %>
                 <% p.violations_from_incident(@incident.id).each do |v| %>
                     <% unless v.description == 'None' %>
-                        <%= v.description %>
-                        <br>
+                        <p><%= v.description %></p>
                     <% end %>
                 <% end %>
+            <% end %>
+            <% if p.suspension_for(@incident.id) %>
+                <b>Suspended for this Incident Until:</b> <%= p.suspension_for_details(@incident.id) %>
             <% end %> 
         </div>       
     <% end %>
