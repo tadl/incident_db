@@ -1,2 +1,0 @@
-class DestroyOldViolationTable < ApplicationRecord
-end

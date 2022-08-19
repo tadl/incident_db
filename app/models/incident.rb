@@ -1,6 +1,7 @@
 class Incident < ApplicationRecord
     include PgSearch::Model
-    
+
+    has_many :incident_comments
     has_many :violations
     has_many :suspensions
     has_many :patrons, through: :violations
@@ -18,7 +19,8 @@ class Incident < ApplicationRecord
 
     pg_search_scope :search, against: [:title, :description, :id], associated_against: {
         patrons: [:first_name, :last_name, :middle_name, :known_as, :description],
-        violations: :description
+        violations: :description,
+        incident_comments: :description
       }
 
     def created_by_name

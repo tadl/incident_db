@@ -46,4 +46,10 @@ Rails.application.routes.draw do
   match '/patrons/load_suspension_form', to: 'patrons#load_suspension_form', via: [:post]
   match '/patrons/save_suspension', to: 'patrons#save_suspension', via: [:post]
   match '/patrons/delete_suspension', to: 'patrons#delete_suspension', via: [:post]
+
+  #Comments
+  match '/comments/save', to: 'comments#save', via: [:post]
+  match '/comments/edit', to: 'comments#edit', via: [:post]
+  match '/comments/delete', to: 'comments#delete', via: [:post]
+
 end

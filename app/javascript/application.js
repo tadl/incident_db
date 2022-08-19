@@ -4,4 +4,5 @@ import "./bootstrap.min";
 import 'custom/admin'
 import 'custom/incidents'
 import 'custom/patrons'
+import 'custom/comments'
 import 'jquery'

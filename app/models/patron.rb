@@ -1,10 +1,13 @@
 class Patron < ApplicationRecord
     include PgSearch::Model
     pg_search_scope :search_by_name_alias_description, 
-    against: [:first_name, :last_name, :middle_name, :known_as, :description],
+    against: [:first_name, :last_name, :middle_name, :known_as, :description], associated_against: {
+        patron_comments: :description
+      },
     using: {
       tsearch: {prefix: true}
     }
+    has_many :patron_comments
     has_many :violations
     has_many :suspensions
     has_many :incidents, through: :violations

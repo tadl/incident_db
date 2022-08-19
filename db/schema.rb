@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_08_16_211040) do
+ActiveRecord::Schema[7.0].define(version: 2022_08_19_201243) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -40,6 +40,16 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_16_211040) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "comments", force: :cascade do |t|
+    t.boolean "edited"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id"
+    t.integer "patron_id"
+    t.integer "incident_id"
   end
 
   create_table "incidents", force: :cascade do |t|
@@ -133,6 +143,4 @@ ActiveRecord::Schema[7.0].define(version: 2022_08_16_211040) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "suspensions", "incidents"
   add_foreign_key "suspensions", "patrons"
-  add_foreign_key "violations", "incidents"
-  add_foreign_key "violations", "patrons"
 end

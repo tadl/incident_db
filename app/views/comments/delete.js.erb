@@ -1,0 +1,1 @@
+    $('#comments').html('<%= escape_javascript(render "/comments/comments", comments: @comments, from: @from, owner_id: @owner_id) %>')

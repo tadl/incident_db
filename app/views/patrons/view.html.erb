@@ -1,2 +1,16 @@
 <h2 class="mb-3"><%= icon('fa-solid', 'person') %> Patron Record</h2>
 <%= render 'patron_full', p: @patron, stub: false %>
+<div id="comments">
+    <% if @patron.patron_comments.size >= 1 %>
+        <%= render '/comments/comments', comments: @patron.patron_comments, from: 'patron', owner_id: @patron.id %>
+    <% end %>
+</div>
+<div class="mb-3">
+    <label for="description" class="form-label">Add Extra Information to this Incident</label>
+    <textarea class="form-control" id="new_comment" rows="4" autocomplete="off"></textarea>
+</div>
+<div class="mb-3" id="comment_messages" style="color: red">
+</div>
+<div class="mb-3">
+    <a type="button" class="btn btn-success btn-lg" onclick="save_comment('patron', <%= @patron.id %>)"><%= icon('fa-solid', 'plus') %> Save Extra Information</a>
+</div>

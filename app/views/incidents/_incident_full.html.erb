@@ -28,8 +28,7 @@
     <h3>Patrons involved:</h3>
     <% @incident.patrons.uniq.each do |p| %>
         <h5>
-            <%= p.full_name %>
-
+            <a href="/patrons/view?id=<%= p.id %>"><%= p.full_name %></a>
         </h5>
         <% if p.images.first %>
             <div class="mt-3 mb-3">

@@ -1,4 +1,18 @@
 <%= render 'incident_full' %>
 <div class="mb-3">
-    <a type="button" class="btn btn-primary btn-lg" href="/incidents/edit?id=<%= @incident.id %>"><%= icon('fa-solid', 'pen') %> Edit</a>
+    <a type="button" class="btn btn-primary btn-lg" href="/incidents/edit?id=<%= @incident.id %>"><%= icon('fa-solid', 'pen') %> Edit Incident</a>
+</div>
+<div id="comments">
+    <% if @incident.incident_comments.size >= 1 %>
+        <%= render '/comments/comments', comments: @incident.incident_comments, from: 'incident', owner_id: @incident.id %>
+    <% end %>
+</div>
+<div class="mb-3">
+    <label for="description" class="form-label">Add Extra Information to this Incident</label>
+    <textarea class="form-control" id="new_comment" rows="4" autocomplete="off"></textarea>
+</div>
+<div class="mb-3" id="comment_messages" style="color: red">
+</div>
+<div class="mb-3">
+    <a type="button" class="btn btn-success btn-lg" onclick="save_comment('incident', <%= @incident.id %>)"><%= icon('fa-solid', 'plus') %> Save Extra Information</a>
 </div>

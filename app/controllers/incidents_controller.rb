@@ -19,7 +19,8 @@ class IncidentsController < ApplicationController
 
   def view
     id = params[:id].to_i
-    @incident = Incident.find(id) 
+    @incident = Incident.find(id)
+    @comments = Comment.where(incident_id: id) 
   end
 
   def new
