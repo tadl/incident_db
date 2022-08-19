@@ -8,6 +8,7 @@
     <b>Date of Incident:</b> <%= @incident.date_of_in_time_zone %>
     <b>Location:</b> <%= @incident.location %>
     <b> Submitted by:</b> <%= @incident.created_by_name %>
+    <b>ID:</b> <%= @incident.id %> 
 </div>
 <% if @incident.images.size >= 1 %>
     <div class="row mt-3 mb-3">

@@ -16,7 +16,7 @@ class Incident < ApplicationRecord
     validates :description, presence: { message: 'Description required' }, allow_blank: false
     validates :description, uniqueness: { message: 'An incident type with this description already exisits'}
 
-    pg_search_scope :search, against: [:title, :description], associated_against: {
+    pg_search_scope :search, against: [:title, :description, :id], associated_against: {
         patrons: [:first_name, :last_name, :middle_name, :known_as, :description],
         violations: :description
       }
