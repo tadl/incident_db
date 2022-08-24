@@ -1,0 +1,14 @@
+<% if @patron.suspension_for_letter(incident.id) == false %>
+    <div class="col-lg-12 col-sm" id="suspension_letter_upload">
+        <label for="letter_<%= patron.id %>" class="form-label">Add Suspension Letter</label>
+        <br>
+        <%= file_field_tag ('letter_' + patron.id.to_s), multiple: false, accept: 'application/pdf', autocomplete: "off" %>
+        <br>
+        <button class="btn-small btn-secondary mt-3" onclick="cancel_suspension_letter(<%= patron.id.to_s %>)">Cancel Suspension Letter Upload</button>
+    </div>
+<% else %>
+    <a href="<%= url_for(@suspension.letter) %>">Suspension Letter</a>
+    <button type="button" class="btn btn-danger btn-sm mb-1" onclick="delete_letter(<%= patron.id %>, <%= suspension.id %>, <%= incident.id %>)">
+        <%= icon('fa-solid', 'xmark') %>
+    </button>
+<% end %>

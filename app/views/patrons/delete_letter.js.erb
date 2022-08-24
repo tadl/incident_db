@@ -1,0 +1,1 @@
+$('#suspension_letter_<%= @patron.id %>').html('<%= escape_javascript(render 'suspension_letter_form', patron: @patron, incident: @incident, suspension: @suspension) %>')

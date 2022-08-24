@@ -50,6 +50,19 @@ class Patron < ApplicationRecord
         return message
     end
 
+    def suspension_for_letter(incident_id)
+        suspension = self.suspensions.where(incident_id: incident_id).first
+        if suspension
+            if suspension.letter.attached?
+                return suspension.letter
+            else
+                return false
+            end
+        else
+            return false
+        end
+    end
+
     def full_address
         address = ''
         address += self.address if self.address
@@ -105,4 +118,10 @@ class Patron < ApplicationRecord
         end
         return violations
     end
+
+    def as_json(options={})
+        options[:methods] = [:suspended_until]
+        super
+    end
+
 end

@@ -16,7 +16,7 @@
                     <p>
                         <b>Patrons Involved:</b>
                         <% i.patrons.uniq.each do |p| %>
-                            <%= p.full_name %>, 
+                            <a href="/patrons/view?id=<%= p.id %>"><%= p.full_name %></a>, 
                         <% end %>
                     </p>
                 <% end %>

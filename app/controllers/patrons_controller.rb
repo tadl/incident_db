@@ -143,6 +143,17 @@ class PatronsController < ApplicationController
     end
   end
 
+  def delete_letter
+    @incident = Incident.find(params['incident_id'])
+    @patron = Patron.find(params['patron_id'])
+    @suspension = Suspension.find(params['suspension_id'])
+    letter = ActiveStorage::Attachment.find_by(id: @suspension.letter.id)
+    letter.purge
+    respond_to do |format|
+      format.js
+    end
+  end
+
   def load_patron_search
     incidents = Incident.all.includes(:patrons, :violations).order('date_of DESC').first(20)
     @incident = Incident.find(params[:incident_id])
@@ -190,6 +201,9 @@ class PatronsController < ApplicationController
       @suspension = Suspension.new
     end
     @suspension.assign_attributes(suspension_params)
+    if params[:letter]
+      @suspension.letter.attach(params[:letter])
+    end
     @suspension.save
     respond_to do |format|
       format.js

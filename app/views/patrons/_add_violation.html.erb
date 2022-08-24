@@ -23,6 +23,10 @@
     <div id="patron_suspension_<%= patron.id %>" class="mb-3">
         <% if patron.suspension_for(@incident.id) %>
             <b>Suspended for this Incident Until:</b> <%= patron.suspension_for_details(@incident.id) %>
+            <% if patron.suspension_for_letter(@incident.id) %>
+                <br>
+                <a href="<%= url_for(patron.suspension_for_letter(@incident.id)) %>">Download Suspension Letter</a>
+            <% end %>
         <% end %>
     </div>
     <button type="button" class="btn btn-sm btn-dark mb-3" onclick="show_violation_modal('A', <%= patron.id %>)">Add A Level Violations</button>

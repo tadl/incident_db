@@ -24,6 +24,7 @@ class CommentsController < ApplicationController
             @error = 'Please enter your extra information in the box above'
         end
         @from = params[:comment_for]
+        @owner_id = params[:id]
         respond_to do |format|
             format.js
         end

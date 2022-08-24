@@ -179,7 +179,26 @@ function save_suspension(patron_id){
     }else{
         params['call_police'] = false
     }
-    $.post("/patrons/save_suspension.js", params);
+
+    var suspension_params = new FormData()
+    $.each(params, function(k,v){
+        suspension_params.append(k, v)
+    });
+
+    if($('#letter_' + patron_id).length){
+        var letter = $('#letter_' + patron_id).prop("files")[0] 
+        suspension_params.append('letter', letter ) 
+    }
+
+
+    $.ajax({
+        url: "/patrons/save_suspension.js",
+        data: suspension_params,
+        type:'POST',
+        contentType: false,
+        processData: false,
+    });
+
 }
 window.save_suspension = save_suspension
 
@@ -191,3 +210,17 @@ function delete_suspension(suspension_id, patron_id, incident_id){
     $.post("/patrons/delete_suspension.js", params);
 }
 window.delete_suspension = delete_suspension
+
+function cancel_suspension_letter(id){
+    $('#letter_' + id).val(null)
+}
+window.cancel_suspension_letter = cancel_suspension_letter
+
+function delete_letter(patron_id, suspension_id, incident_id){
+    var params = {}
+    params['incident_id'] = incident_id
+    params['patron_id'] = patron_id
+    params['suspension_id'] = suspension_id
+    $.post("/patrons/delete_letter.js", params);
+}
+window.delete_letter = delete_letter

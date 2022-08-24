@@ -41,3 +41,9 @@
         text-decoration: none;
     }
 };
+
+#suspension_letter_upload{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

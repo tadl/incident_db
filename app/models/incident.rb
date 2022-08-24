@@ -21,6 +21,9 @@ class Incident < ApplicationRecord
         patrons: [:first_name, :last_name, :middle_name, :known_as, :description],
         violations: :description,
         incident_comments: :description
+      },    
+      using: {
+        tsearch: {prefix: true}
       }
 
     def created_by_name
