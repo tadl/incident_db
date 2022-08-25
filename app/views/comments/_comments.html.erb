@@ -1,28 +1,5 @@
-   <h3>Extra Information:</h3>
-    <% comments.each do |c| %>
-        <div class="card mb-3">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-lg-1">
-                        <img src='<%= c.submitted_by_pic %>' class="img-fluid">
-                    </div>
-                    <div class="col-lg-10">
-                        <b><%= c.submitted_by %></b> 
-                        <i>Posted on: <%= c.posted_on %></i>
-                        <% if c.was_edited %>
-                        <i>Edited on: <%= c.edited_on %></i>
-                        <% end %>
-                        <% if c.user_id == current_user.id %>
-                            <a href="#" onclick="edit_comment(<%= c.id %>, '<%= from %>', <%= owner_id %>)">Edit</a>
-                            <a href="#" onclick="delete_comment(<%= c.id %>, '<%= from %>', <%= owner_id %>); event.preventDefault()">Delete</a>
-                        <% end %>
-                        <br>
-                        <%= c.description %>
-                        <br>
-                        <% if c.user_id == current_user.id %>
-                        <% end %>
-                    </div>
-                </div>
-            </div>
-        </div>
-    <% end %>
+<h3>Extra Information:</h3>
+<% comments.each do |c| %>
+    <%= render '/comments/comment', c: c, from: from, owner_id: owner_id %>
+<% end %>
+<div id="edit_comment_modal_container"></div>

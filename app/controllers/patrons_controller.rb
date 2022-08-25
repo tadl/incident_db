@@ -137,7 +137,9 @@ class PatronsController < ApplicationController
     @image = ActiveStorage::Attachment.find_by(id: params[:image_id])
     @image.purge
     @patron = Patron.find(params[:patron_id])
-    @incident = Incident.find(params[:incident_id])
+    if params[:incident_id]
+      @incident = Incident.find(params[:incident_id])
+    end
     respond_to do |format|
       format.js
     end

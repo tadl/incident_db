@@ -52,5 +52,6 @@ Rails.application.routes.draw do
   match '/comments/save', to: 'comments#save', via: [:post]
   match '/comments/edit', to: 'comments#edit', via: [:post]
   match '/comments/delete', to: 'comments#delete', via: [:post]
+  match '/comments/update', to: 'comments#update', via: [:post]
 
 end

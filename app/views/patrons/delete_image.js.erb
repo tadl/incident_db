@@ -1,5 +1,6 @@
 var target_div = '#patron_pics_<%= @patron.id %>'
 $(target_div).html("<%= escape_javascript(render 'patron_pics', patron: @patron)%>")
+alert('hello ' + target_div)
 <% if @incident %>
     <% if @patron.images.first %>
         $('#patron_image_<%= @patron.id %>').html("<%= escape_javascript(image_tag @patron.images.first.variant(:thumb), class: 'img-thumbnail')%>");

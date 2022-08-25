@@ -1,0 +1,3 @@
+$('#edit_comment_modal_container').html("<%= escape_javascript(render '/comments/edit_comment_modal', comment: @comment, from: @from, owner_id: @owner_id) %>")
+var myModal = new bootstrap.Modal(document.getElementById("edit_comment_modal"), {});
+myModal.show();

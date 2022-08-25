@@ -30,6 +30,17 @@ class CommentsController < ApplicationController
         end
     end
 
+    def update
+        @comment = Comment.find(params[:id])
+        @comment.description = params[:description]
+        @comment.save 
+        @owner_id = params[:owner_id]
+        @from = params[:from]
+        respond_to do |format|
+            format.js
+        end
+    end
+
     def delete
         comment = Comment.find(params[:id])
         comment.destroy
@@ -38,6 +49,15 @@ class CommentsController < ApplicationController
         elsif params[:comment_for] == 'patron'
             @comments = PatronComment.where(patron_id: params[:owner_id])
         end
+        @owner_id = params[:owner_id]
+        @from = params[:comment_for]
+        respond_to do |format|
+            format.js
+        end
+    end
+
+    def edit
+        @comment = Comment.find(params[:id])
         @owner_id = params[:owner_id]
         @from = params[:comment_for]
         respond_to do |format|
