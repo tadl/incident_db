@@ -61,6 +61,9 @@ class IncidentsController < ApplicationController
       if @incident.valid?
         @incident.save
         @updated = true
+        if @new_publish == true
+          IncidentMailerJob.perform_later(@incident)
+        end
         if params[:add_patron] == "true"
           @add_patron = true
         else

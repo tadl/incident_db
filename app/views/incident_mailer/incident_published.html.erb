@@ -1,0 +1,42 @@
+<h1>
+    <%= @incident.title %>
+</h1>
+<b>See Full Report:</b> https://<%= ENV['HOSTNAME'] %>/incidents/view?id=<%= @incident.id %>
+<br>
+<br>
+<b>Date of Incident:</b> <%= @incident.date_of_in_time_zone %>
+<b>Location:</b> <%= @incident.location %>
+<b> Submitted by:</b> <%= @incident.created_by_name %>
+<br>
+<br>
+<b>Narrative:</b> <%= @incident.description %>
+<br>
+<% if @incident.images.size >= 1 %>
+    <br>
+    <%= image_tag @incident.images.first.variant(:thumb), class: 'img-thumbnail' %>
+    <br>
+<% end %>
+<% if @incident.patrons.size >= 1 %>
+    <h2>Patrons involved:</h2>
+    <% @incident.patrons.uniq.each do |p| %>
+        <h3>
+            <%= p.full_name %></a>
+        </h3>
+        <% if p.images.first %>
+            <div class="mt-3 mb-3">
+                <%= image_tag p.images.first.variant(:thumb), class: 'img-thumbnail' %>
+            </div>
+        <% end %>
+        <b>Violations:</b>
+        <br>
+        <% if p.violations_from_incident(@incident.id).size == 1 %>
+            <%= p.violations_from_incident(@incident.id)[0].description %>
+        <% else %>
+            <% p.violations_from_incident(@incident.id).each do |v| %>
+                <% unless v.description == 'None' %>
+                    <p><%= v.description %></p>
+                <% end %>
+            <% end %>
+        <% end %>       
+    <% end %>
+<% end %>

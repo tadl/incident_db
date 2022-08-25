@@ -17,6 +17,8 @@ gem 'activestorage-validator'
 gem 'pg_search'
 gem 'will_paginate', '~> 3.3'
 gem 'will_paginate-bootstrap-style'
+gem 'redis', '~> 4.7.1'
+gem 'sidekiq'
 
 #- DEFAULT GEMS
 

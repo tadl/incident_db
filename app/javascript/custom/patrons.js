@@ -187,7 +187,10 @@ function save_suspension(patron_id){
 
     if($('#letter_' + patron_id).length){
         var letter = $('#letter_' + patron_id).prop("files")[0] 
-        suspension_params.append('letter', letter ) 
+        if(letter){
+            suspension_params.append('letter', letter ) 
+        }
+        
     }
 
 
