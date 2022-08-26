@@ -1,0 +1,26 @@
+<h1>
+    <%= @patron.full_name %> Has Been Suspended Until <%= @patron.suspended_until %>
+</h1>
+<b>See Full Report:</b> https://<%= ENV['HOSTNAME'] %>/incidents/view?id=<%= @incident.id %>
+<br>
+<% if @suspension.call_police == true %>
+    <h2 style="color: red">
+        Please call police immediately if patron is seen on library property.
+    </h2>
+<% end %>
+<% if @patron.images.first %>
+    <div class="mt-3 mb-3">
+        <%= image_tag @patron.images.first.variant(:thumb), class: 'img-thumbnail' %>
+    </div>
+<% end %>
+<b>Violations:</b>
+<br>
+<% if @patron.violations_from_incident(@incident.id).size == 1 %>
+    <%= @patron.violations_from_incident(@incident.id)[0].description %>
+<% else %>
+    <% @patron.violations_from_incident(@incident.id).each do |v| %>
+        <% unless v.description == 'None' %>
+            <p><%= v.description %></p>
+        <% end %>
+    <% end %>
+<% end %>       

@@ -199,12 +199,18 @@ class PatronsController < ApplicationController
     @patron = Patron.find(params[:patron_id])
     if params[:suspension_id] && params[:suspension_id] != ''
       @suspension = Suspension.find(params[:suspension_id])
+      @new_suspension = false
     else
       @suspension = Suspension.new
+      @new_suspension = true
     end
     @suspension.assign_attributes(suspension_params)
     if params[:letter]
       @suspension.letter.attach(params[:letter])
+    end
+    if @new_suspension == true && @incident.published == true
+      SuspensionPublishedJob.perform_later(@patron, @incident, @suspension)
+      @suspension.issued_email_sent = true
     end
     @suspension.save
     respond_to do |format|
