@@ -1,4 +1,7 @@
 :schedule:
-  hello_world:
+  check_unsent_suspensions:
     every: '2m'
     class: CheckUnsentSuspensions
+  check_expired_suspensions:
+    every: 1.5 hours
+    class: CheckExpiredSuspensions

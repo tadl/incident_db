@@ -13,4 +13,8 @@ class IncidentMailer < ApplicationMailer
         mail to: ENV['EMAIL_TO'], subject: ('New Suspension: ' + @patron.full_name + ', Suspened Until ' + @patron.suspended_until)
     end
 
+    def suspension_expired(patron)
+        @patron = patron
+        mail to: ENV['EMAIL_TO'], subject: ('Suspension Expired: ' + @patron.full_name)
+    end
 end

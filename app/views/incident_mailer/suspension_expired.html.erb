@@ -1,0 +1,9 @@
+<h1>
+    <%= @patron.full_name %> - Suspension Has Expired
+</h1>
+<br>
+<% if @patron.images.first %>
+    <div class="mt-3 mb-3">
+        <%= image_tag @patron.images.first.variant(:thumb), class: 'img-thumbnail' %>
+    </div>
+<% end %>

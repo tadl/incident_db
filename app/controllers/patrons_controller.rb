@@ -208,11 +208,12 @@ class PatronsController < ApplicationController
     if params[:letter]
       @suspension.letter.attach(params[:letter])
     end
+    @suspension.save
     if @new_suspension == true && @incident.published == true
       SuspensionPublishedJob.perform_later(@patron, @incident, @suspension)
       @suspension.issued_email_sent = true
+      @suspension.save
     end
-    @suspension.save
     respond_to do |format|
       format.js
     end

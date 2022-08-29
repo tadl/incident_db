@@ -19,7 +19,10 @@
             <%= p.full_name %>
             <% if p.is_suspended %>
                 - Suspended Until <%= p.suspended_until %>
-            <% end %> 
+            <% end %>
+            <% if p.suspension_expired[0] == true %>
+                Hlloooooeekljl
+            <% end %>
         </h5>
         <% if p.description && !p.description.blank? %>
             <b>Description:</b>

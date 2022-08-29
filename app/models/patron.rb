@@ -83,6 +83,16 @@ class Patron < ApplicationRecord
         return false
     end
 
+    def suspension_expired
+        yesterday = Date.yesterday
+        latest_suspension = self.suspensions.joins(:incident).where(incident: { published: true }).order(until: :desc)[0]
+        if !latest_suspension.nil? && latest_suspension.until == yesterday
+            return true, latest_suspension
+        else
+            return false, latest_suspension
+        end
+    end
+
     def suspended_until
         suspension = self.suspensions.joins(:incident).where(incidents: { published: true }).order(until: :desc).first
         return suspension.until.strftime("%m/%d/%Y")
