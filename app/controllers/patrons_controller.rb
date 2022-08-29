@@ -241,7 +241,20 @@ class PatronsController < ApplicationController
       end
     else
       @query = params[:query]
-      @patrons = Patron.joins(:incidents).where(incidents: { published: true }).search_by_name_alias_description(params[:query]).order(created_at: :desc).uniq.paginate(page: params[:page], per_page: 5)
+      if params[:unknown_only] == 'true'
+        @unknown_only = true
+      else
+        @unknown_only = false
+      end
+      if !@query.blank? && @unknown_only == false
+        @patrons = Patron.joins(:incidents).where(incidents: { published: true }).order(created_at: :desc).search_by_name_alias_description(params[:query]).uniq.paginate(page: params[:page], per_page: 5)
+      elsif !@query.blank? && @unknown_only == true
+        @patrons = Patron.joins(:incidents).where(incidents: { published: true }).search_by_name_alias_description(params[:query]).order(created_at: :desc).select { |p| p.unknown_name == true }.uniq.paginate(page: params[:page], per_page: 5)
+      elsif @query.blank? && @unknown_only == true
+        @patrons = Patron.joins(:incidents).where(incidents: { published: true }).order(created_at: :desc).select { |p| p.unknown_name == true }.uniq.paginate(page: params[:page], per_page: 5)
+      else
+        @patrons = [].paginate(page: params[:page], per_page: 5)
+      end
     end
     respond_to do |format|
       format.html

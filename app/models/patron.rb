@@ -33,6 +33,14 @@ class Patron < ApplicationRecord
         return full_name
     end
 
+    def unknown_name
+        if self.first_name.blank? && self.middle_name.blank? && self.last_name.blank?
+            return true
+        else
+            return false
+        end
+    end
+
     def violations_from_incident(incident_id)
         self.violations.where(incident_id: incident_id)
     end

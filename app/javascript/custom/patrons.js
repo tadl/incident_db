@@ -134,7 +134,12 @@ function patron_search(from_incident){
         params['incident_id'] = $('#incident_id').html()
         $.post("/patrons/search.js", params);
     }else{
-        window.location.href = '/patrons/search?query=' + params['query']
+        if ($('#unknown_only').is(":checked")){
+            params['unknown_only'] = true
+        }else{
+            params['unknown_only'] = false
+        }
+        window.location.href = '/patrons/search?query=' + params['query'] + '&unknown_only=' + params['unknown_only']
     }
 }
 window.patron_search = patron_search
