@@ -1,5 +1,6 @@
 class PatronsController < ApplicationController
   skip_before_action :verify_authenticity_token
+  before_action :authenticate_user!
 
   def save
     if params[:patron_id] && params[:patron_id] != ''
@@ -107,26 +108,34 @@ class PatronsController < ApplicationController
   end
 
   def remove_violation
-    violation = Violation.find(params[:violation_id].to_i)
-    violation.destroy
     @patron = Patron.find(params[:patron_id].to_i)
     @incident = Incident.find(params[:incident_id].to_i)
-    @violations = Violation.where(patron_id: @patron.id, incident_id:@incident.id).order('description DESC')
+    unless @patron.suspension_for(@incident.id) && !current_user.can_suspend
+      violation = Violation.find(params[:violation_id].to_i)
+      violation.destroy
+      @violations = Violation.where(patron_id: @patron.id, incident_id:@incident.id).order('description DESC')
+    else
+      @error = "This account does not have permission to create or modify suspensions"
+    end
     respond_to do |format|
       format.js
     end
   end
 
   def remove_patron_from_incident
-    @patron_id = params[:patron_id]
-    @incident_id = params[:incident_id]
-    violations = Violation.where(patron_id: @patron_id, incident_id:@incident_id)
-    violations.each do |v|
-      v.destroy
-    end
-    suspensions = Suspension.where(patron_id: @patron_id, incident_id:@incident_id)
-    suspensions.each do |s|
-      s.destroy
+    @patron = Patron.find(params[:patron_id].to_i)
+    @incident = Incident.find(params[:incident_id].to_i)
+    unless @patron.suspension_for(@incident.id) && !current_user.can_suspend
+      violations = Violation.where(patron_id: @patron.id, incident_id:@incident.id)
+      violations.each do |v|
+        v.destroy
+      end
+      suspensions = Suspension.where(patron_id: @patron.id, incident_id:@incident.id)
+      suspensions.each do |s|
+        s.destroy
+      end
+    else
+      @error = "This account does not have permission to create or modify suspensions"
     end
     respond_to do |format|
       format.js
@@ -180,14 +189,16 @@ class PatronsController < ApplicationController
   end
 
   def load_suspension_form
-    @patron = Patron.find(params[:patron_id])
-    @incident = Incident.find(params[:incident_id])
-    @suspension = Suspension.where(incident_id: @incident.id, patron_id: @patron.id).first
-    if @suspension.nil?
-      @suspension = Suspension.new
-      @title = 'Creating New Suspension'
-    else
-      @title = 'Editing Suspension'
+    if current_user.can_suspend
+      @patron = Patron.find(params[:patron_id])
+      @incident = Incident.find(params[:incident_id])
+      @suspension = Suspension.where(incident_id: @incident.id, patron_id: @patron.id).first
+      if @suspension.nil?
+        @suspension = Suspension.new
+        @title = 'Creating New Suspension'
+      else
+        @title = 'Editing Suspension'
+      end
     end
     respond_to do |format|
       format.js
@@ -208,11 +219,13 @@ class PatronsController < ApplicationController
     if params[:letter]
       @suspension.letter.attach(params[:letter])
     end
-    @suspension.save
-    if @new_suspension == true && @incident.published == true
-      SuspensionPublishedJob.perform_later(@patron, @incident, @suspension)
-      @suspension.issued_email_sent = true
+    if current_user.can_suspend
       @suspension.save
+      if @new_suspension == true && @incident.published == true
+        SuspensionPublishedJob.perform_later(@patron, @incident, @suspension)
+        @suspension.issued_email_sent = true
+        @suspension.save
+      end
     end
     respond_to do |format|
       format.js
@@ -220,10 +233,14 @@ class PatronsController < ApplicationController
   end
 
   def delete_suspension
-    @incident = Incident.find(params[:incident_id])
-    @patron = Patron.find(params[:patron_id])
-    @suspension = Suspension.find(params[:suspension_id])
-    @suspension.destroy
+    if current_user.can_suspend
+      @incident = Incident.find(params[:incident_id])
+      @patron = Patron.find(params[:patron_id])
+      @suspension = Suspension.find(params[:suspension_id])
+      @suspension.destroy
+    else
+      @error = "This account does not have permission to create or modify suspensions"
+    end
     respond_to do |format|
       format.js
     end

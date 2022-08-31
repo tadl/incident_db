@@ -1,1 +1,5 @@
-$('#patron_<%= @patron_id %>').remove()
+<% if @error %>
+    alert('<%= escape_javascript( @error ) %>')
+<% else %>
+    $('#patron_<%= @patron.id %>').remove()
+<% end %>

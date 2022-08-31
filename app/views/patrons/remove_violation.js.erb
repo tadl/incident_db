@@ -1,1 +1,5 @@
-$("#patron_violations_<%= @patron.id %>").html("<%= escape_javascript(render 'violation_per_incident', patron: @patron, violations: @patron.violations.where(incident: @incident) )%>")
+<% if @error %>
+    alert('<%= escape_javascript( @error ) %>')
+<% else %>
+    $("#patron_violations_<%= @patron.id %>").html("<%= escape_javascript(render 'violation_per_incident', patron: @patron, violations: @patron.violations.where(incident: @incident) )%>")
+<% end %>

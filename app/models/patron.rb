@@ -92,7 +92,7 @@ class Patron < ApplicationRecord
     end
 
     def suspension_expired
-        yesterday = Date.yesterday
+        yesterday = Date.yesterday.in_time_zone("Eastern Time (US & Canada)")
         latest_suspension = self.suspensions.joins(:incident).where(incident: { published: true }).order(until: :desc)[0]
         if !latest_suspension.nil? && latest_suspension.until == yesterday
             return true, latest_suspension

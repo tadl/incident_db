@@ -21,3 +21,11 @@
 <div class="mb-3">
     <button type="button" class="btn btn-danger btn-lg" onclick="cancel_add_patron()"><%= icon('fa-solid', 'ban') %> Cancel</button>
 </div>
+<script>
+    document.getElementById("patron_query").addEventListener("keyup", function(event) {
+        event.preventDefault();
+        if (event.keyCode === 13) {
+            patron_search(true)
+        }
+    });
+</script>

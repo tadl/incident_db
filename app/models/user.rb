@@ -15,4 +15,27 @@ class User < ApplicationRecord
             end
         end
     end
+
+    def can_suspend
+        if ENV['CAN_SUSPEND'].split(',').include? self.email
+            return true
+        else
+            return false
+        end
+    end
+
+    def can_edit_incident(incident_id)
+        incident = Incident.find(incident_id)
+        if incident.created_by == self.id.to_s || (ENV['CAN_EDIT'].split(',').include? self.email) 
+            return true
+        else
+            return false
+        end   
+    end
+
+    def my_comment
+
+    end
+
+
 end

@@ -1,7 +1,9 @@
 <%= render 'incident_full' %>
+<% if current_user.can_edit_incident( @incident.id ) %>
 <div class="mb-3">
     <a type="button" class="btn btn-primary btn-lg" href="/incidents/edit?id=<%= @incident.id %>"><%= icon('fa-solid', 'pen') %> Edit Incident</a>
 </div>
+<% end %>
 <div id="comments">
     <% if @incident.incident_comments.size >= 1 %>
         <%= render '/comments/comments', comments: @incident.incident_comments, from: 'incident', owner_id: @incident.id %>

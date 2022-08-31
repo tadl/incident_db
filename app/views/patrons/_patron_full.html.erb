@@ -20,9 +20,6 @@
             <% if p.is_suspended %>
                 - Suspended Until <%= p.suspended_until %>
             <% end %>
-            <% if p.suspension_expired[0] == true %>
-                Hlloooooeekljl
-            <% end %>
         </h5>
         <% if p.description && !p.description.blank? %>
             <b>Description:</b>
@@ -65,6 +62,10 @@
                         </ul>
                         <% if p.suspension_for(i.id) %>
                             <b>Suspended for this Incident Until:</b> <%= p.suspension_for_details(i.id) %>
+                            <% if p.suspension_for_letter(i.id) %>
+                                <br>
+                                <a href="<%= url_for(p.suspension_for_letter(i.id)) %>">Download Suspension Letter</a>
+                            <% end %>
                         <% end %> 
                     </div>
             <% end %>

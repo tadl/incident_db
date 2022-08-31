@@ -12,6 +12,13 @@ class ApplicationController < ActionController::Base
         @b_infractions = Rule.where(track: 'B').where(legacy: false).sort_by {|i| (i.description.split('.')[0].to_i)}
     end
 
+    def authenticate_user!
+        if !current_user
+          url = request.url
+          redirect_to ('/main/index')
+        end
+    end
+
     helper_method :current_user
     helper_method :a_rules
     helper_method :b_rules  

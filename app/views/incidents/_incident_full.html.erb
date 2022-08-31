@@ -49,6 +49,10 @@
             <% end %>
             <% if p.suspension_for(@incident.id) %>
                 <b>Suspended for this Incident Until:</b> <%= p.suspension_for_details(@incident.id) %>
+                <% if p.suspension_for_letter(@incident.id) %>
+                    <br>
+                    <a href="<%= url_for(p.suspension_for_letter(@incident.id)) %>">Download Suspension Letter</a>
+                <% end %>
             <% end %> 
         </div>       
     <% end %>

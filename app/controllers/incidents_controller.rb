@@ -1,5 +1,6 @@
 class IncidentsController < ApplicationController
   skip_before_action :verify_authenticity_token
+  before_action :authenticate_user!
 
   def all
     if params[:just_mine] == 'true'
@@ -30,20 +31,28 @@ class IncidentsController < ApplicationController
 
   def edit
     id = params[:id].to_i
-    @incident = Incident.find(id) 
+    if current_user.can_edit_incident(id)
+      @incident = Incident.find(id) 
+    else
+      redirect_back_or_to '/'
+    end
   end
 
   def save
     if params[:incident_id] && params[:incident_id] != ''
-      @incident = Incident.find(params[:incident_id])
-      @incident.last_edit_by = current_user.id
-      unless params[:draft] == 'true'
-        if @incident.draft == true
-          @incident.draft = false
-          @incident.published_on = DateTime.now
-          @incident.published = true
-          @new_publish = true
+      if current_user.can_edit_incident(params[:incident_id])
+        @incident = Incident.find(params[:incident_id])     
+        @incident.last_edit_by = current_user.id
+        unless params[:draft] == 'true'
+          if @incident.draft == true
+            @incident.draft = false
+            @incident.published_on = DateTime.now
+            @incident.published = true
+           @new_publish = true
+          end
         end
+      else
+        redirect_back_or_to '/'
       end
     else
       @incident = Incident.new
