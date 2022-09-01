@@ -20,6 +20,12 @@ class ApplicationController < ActionController::Base
         end
     end
 
+    def check_super_admin!
+        if current_user.is_super_admin == false
+            redirect_to ('/')
+        end
+    end
+
     helper_method :current_user
     helper_method :a_rules
     helper_method :b_rules  

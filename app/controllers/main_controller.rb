@@ -1,5 +1,6 @@
 class MainController < ApplicationController
   before_action :authenticate_user!, except: [:index]
+  before_action :check_super_admin!, except: [:index]
   
   def index
   end

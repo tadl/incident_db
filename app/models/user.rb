@@ -33,6 +33,14 @@ class User < ApplicationRecord
         end   
     end
 
+    def is_super_admin
+        if ENV['SUPER_ADMIN'].split(',').include? self.email
+            return true
+        else
+            return false
+        end
+    end
+
     def my_comment(comment)
         if comment.user_id == self.id
             return true

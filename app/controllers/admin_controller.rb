@@ -1,5 +1,7 @@
 class AdminController < ApplicationController
     skip_before_action :verify_authenticity_token
+    before_action :authenticate_user!
+    before action :check_super_admin!
     
     def new_rule
         @action = 'Creating New '
