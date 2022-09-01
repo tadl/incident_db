@@ -1,0 +1,30 @@
+{
+    "name": "incidents",
+    "description": "tadl incident report system",
+    "keywords": [
+      "dokku",
+      "rails"
+    ],
+    "require": {
+        "plugins": [
+            {
+                "name": "redis",
+                "commands": ["redis:create $APP", "redis:link $APP $APP"]
+            }, 
+            {
+                "name": "memcached",
+                "commands": ["memcached:create $APP", "memcached:link $APP $APP"]
+            },
+            {
+                "name": "postgres",
+                "commands": ["postgres:create $APP", "postgres:link $APP $APP"]
+            }
+        ]
+    },
+    "scripts": {
+      "dokku": {
+        "predeploy": "bundle exec rake assets:precompile",
+        "postdeploy": "bundle exec rails db:migrate"
+      }
+    }
+  }
