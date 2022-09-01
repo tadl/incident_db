@@ -15,8 +15,8 @@ class ApplicationController < ActionController::Base
 
     def authenticate_user!
         if !current_user
-          url = request.url
-          redirect_to ('/main/index')
+            url = request.url
+            redirect_to ('/auth/google_oauth2?origin=') + url
         end
     end
 
