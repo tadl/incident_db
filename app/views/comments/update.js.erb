@@ -1,4 +1,5 @@
 var myModalEl = document.getElementById('edit_comment_modal');
 var modal = bootstrap.Modal.getInstance(myModalEl)
+alert('<%= @from %>')
 $("#comment_<%= @comment.id %>").replaceWith("<%= escape_javascript(render '/comments/comment', c: @comment, from: @from, owner_id: @owner_id )%>")
 modal.hide();

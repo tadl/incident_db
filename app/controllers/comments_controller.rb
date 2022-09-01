@@ -33,10 +33,12 @@ class CommentsController < ApplicationController
 
     def update
         @comment = Comment.find(params[:id])
-        @comment.description = params[:description]
-        @comment.save 
+        if current_user.my_comment(@comment)
+            @comment.description = params[:description]
+            @comment.save 
+        end
         @owner_id = params[:owner_id]
-        @from = params[:from]
+        @from = params[:comment_for]
         respond_to do |format|
             format.js
         end
@@ -44,7 +46,9 @@ class CommentsController < ApplicationController
 
     def delete
         comment = Comment.find(params[:id])
-        comment.destroy
+        if current_user.my_comment(comment)
+            comment.destroy
+        end
         if params[:comment_for] == 'incident'
             @comments = IncidentComment.where(incident_id: params[:owner_id])
         elsif params[:comment_for] == 'patron'

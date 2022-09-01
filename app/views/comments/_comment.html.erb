@@ -10,15 +10,13 @@
                 <% if c.was_edited %>
                 <i>Edited on: <%= c.edited_on %></i>
                 <% end %>
-                <% if c.user_id == current_user.id %>
+                <% if current_user.my_comment(c) %>
                     <a href="#" onclick="edit_comment(<%= c.id %>, '<%= from %>', <%= owner_id %>)">Edit</a>
                     <a href="#" onclick="delete_comment(<%= c.id %>, '<%= from %>', <%= owner_id %>); event.preventDefault()">Delete</a>
                 <% end %>
                 <br>
                 <%= c.description %>
                 <br>
-                <% if c.user_id == current_user.id %>
-                <% end %>
             </div>
         </div>
     </div>

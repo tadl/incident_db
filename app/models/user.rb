@@ -33,8 +33,12 @@ class User < ApplicationRecord
         end   
     end
 
-    def my_comment
-
+    def my_comment(comment)
+        if comment.user_id == self.id
+            return true
+        else
+            return false
+        end
     end
 
 
