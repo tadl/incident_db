@@ -20,10 +20,6 @@ class ApplicationController < ActionController::Base
         end
     end
 
-    def set_headers
-        headers['Access-Control-Allow-Origin'] = '*'      
-    end 
-
     helper_method :current_user
     helper_method :a_rules
     helper_method :b_rules  

@@ -1,5 +1,4 @@
 class SessionsController < ApplicationController
-  before_action :set_headers
   def create
     user = User.from_omniauth(request.env['omniauth.auth'])
     if user != false
