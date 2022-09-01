@@ -23,10 +23,8 @@
     },
     "scripts": {
       "dokku": {
-        "postdeploy": [
-            "bundle exec rails db:migrate",
-            "bundle exec rake assets:precompile",
-        ]
+        "predeploy": "bundle exec rake assets:precompile",
+        "postdeploy": "bundle exec rails db:migrate"
       }
     }
   }
