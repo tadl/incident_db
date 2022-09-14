@@ -59,10 +59,10 @@ class PatronsController < ApplicationController
   def list
     if params[:suspended] == 'true'
       @title = "Currently Suspended Patrons"
-      @patrons = Patron.order(created_at: :desc).joins(:incidents).where(incidents: { published: true }).select { |p| p.is_suspended == true }.uniq.paginate(page: params[:page], per_page: 5)
+      @patrons = Patron.order(created_at: :desc).joins(:incidents).select { |p| p.is_suspended == true }.uniq.paginate(page: params[:page], per_page: 5)
     else
       @title = "All Patrons"
-      @patrons = Patron.all.joins(:incidents).where(incidents: { published: true }).order(created_at: :desc).uniq.paginate(page: params[:page], per_page: 5)
+      @patrons = Patron.all.joins(:incidents).order(created_at: :desc).uniq.paginate(page: params[:page], per_page: 5)
     end
     respond_to do |format|
       format.html
@@ -264,11 +264,11 @@ class PatronsController < ApplicationController
         @unknown_only = false
       end
       if !@query.blank? && @unknown_only == false
-        @patrons = Patron.joins(:incidents).where(incidents: { published: true }).order(created_at: :desc).search_by_name_alias_description(params[:query]).uniq.paginate(page: params[:page], per_page: 5)
+        @patrons = Patron.joins(:incidents).order(created_at: :desc).search_by_name_alias_description(params[:query]).uniq.paginate(page: params[:page], per_page: 5)
       elsif !@query.blank? && @unknown_only == true
-        @patrons = Patron.joins(:incidents).where(incidents: { published: true }).search_by_name_alias_description(params[:query]).order(created_at: :desc).select { |p| p.unknown_name == true }.uniq.paginate(page: params[:page], per_page: 5)
+        @patrons = Patron.joins(:incidents).search_by_name_alias_description(params[:query]).order(created_at: :desc).select { |p| p.unknown_name == true }.uniq.paginate(page: params[:page], per_page: 5)
       elsif @query.blank? && @unknown_only == true
-        @patrons = Patron.joins(:incidents).where(incidents: { published: true }).order(created_at: :desc).select { |p| p.unknown_name == true }.uniq.paginate(page: params[:page], per_page: 5)
+        @patrons = Patron.joins(:incidents).order(created_at: :desc).select { |p| p.unknown_name == true }.uniq.paginate(page: params[:page], per_page: 5)
       else
         @patrons = [].paginate(page: params[:page], per_page: 5)
       end
