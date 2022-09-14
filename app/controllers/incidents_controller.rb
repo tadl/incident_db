@@ -121,7 +121,7 @@ class IncidentsController < ApplicationController
       end
       @comments = Comment.where(incident_id: @incident.id)
       @comments.each do |c|
-        c.destory
+        c.destroy
       end
       @incident.destroy
     else

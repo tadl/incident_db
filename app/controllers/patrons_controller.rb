@@ -293,7 +293,7 @@ class PatronsController < ApplicationController
       end
       @comments = Comment.where(patron_id: @patron.id)
       @comments.each do |c|
-        c.destory
+        c.destroy
       end
       @patron.destroy
     else
