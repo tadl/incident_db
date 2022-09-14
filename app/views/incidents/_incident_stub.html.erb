@@ -25,6 +25,9 @@
                     <% if current_user.can_edit_incident( i.id ) %>
                         <a href="/incidents/edit?id=<%= i.id %>" class="btn btn-primary"><%= icon('fa-solid', 'pen') %> Edit</a>
                     <% end %>
+                    <% if current_user.can_delete_this_incident(i) %>
+                        <a onclick="delete_incident(<%= i.id %>)" class="btn btn-danger"><%= icon('fa-solid', 'trash') %> Delete</a>
+                    <% end %>
                 </div>
             </div>
         </div>

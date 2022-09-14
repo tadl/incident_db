@@ -1,0 +1,5 @@
+<% if @error %>
+    alert('<%= escape_javascript(@error) %>')
+<% else %>
+    location.reload(); 
+<% end %>

@@ -55,3 +55,13 @@ function search_incidents(){
     window.location.href = '/incidents/search?query=' + query
 }
 window.search_incidents = search_incidents
+
+function delete_incident(incident_id){
+    var confirmation = confirm("Are you sure you want to delete this incident?")
+    if(confirmation == true){
+        var params = {}
+        params['id'] = incident_id
+        $.post("/incidents/delete_incident.js", params);
+    }
+}
+window.delete_incident = delete_incident

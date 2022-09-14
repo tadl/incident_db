@@ -232,3 +232,13 @@ function delete_letter(patron_id, suspension_id, incident_id){
     $.post("/patrons/delete_letter.js", params);
 }
 window.delete_letter = delete_letter
+
+function delete_patron(patron_id){
+    var confirmation = confirm("Are you sure you want to delete this patron?")
+    if(confirmation == true){
+        var params = {}
+        params['id'] = patron_id
+        $.post("/patrons/delete_patron.js", params);
+    }
+}
+window.delete_patron = delete_patron

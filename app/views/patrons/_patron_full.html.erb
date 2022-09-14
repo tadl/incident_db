@@ -75,6 +75,9 @@
                 <a href="/patrons/view?id=<%= p.id %>" class="btn btn-primary mb-3"><%= icon('fa-solid', 'eye') %> View Full Patron Record</a>
             <% end %>
             <a href="/patrons/edit?patron_id=<%= p.id %>" class="btn btn-secondary mb-3"><%= icon('fa-solid', 'pen') %> Edit Patron Record</a>
+            <% if stub == true && current_user.is_super_admin %>
+                <a onclick="delete_patron(<%= p.id %>)" class="btn btn-danger mb-3"><%= icon('fa-solid', 'trash') %> Delete Patron</a>
+            <% end %>
         </div>
     </div>
 </div>

@@ -280,6 +280,30 @@ class PatronsController < ApplicationController
     end
   end
 
+  def delete_patron
+    @patron = Patron.find(params[:id])
+    if current_user.is_super_admin
+      @violations = Violation.where(patron_id: @patron.id)
+      @violations.each do |v|
+        v.destroy
+      end
+      @suspensions = Suspension.where(patron_id: @patron.id)
+      @suspensions.each do |s|
+        s.destroy
+      end
+      @comments = Comment.where(patron_id: @patron.id)
+      @comments.each do |c|
+        c.destory
+      end
+      @patron.destroy
+    else
+      @error = 'You do not have permission to delete this patron.'
+    end
+    respond_to do |format|
+      format.js
+    end
+  end
+
   private
 
   def patron_params

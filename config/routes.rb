@@ -27,6 +27,7 @@ Rails.application.routes.draw do
   match '/incidents/view', to: 'incidents#view', via: [:get, :post]
   match '/incidents/edit', to: 'incidents#edit', via: [:get, :post]
   match '/incidents/delete_image', to: 'incidents#delete_image', via: [:post]
+  match '/incidents/delete_incident', to: 'incidents#delete_incident', via: [:post]
   match '/incidents/search', to: 'incidents#search', via: [:get, :post]
 
   #Patrons
@@ -47,6 +48,7 @@ Rails.application.routes.draw do
   match '/patrons/save_suspension', to: 'patrons#save_suspension', via: [:post]
   match '/patrons/delete_suspension', to: 'patrons#delete_suspension', via: [:post]
   match '/patrons/delete_letter', to: 'patrons#delete_letter', via: [:post]
+  match '/patrons/delete_patron', to: 'patrons#delete_patron', via: [:post]
 
   #Comments
   match '/comments/save', to: 'comments#save', via: [:post]

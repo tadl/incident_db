@@ -49,5 +49,11 @@ class User < ApplicationRecord
         end
     end
 
-
+    def can_delete_this_incident(incident)
+        if (incident.published != true && (incident.created_by == self.id.to_s)) || self.is_super_admin
+            return true
+        else
+            return false
+        end
+    end
 end

@@ -108,6 +108,30 @@ class IncidentsController < ApplicationController
     end
   end
 
+  def delete_incident
+    @incident = Incident.find(params[:id])
+    if current_user.can_delete_this_incident(@incident)
+      @violations = Violation.where(incident_id: @incident.id)
+      @violations.each do |v|
+        v.destroy
+      end
+      @suspensions = Suspension.where(incident_id: @incident.id)
+      @suspensions.each do |s|
+        s.destroy
+      end
+      @comments = Comment.where(incident_id: @incident.id)
+      @comments.each do |c|
+        c.destory
+      end
+      @incident.destroy
+    else
+      @error = 'You do not have permission to delete this incident'
+    end
+    respond_to do |format|
+      format.js
+    end
+  end
+
   private
 
   def incident_params
