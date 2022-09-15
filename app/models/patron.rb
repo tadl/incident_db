@@ -106,6 +106,11 @@ class Patron < ApplicationRecord
         return suspension.until.strftime("%m/%d/%Y")
     end
 
+    def suspended_until_raw
+        suspension = self.suspensions.joins(:incident).where(incidents: { published: true }).order(until: :desc).first
+        return suspension.until
+    end
+
     def unique_incidents
     #     unique_incident_ids = []
     #     unique_incidents = []
