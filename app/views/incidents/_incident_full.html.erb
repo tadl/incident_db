@@ -22,7 +22,7 @@
     </div>
 <% end %>
 <div class="mb-3">
-    <%= @incident.description %>
+    <p style="white-space: pre;"><%= @incident.description %></p>
 </div>
 <% if @incident.patrons.size >= 1 %>
     <h3>Patrons involved:</h3>
@@ -43,7 +43,7 @@
             <% else %>
                 <% p.violations_from_incident(@incident.id).each do |v| %>
                     <% unless v.description == 'None' %>
-                        <p><%= v.description %></p>
+                        <p style="white-space: pre-wrap"><%= v.description %></p>
                     <% end %>
                 <% end %>
             <% end %>

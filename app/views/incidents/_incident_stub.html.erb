@@ -11,7 +11,7 @@
                 <h4 class="card-title"><%= i.title %></h4>
                 <b>Date of Incident:</b> <%= i.date_of_in_time_zone %>
                 <b>ID:</b> <%= i.id %> 
-                <p class="card-text"><%= i.description %></p>
+                <p class="card-text" style="white-space: pre;"><%= i.description %></p>
                 <% if i.patrons.size >= 1 %>
                     <p>
                         <b>Patrons Involved:</b>
