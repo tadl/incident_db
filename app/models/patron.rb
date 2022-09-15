@@ -15,7 +15,7 @@ class Patron < ApplicationRecord
         attachable.variant :thumb, resize_to_fill: [250, 250]
     end
 
-    validates :images, blob: { content_type: ['image/png', 'image/jpg', 'image/jpeg'], size_range: 1..(5.megabytes) }
+    validates :images, blob: { content_type: ['image/png', 'image/jpg', 'image/jpeg'], size_range: 1..(10.megabytes) }
     validate :at_least_one_name
 
     def at_least_one_name
