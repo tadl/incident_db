@@ -6,14 +6,14 @@ class IncidentsController < ApplicationController
     if params[:just_mine] == 'true'
       @title = 'My'
       @search_param = 'just_mine'
-      @incidents = Incident.paginate(page: params[:page], per_page: 5).where(published: true, created_by: current_user.id).order(date_of: :desc)
+      @incidents = Incident.paginate(page: params[:page], per_page: 10).where(published: true, created_by: current_user.id).order(date_of: :desc)
     elsif params[:just_drafts] == 'true'
       @title = 'My Draft'
-      @incidents = Incident.paginate(page: params[:page], per_page: 5).where(draft: true, created_by: current_user.id).order(date_of: :desc)
+      @incidents = Incident.paginate(page: params[:page], per_page: 10).where(draft: true, created_by: current_user.id).order(date_of: :desc)
       @search_param = 'just_drafts'
     else
       @title = 'All'
-      @incidents = Incident.paginate(page: params[:page], per_page: 5).where(published: true).order(date_of: :desc)
+      @incidents = Incident.paginate(page: params[:page], per_page: 10).where(published: true).order(date_of: :desc)
       @search_param = 'all'
     end
   end
