@@ -51,6 +51,7 @@ class IncidentsController < ApplicationController
            @new_publish = true
           end
         end
+        puts "Goooooott hereeeee"
       else
         redirect_back_or_to '/'
       end

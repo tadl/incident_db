@@ -5,7 +5,8 @@ function cancel_add_patron(){
     var patrons_in_incident = $('.patron_violation_form').length;
     if(patrons_in_incident == 0){
         $('#no_patron_div').show() 
-    }  
+    }
+    $('#save_incident_buttons').show()  
 }
 window.cancel_add_patron = cancel_add_patron
 
@@ -54,6 +55,7 @@ function save_patron(patron_id){
         contentType: false,
         processData: false,
     });
+    $('#save_incident_buttons').show()
     $('#add_patron_to_incident_button').show()
 }
 window.save_patron = save_patron

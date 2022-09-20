@@ -34,6 +34,10 @@ function save_incident(draft, add_patron){
         contentType: false,
         processData: false,
     });
+
+    if(add_patron == 'true'){
+        $('#save_incident_buttons').hide()
+    }
 }
 window.save_incident = save_incident
 
