@@ -219,7 +219,7 @@ class PatronsController < ApplicationController
     if params[:letter]
       @suspension.letter.attach(params[:letter])
     end
-    valid_date = DateTime.parse date rescue nil
+    valid_date = @suspension.until.strftime("%m/%d/%Y") rescue nil
     if valid_date != nil
       if current_user.can_suspend
         @suspension.save
