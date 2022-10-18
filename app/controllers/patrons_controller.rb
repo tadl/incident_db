@@ -219,13 +219,18 @@ class PatronsController < ApplicationController
     if params[:letter]
       @suspension.letter.attach(params[:letter])
     end
-    if current_user.can_suspend
-      @suspension.save
-      if @new_suspension == true && @incident.published == true
-        SuspensionPublishedJob.perform_later(@patron, @incident, @suspension)
-        @suspension.issued_email_sent = true
+    valid_date = DateTime.parse date rescue nil
+    if valid_date != nil
+      if current_user.can_suspend
         @suspension.save
+        if @new_suspension == true && @incident.published == true
+          SuspensionPublishedJob.perform_later(@patron, @incident, @suspension)
+          @suspension.issued_email_sent = true
+          @suspension.save
+        end
       end
+    else
+      @error = 'Please enter a valid suspension expiration date.'
     end
     respond_to do |format|
       format.js
