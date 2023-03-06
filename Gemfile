@@ -21,6 +21,7 @@ gem 'redis', '~> 4.7.1'
 gem 'sidekiq'
 gem 'sidekiq-scheduler'
 gem 'httparty'
+gem 'mechanize'
 
 #- DEFAULT GEMS
 
