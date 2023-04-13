@@ -17,4 +17,15 @@ class IncidentMailer < ApplicationMailer
         @patron = patron
         mail to: ENV['EMAIL_TO'], subject: ('Suspension Expired: ' + @patron.full_name)
     end
+
+    def comment_added(comment, type, value)
+        @comment = comment
+        @type = type
+        @value = value
+        @user = User.find(@comment.user_id)
+        mail to: ENV['COMMENT_EMAIL_TO'], subject: ('Incident Report System: New ' + @type.capitalize + ' Comment')
+    end
+        
+
+
 end

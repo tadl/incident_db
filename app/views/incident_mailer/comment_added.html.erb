@@ -1,0 +1,12 @@
+<% if @type == 'patron' %>
+    <h1> A New Comment Has Been Added to the Patron Record of <%= @value.full_name %></h1>
+<% else %>
+    <h1> A New Comment Has Been Added to the Following Incident: <%= @value.title %> </h1>
+<% end %>
+<p><%= @user.name %> commentend <i>"<%= @comment.description %>"</i> on <%= @comment.posted_on %>.</p>
+<br>
+<% if @type == 'patron' %>
+    <b>See Patron Record:</b> https://<%= ENV['HOSTNAME'] %>/patrons/view?id=<%= @value.id %>
+<% else %>
+    <b>See Incident Report:</b> https://<%= ENV['HOSTNAME'] %>/incidents/view?id=<%= @value.id %>
+<% end %>

@@ -11,6 +11,7 @@ class CommentsController < ApplicationController
                 comment.user_id = current_user.id
                 comment.save!
                 @comments = IncidentComment.where(incident_id: params[:id])
+                CommentAddedJob.perform_later(comment)
             elsif params[:comment_for] == 'patron'
                 comment = PatronComment.new
                 comment.description = params[:description] 
@@ -18,6 +19,7 @@ class CommentsController < ApplicationController
                 comment.user_id = current_user.id
                 comment.save!
                 @comments = PatronComment.where(patron_id: params[:id])
+                CommentAddedJob.perform_later(comment)
             else
                 @error = 'Something went wrong. Please let IT know.'
             end
