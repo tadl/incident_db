@@ -1,0 +1,35 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  legacy_id: MyString
+  date_of: 2023-04-21
+  time_of: 2023-04-21 18:25:15
+  title: MyString
+  patron_name: MyString
+  patron_address: MyString
+  description: MyString
+  narative: MyString
+  location: MyString
+  date_entered: 2023-04-21 18:25:15
+  submitted_by: MyString
+  suspension: MyString
+  suspension_duraction: MyString
+  a_violations: MyString
+  b_violations: MyString
+
+two:
+  legacy_id: MyString
+  date_of: 2023-04-21
+  time_of: 2023-04-21 18:25:15
+  title: MyString
+  patron_name: MyString
+  patron_address: MyString
+  description: MyString
+  narative: MyString
+  location: MyString
+  date_entered: 2023-04-21 18:25:15
+  submitted_by: MyString
+  suspension: MyString
+  suspension_duraction: MyString
+  a_violations: MyString
+  b_violations: MyString

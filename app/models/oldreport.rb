@@ -1,0 +1,2 @@
+class Oldreport < ApplicationRecord
+end
