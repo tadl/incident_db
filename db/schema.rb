@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_04_21_182515) do
+ActiveRecord::Schema[7.0].define(version: 2023_04_21_201435) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -78,16 +78,17 @@ ActiveRecord::Schema[7.0].define(version: 2023_04_21_182515) do
     t.string "patron_name"
     t.string "patron_address"
     t.string "description"
-    t.string "narative"
+    t.string "narrative"
     t.string "location"
     t.time "date_entered"
     t.string "submitted_by"
     t.string "suspension"
-    t.string "suspension_duraction"
+    t.string "suspension_duration"
     t.string "a_violations"
     t.string "b_violations"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "violation_number"
   end
 
   create_table "patrons", force: :cascade do |t|

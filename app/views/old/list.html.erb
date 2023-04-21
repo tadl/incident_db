@@ -1,0 +1,9 @@
+<h1>Old#list</h1>
+<% @reports.each do |r| %>
+    <h4><%= r.title %> - <%= r.date_of.to_s %> - <%= r.time_of.to_s %>  </h4>
+    <% r.images.each do |i| %>
+        <a href="<%= url_for(i) %>" target="_blank">
+            <%= image_tag i.variant(:thumb), class: 'img-thumbnail' %>
+        </a>
+    <% end %>
+<% end %>

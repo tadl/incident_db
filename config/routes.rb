@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get 'old/list'
+  get 'old/show'
   get 'patron/save'
   get 'patron/edit'
   get 'patron/list'
