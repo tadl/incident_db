@@ -1,0 +1,22 @@
+ <h2 class="mb-3"><%= icon('fa-solid', 'search') %> Searching Legacy Incident Reports</h2>
+ <div class="row mt-3 mb-3">
+    <div class="col-lg-6">
+      <div class="input-group mb-3">
+            <input type="text" class="form-control" id="query" aria-describedby="legacy_search" maxlength="50" autocomplete="off" value="<%= @query %>">
+            <button type="submit" class="btn btn-primary btn-sm" onclick="search_old()"><%= icon('fa-solid', 'search') %> Search Legacy Incident Reports</button>
+      </div>
+    </div>
+</div>
+<%= will_paginate @reports, renderer: WillPaginate::ActionView::BootstrapLinkRenderer %>
+<% @reports.each do |r| %>
+   <%= render 'old_stub', r: r %>
+<% end %>
+<%= will_paginate @reports, renderer: WillPaginate::ActionView::BootstrapLinkRenderer %>
+<script>
+    document.getElementById("query").addEventListener("keyup", function(event) {
+        event.preventDefault();
+        if (event.keyCode === 13) {
+            search_old()
+        }
+    });
+</script>

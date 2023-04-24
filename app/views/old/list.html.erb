@@ -1,9 +1,6 @@
-<h1>Old#list</h1>
+<h2 class="mb-3"><%= icon('fa-solid', 'person-falling-burst') %> <%= @title %> Legacy Incident Reports</h2>
+<%= will_paginate @reports, renderer: WillPaginate::ActionView::BootstrapLinkRenderer %>
 <% @reports.each do |r| %>
-    <h4><%= r.title %> - <%= r.date_of.to_s %> - <%= r.time_of.to_s %>  </h4>
-    <% r.images.each do |i| %>
-        <a href="<%= url_for(i) %>" target="_blank">
-            <%= image_tag i.variant(:thumb), class: 'img-thumbnail' %>
-        </a>
-    <% end %>
+    <%= render 'old_stub', r: r %>
 <% end %>
+<%= will_paginate @reports, renderer: WillPaginate::ActionView::BootstrapLinkRenderer %>
