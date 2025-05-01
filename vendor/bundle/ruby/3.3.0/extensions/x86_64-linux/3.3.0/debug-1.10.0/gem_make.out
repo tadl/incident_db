@@ -1,0 +1,19 @@
+current directory: /home/smorey/incident_db/vendor/bundle/ruby/3.3.0/gems/debug-1.10.0/ext/debug
+/home/smorey/.rbenv/versions/3.3.8/bin/ruby extconf.rb
+creating Makefile
+
+current directory: /home/smorey/incident_db/vendor/bundle/ruby/3.3.0/gems/debug-1.10.0/ext/debug
+make DESTDIR\= sitearchdir\=./.gem.20250501-45136-lj67fw sitelibdir\=./.gem.20250501-45136-lj67fw clean
+
+current directory: /home/smorey/incident_db/vendor/bundle/ruby/3.3.0/gems/debug-1.10.0/ext/debug
+make DESTDIR\= sitearchdir\=./.gem.20250501-45136-lj67fw sitelibdir\=./.gem.20250501-45136-lj67fw
+compiling debug.c
+compiling iseq_collector.c
+linking shared-object debug/debug.so
+
+current directory: /home/smorey/incident_db/vendor/bundle/ruby/3.3.0/gems/debug-1.10.0/ext/debug
+make DESTDIR\= sitearchdir\=./.gem.20250501-45136-lj67fw sitelibdir\=./.gem.20250501-45136-lj67fw install
+/usr/bin/install -c -m 0755 debug.so ./.gem.20250501-45136-lj67fw/debug
+
+current directory: /home/smorey/incident_db/vendor/bundle/ruby/3.3.0/gems/debug-1.10.0/ext/debug
+make DESTDIR\= sitearchdir\=./.gem.20250501-45136-lj67fw sitelibdir\=./.gem.20250501-45136-lj67fw clean
