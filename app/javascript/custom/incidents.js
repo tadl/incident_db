@@ -20,6 +20,12 @@ function save_incident(draft, add_patron){
         incident_params.append(k, v)
     });
 
+    $('.violation-summary').each(function(){
+      var val = ($(this).val() || '').trim()
+      if(val.length === 0){ return }
+      incident_params.append($(this).attr('name'), val)
+    })
+
     var incident_images = $('#incident_images').prop("files");
     if(incident_images && incident_images[0]){
         $.each(incident_images, function(i){

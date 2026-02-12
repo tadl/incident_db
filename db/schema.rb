@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_05_01_164931) do
+ActiveRecord::Schema[7.2].define(version: 2026_02_12_210318) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -68,6 +68,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_01_164931) do
     t.datetime "published_on"
     t.boolean "no_patrons", default: false
     t.integer "user_id"
+    t.string "violation_format", default: "legacy", null: false
   end
 
   create_table "oldreports", force: :cascade do |t|
@@ -153,6 +154,17 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_01_164931) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "violation_summaries", force: :cascade do |t|
+    t.text "description", null: false
+    t.bigint "incident_id", null: false
+    t.bigint "patron_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["incident_id", "patron_id"], name: "index_violation_summaries_on_incident_and_patron", unique: true
+    t.index ["incident_id"], name: "index_violation_summaries_on_incident_id"
+    t.index ["patron_id"], name: "index_violation_summaries_on_patron_id"
+  end
+
   create_table "violations", force: :cascade do |t|
     t.string "description"
     t.bigint "patron_id", null: false
@@ -167,4 +179,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_05_01_164931) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "suspensions", "incidents"
   add_foreign_key "suspensions", "patrons"
+  add_foreign_key "violation_summaries", "incidents"
+  add_foreign_key "violation_summaries", "patrons"
 end

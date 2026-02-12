@@ -37,16 +37,29 @@
         <% end %>
         <div class="mb-3">
             <b>Violations:</b>
-            <br>
-            <% if p.violations_from_incident(@incident.id).size == 1 %>
-                    <%= p.violations_from_incident(@incident.id)[0].description %>
+            
+        <% if @incident.violation_format_summary? %>
+            <% summary = ViolationSummary.find_by(incident: @incident, patron: p) %>
+
+            <% if summary&.description.present? %>
+                <p><%= simple_format(h(summary.description)) %></p>
             <% else %>
-                <% p.violations_from_incident(@incident.id).each do |v| %>
+                <p><i>None</i></p>
+            <% end %>
+
+        <% else %>
+            <% violations = p.violations_from_incident(@incident.id) %>
+
+            <% if violations.size == 1 %>
+                <%= violations[0].description %>
+            <% else %>
+                <% violations.each do |v| %>
                     <% unless v.description == 'None' %>
                         <p><%= v.description %></p>
                     <% end %>
                 <% end %>
             <% end %>
+        <% end %>
             <% if p.suspension_for(@incident.id) %>
                 <b>Suspended for this Incident Until:</b> <%= p.suspension_for_details(@incident.id) %>
                 <% if p.suspension_for_letter(@incident.id) %>

@@ -26,7 +26,7 @@ class IncidentsController < ApplicationController
 
   def new
     @date_time_today = DateTime.now.in_time_zone("Eastern Time (US & Canada)").strftime("%m/%d/%Y,  %H:%M")
-    @incident = Incident.new
+    @incident = Incident.new(violation_format: :summary)
   end
 
   def edit
@@ -56,7 +56,7 @@ class IncidentsController < ApplicationController
         redirect_back_or_to '/'
       end
     else
-      @incident = Incident.new
+      @incident = Incident.new(violation_format: :summary)
       @incident.created_by = current_user.id
       unless params[:draft] == 'true'
         @incident.published_on = DateTime.now
@@ -70,6 +70,31 @@ class IncidentsController < ApplicationController
       @incident.images.attach(params[:images])
       if @incident.valid?
         @incident.save
+         if @incident.violation_format_summary?
+          violation_summaries_param.each do |patron_id, attrs|
+            # attrs may be Parameters or Hash
+            description =
+              if attrs.respond_to?(:[])
+                (attrs[:description] || attrs["description"]).to_s.strip
+              else
+                ""
+              end
+
+            summary = ViolationSummary.find_or_initialize_by(
+              incident_id: @incident.id,
+              patron_id: patron_id
+            )
+
+            if description.blank?
+              # Treat blank as "clear"
+              summary.destroy if summary.persisted?
+              next
+            end
+
+            summary.description = description
+            summary.save!
+          end
+        end
         @updated = true
         if @new_publish == true
           IncidentMailerJob.perform_later(@incident)
@@ -137,6 +162,12 @@ class IncidentsController < ApplicationController
 
   def incident_params
       params.permit(:title, :description, :location, :draft, :no_patrons)
+  end
+
+  
+  def violation_summaries_param
+    return {} unless params[:violation_summaries].is_a?(ActionController::Parameters) || params[:violation_summaries].is_a?(Hash)
+    params[:violation_summaries]
   end
 
 end

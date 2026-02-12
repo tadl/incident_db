@@ -19,20 +19,32 @@
         <%= icon('fa-solid', 'pencil') %> Edit Patron Record
     </button>        
 
-    <div id="patron_violations_<%= patron.id %>" class="mb-3">
-        <%= render '/patrons/violation_per_incident', violations: patron.violations.where(incident: @incident), patron: patron %>
-    </div>
-    <div id="patron_suspension_<%= patron.id %>" class="mb-3">
-        <% if patron.suspension_for(@incident.id) %>
-            <b>Suspended for this Incident Until:</b> <%= patron.suspension_for_details(@incident.id) %>
-            <% if patron.suspension_for_letter(@incident.id) %>
-                <br>
-                <a href="<%= url_for(patron.suspension_for_letter(@incident.id)) %>">Download Suspension Letter</a>
-            <% end %>
-        <% end %>
-    </div>
-    <button type="button" class="btn btn-sm btn-dark mb-3" onclick="show_violation_modal('A', <%= patron.id %>)">Add A Level Violations</button>
-    <button type="button" class="btn btn-sm btn-secondary mb-3" onclick="show_violation_modal('B', <%= patron.id %>)">Add B Level Violations</button>
+
+    <% if @incident.violation_format_legacy? %>
+        <div id="patron_violations_<%= patron.id %>" class="mb-3">
+            <%= render '/patrons/violation_per_incident', violations: patron.violations.where(incident: @incident), patron: patron %>
+        </div>
+
+        <button type="button" class="btn btn-sm btn-dark mb-3"
+            onclick="show_violation_modal('A', <%= patron.id %>)">
+            Add A Level Violations
+        </button>
+
+        <button type="button" class="btn btn-sm btn-secondary mb-3"
+            onclick="show_violation_modal('B', <%= patron.id %>)">
+            Add B Level Violations
+        </button>
+
+    <% else %>
+        <% summary = ViolationSummary.find_or_initialize_by(incident: @incident, patron: patron) %>
+
+        <div id="patron_violation_summary_<%= patron.id %>" class="mb-3">
+            <label class="form-label"><b>Violations:</b></label>
+            <textarea class="form-control violation-summary" rows="4" name="violation_summaries[<%= patron.id %>][description]"><%= summary.description %></textarea>
+        </div>
+    <% end %>
+
+
     <% if current_user.can_suspend %>
         <% if patron.suspension_for(@incident.id) %>
             <button type="button" class="btn btn-sm btn-danger mb-3" onclick="show_suspension_modal(<%= patron.id %>)">Edit Suspension</button>

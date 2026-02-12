@@ -3,11 +3,20 @@ class Incident < ApplicationRecord
 
     has_many :incident_comments
     has_many :violations
+    has_many :violation_summaries, dependent: :destroy
     has_many :suspensions
     has_many :patrons, through: :violations
+    has_many :summary_patrons, through: :violation_summaries, source: :patron
+
+    def involved_patrons
+        (patrons + summary_patrons).uniq
+    end
+    
     has_many_attached :images do |attachable|
         attachable.variant :thumb, resize_to_fill: [250, 250]
     end
+
+    enum :violation_format, { legacy: "legacy", summary: "summary" }, prefix: true
 
     validates :images, blob: { content_type: ['image/png', 'image/jpg', 'image/jpeg'], size_range: 1..(10.megabytes) }
     validates :location, presence: { message: 'Location required' }, allow_blank: false
@@ -25,6 +34,8 @@ class Incident < ApplicationRecord
       using: {
         tsearch: {prefix: true}
       }
+
+    
 
     def created_by_name
         user = User.find(self.created_by)

@@ -9,6 +9,7 @@ class Patron < ApplicationRecord
     }
     has_many :patron_comments
     has_many :violations
+    has_many :violation_summaries, dependent: :destroy
     has_many :suspensions
     has_many :incidents, through: :violations
     has_many_attached :images do |attachable|

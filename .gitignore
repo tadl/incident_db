@@ -39,3 +39,5 @@ config/environments/*.local.yml
 
 /import/*
 !/import/.gitkeep
+
+/vendor/bundle/

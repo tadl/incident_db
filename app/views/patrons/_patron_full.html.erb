@@ -55,11 +55,20 @@
                     <%= i.date_of_in_time_zone_minus_time %> <b><a href="/incidents/view?id=<%=i.id%>" target="_blank"><%= i.title %></b></a>
                     <div class="ms-3">
                         <b>Violations:</b>
-                        <ul>
-                            <% p.violations_per_incident(i.id).each do |v| %>
-                                <li><%= v.description %></li>
+                        <% if i.violation_format_summary? %>
+                            <% summary = ViolationSummary.find_by(incident: i, patron: p) %>
+                            <% if summary&.description.present? %>
+                                <div><%= simple_format(h(summary.description)) %></div>
+                            <% else %>
+                                <div><i>None</i></div>
                             <% end %>
-                        </ul>
+                        <% else %>
+                            <ul>
+                                <% p.violations_per_incident(i.id).each do |v| %>
+                                    <li><%= v.description %></li>
+                                <% end %>
+                            </ul>
+                        <% end %>
                         <% if p.suspension_for(i.id) %>
                             <b>Suspended for this Incident Until:</b> <%= p.suspension_for_details(i.id) %>
                             <% if p.suspension_for_letter(i.id) %>
