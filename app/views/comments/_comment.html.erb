@@ -1,10 +1,10 @@
 <div id="comment_<%= c.id %>" class="card mb-3">
     <div class="card-body">
         <div class="row">
-            <div class="col-lg-1">
+            <div class="col-lg-1 col-sm-4 col-3">
                 <img src='<%= c.submitted_by_pic %>' class="img-fluid">
             </div>
-            <div class="col-lg-10">
+            <div class="col-lg-10 col-sm-8 col-8">
                 <b><%= c.submitted_by %></b> 
                 <i>Posted on: <%= c.posted_on %></i>
                 <% if c.was_edited %>
