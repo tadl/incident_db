@@ -1,5 +1,4 @@
 class IncidentsController < ApplicationController
-  skip_before_action :verify_authenticity_token
   before_action :authenticate_user!
 
   def all
@@ -40,8 +39,8 @@ class IncidentsController < ApplicationController
 
   def save
     if params[:incident_id] && params[:incident_id] != ''
-      if current_user.can_edit_incident(params[:incident_id])
-        @incident = Incident.find(params[:incident_id])     
+      @incident = Incident.find(params[:incident_id])
+      if current_user.can_edit_incident(@incident.id)
         @incident.last_edit_by = current_user.id
         unless params[:draft] == 'true'
           if @incident.draft == true
@@ -51,9 +50,10 @@ class IncidentsController < ApplicationController
            @new_publish = true
           end
         end
-        puts "Goooooott hereeeee"
       else
-        redirect_back_or_to '/'
+        @updated = false
+        @error = 'You do not have permission to edit this incident'
+        return respond_to { |format| format.js }
       end
     else
       @incident = Incident.new(violation_format: :summary)
@@ -66,7 +66,7 @@ class IncidentsController < ApplicationController
     end
     if @incident
       @incident.assign_attributes(incident_params)
-      @incident.date_of = params[:date_of].to_datetime
+      @incident.date_of = params[:date_of].to_datetime if params[:date_of].present?
       @incident.images.attach(params[:images])
       if @incident.valid?
         @incident.save
@@ -116,9 +116,13 @@ class IncidentsController < ApplicationController
   end
 
   def delete_image
-    @image = ActiveStorage::Attachment.find_by(id: params[:image_id])
-    @image.purge
     @incident = Incident.find(params[:incident_id])
+    if current_user.can_edit_incident(@incident.id)
+      @image = @incident.images.attachments.find_by(id: params[:image_id])
+      @image&.purge
+    else
+      @error = 'You do not have permission to edit this incident'
+    end
     
     respond_to do |format|
       format.js

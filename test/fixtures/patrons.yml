@@ -11,7 +11,7 @@ one:
   city: MyString
   state: MyString
   zip: 1
-  alias: MyString
+  known_as: MyString
   description: MyString
   notes: MyString
 
@@ -26,6 +26,6 @@ two:
   city: MyString
   state: MyString
   zip: 1
-  alias: MyString
+  known_as: MyString
   description: MyString
   notes: MyString

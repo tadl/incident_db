@@ -2,7 +2,7 @@ class ApplicationController < ActionController::Base
     config.time_zone = 'Eastern Time (US & Canada)'
 
     def current_user
-        @current_user ||= User.find(session[:user_id]) if session[:user_id]
+        @current_user ||= User.find_by(id: session[:user_id]) if session[:user_id]
     end
 
     def a_rules
@@ -15,15 +15,22 @@ class ApplicationController < ActionController::Base
 
     def authenticate_user!
         if !current_user
-            url = request.url
-            redirect_to ('/auth/google_oauth2?origin=') + url
+            session[:return_to] = request.fullpath if request.get?
+            redirect_to root_path
         end
     end
 
     def check_super_admin!
-        if current_user.is_super_admin == false
-            redirect_to ('/')
+        if current_user&.is_super_admin == false
+            redirect_to root_path
         end
+    end
+
+    def safe_return_path(path)
+        uri = URI.parse(path.to_s)
+        return uri.to_s if uri.relative? && uri.host.nil? && uri.path.present? && !uri.to_s.start_with?("//")
+    rescue URI::InvalidURIError
+        nil
     end
 
     helper_method :current_user

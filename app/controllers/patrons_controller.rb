@@ -1,5 +1,4 @@
 class PatronsController < ApplicationController
-  skip_before_action :verify_authenticity_token
   before_action :authenticate_user!
 
   def save
@@ -15,12 +14,14 @@ class PatronsController < ApplicationController
       @patron.save
       if params[:incident_id] && params[:incident_id].to_i != 0
         @incident = Incident.find(params[:incident_id].to_i)
-        if @incident
+        if @incident && current_user.can_edit_incident(@incident.id)
           violation = Violation.new
           violation.patron_id = @patron.id
           violation.incident_id = @incident.id
           violation.description = 'None'
           violation.save
+        else
+          @error = 'You do not have permission to edit this incident'
         end
       else
         @editing_without_incident = true
@@ -36,12 +37,14 @@ class PatronsController < ApplicationController
   def add_existing_to_incident
     @patron = Patron.find(params[:patron_id])
     @incident = Incident.find(params[:incident_id].to_i)
-    if @incident
+    if @incident && current_user.can_edit_incident(@incident.id)
       violation = Violation.new
       violation.patron_id = @patron.id
       violation.incident_id = @incident.id
       violation.description = 'None'
       violation.save
+    else
+      @error = 'You do not have permission to edit this incident'
     end
     respond_to do |format|
       format.js
@@ -91,6 +94,10 @@ class PatronsController < ApplicationController
     @violation_ids = params[:violation_ids]
     @patron = Patron.find(params[:patron_id].to_i)
     @incident = Incident.find(params[:incident_id].to_i)
+    unless current_user.can_edit_incident(@incident.id)
+      @error = 'You do not have permission to edit this incident'
+      return respond_to { |format| format.js }
+    end
     if !@violation_ids.nil?
       @violation_ids.each do |v|
         violation = Violation.new
@@ -110,6 +117,10 @@ class PatronsController < ApplicationController
   def remove_violation
     @patron = Patron.find(params[:patron_id].to_i)
     @incident = Incident.find(params[:incident_id].to_i)
+    unless current_user.can_edit_incident(@incident.id)
+      @error = 'You do not have permission to edit this incident'
+      return respond_to { |format| format.js }
+    end
     unless @patron.suspension_for(@incident.id) && !current_user.can_suspend
       violation = Violation.find(params[:violation_id].to_i)
       violation.destroy
@@ -125,6 +136,10 @@ class PatronsController < ApplicationController
   def remove_patron_from_incident
     @patron = Patron.find(params[:patron_id].to_i)
     @incident = Incident.find(params[:incident_id].to_i)
+    unless current_user.can_edit_incident(@incident.id)
+      @error = 'You do not have permission to edit this incident'
+      return respond_to { |format| format.js }
+    end
     unless @patron.suspension_for(@incident.id) && !current_user.can_suspend
       violations = Violation.where(patron_id: @patron.id, incident_id:@incident.id)
       violations.each do |v|
@@ -143,11 +158,15 @@ class PatronsController < ApplicationController
   end
 
   def delete_image
-    @image = ActiveStorage::Attachment.find_by(id: params[:image_id])
-    @image.purge
     @patron = Patron.find(params[:patron_id])
     if params[:incident_id]
       @incident = Incident.find(params[:incident_id])
+    end
+    if @incident.nil? || current_user.can_edit_incident(@incident.id)
+      @image = @patron.images.attachments.find_by(id: params[:image_id])
+      @image&.purge
+    else
+      @error = 'You do not have permission to edit this incident'
     end
     respond_to do |format|
       format.js
@@ -157,9 +176,12 @@ class PatronsController < ApplicationController
   def delete_letter
     @incident = Incident.find(params['incident_id'])
     @patron = Patron.find(params['patron_id'])
-    @suspension = Suspension.find(params['suspension_id'])
-    letter = ActiveStorage::Attachment.find_by(id: @suspension.letter.id)
-    letter.purge
+    @suspension = Suspension.find_by(id: params['suspension_id'], incident_id: @incident.id, patron_id: @patron.id)
+    if current_user.can_suspend && @suspension&.letter&.attached?
+      @suspension.letter.purge
+    else
+      @error = "This account does not have permission to create or modify suspensions"
+    end
     respond_to do |format|
       format.js
     end
@@ -209,11 +231,15 @@ class PatronsController < ApplicationController
     @incident = Incident.find(params[:incident_id])
     @patron = Patron.find(params[:patron_id])
     if params[:suspension_id] && params[:suspension_id] != ''
-      @suspension = Suspension.find(params[:suspension_id])
+      @suspension = Suspension.find_by(id: params[:suspension_id], incident_id: @incident.id, patron_id: @patron.id)
       @new_suspension = false
     else
       @suspension = Suspension.new
       @new_suspension = true
+    end
+    unless current_user.can_suspend && @suspension
+      @error = "This account does not have permission to create or modify suspensions"
+      return respond_to { |format| format.js }
     end
     @suspension.assign_attributes(suspension_params)
     if params[:letter]
@@ -241,8 +267,8 @@ class PatronsController < ApplicationController
     if current_user.can_suspend
       @incident = Incident.find(params[:incident_id])
       @patron = Patron.find(params[:patron_id])
-      @suspension = Suspension.find(params[:suspension_id])
-      @suspension.destroy
+      @suspension = Suspension.find_by(id: params[:suspension_id], incident_id: @incident.id, patron_id: @patron.id)
+      @suspension&.destroy
     else
       @error = "This account does not have permission to create or modify suspensions"
     end

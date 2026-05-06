@@ -17,7 +17,7 @@ class User < ApplicationRecord
     end
 
     def can_suspend
-        if ENV['CAN_SUSPEND'].split(',').include? self.email
+        if ENV['CAN_SUSPEND'].to_s.split(',').include? self.email
             return true
         else
             return false
@@ -26,7 +26,7 @@ class User < ApplicationRecord
 
     def can_edit_incident(incident_id)
         incident = Incident.find(incident_id)
-        if incident.created_by == self.id.to_s || (ENV['CAN_EDIT'].split(',').include? self.email) 
+        if incident.created_by == self.id.to_s || (ENV['CAN_EDIT'].to_s.split(',').include? self.email) 
             return true
         else
             return false
@@ -34,7 +34,7 @@ class User < ApplicationRecord
     end
 
     def is_super_admin
-        if ENV['SUPER_ADMIN'].split(',').include? self.email
+        if ENV['SUPER_ADMIN'].to_s.split(',').include? self.email
             return true
         else
             return false

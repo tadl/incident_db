@@ -1,6 +1,8 @@
-@import "bootstrap";
-@import "font-awesome";
-@import "*";
+@use "bootstrap";
+@use "font-awesome";
+
+@import url("animate.min.css");
+@import url("tempus-dominus.css");
 
 .nav-link{
     color: white !important;

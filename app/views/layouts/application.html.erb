@@ -25,39 +25,41 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <% if current_user %>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle white-link" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Incidents
-              </a>
-              <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" href="/incidents/new">New Incident</a></li>
-                <li><a class="dropdown-item" href="/incidents">All Incidents</a></li>
-                <li><a class="dropdown-item" href="/incidents?just_mine=true">My Incidents</a></li>
-                <li><a class="dropdown-item" href="/incidents?just_drafts=true">My Draft Incidents</a></li>
-                <li><a class="dropdown-item" href="/incidents/search">Search Incidents</a></li>
-                <li><a class="dropdown-item" href="/old/list">Browse Legacy Incident Reports</a></li>
-                <li><a class="dropdown-item" href="/old/search">Search Legacy Incident Reports</a></li>
-              </ul>
-            </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle white-link" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Patrons
-              </a>
-              <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" href="/patrons/list">All Patrons</a></li>
-                <li><a class="dropdown-item" href="/patrons/list?suspended=true">Currently Suspended Patrons</a></li>
-                <li><a class="dropdown-item" href="/patrons/search">Search Patrons</a></li>
-              </ul>
-            </li>
-            <li class="nav-item">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle white-link" href="#" id="incidentsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Incidents
+                </a>
+                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="incidentsDropdown">
+                  <li><a class="dropdown-item" href="/incidents/new">New Incident</a></li>
+                  <li><a class="dropdown-item" href="/incidents">All Incidents</a></li>
+                  <li><a class="dropdown-item" href="/incidents?just_mine=true">My Incidents</a></li>
+                  <li><a class="dropdown-item" href="/incidents?just_drafts=true">My Draft Incidents</a></li>
+                  <li><a class="dropdown-item" href="/incidents/search">Search Incidents</a></li>
+                  <li><a class="dropdown-item" href="/old/list">Browse Legacy Incident Reports</a></li>
+                  <li><a class="dropdown-item" href="/old/search">Search Legacy Incident Reports</a></li>
+                </ul>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle white-link" href="#" id="patronsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Patrons
+                </a>
+                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="patronsDropdown">
+                  <li><a class="dropdown-item" href="/patrons/list">All Patrons</a></li>
+                  <li><a class="dropdown-item" href="/patrons/list?suspended=true">Currently Suspended Patrons</a></li>
+                  <li><a class="dropdown-item" href="/patrons/search">Search Patrons</a></li>
+                </ul>
+              </li>
               <% if current_user.is_super_admin %>
-                <a class="nav-link white-link" href="/admin">Admin Pannel</a>
+                <li class="nav-item">
+                  <a class="nav-link white-link" href="/admin">Admin Pannel</a>
+                </li>
               <% end %>
-            </li>
+            </ul>
           <% end %>
           <% if current_user %>
               <span class="ms-auto" style="margin-right: 10px; color: white"><%=current_user.name %>   </span>
-              <a class="btn btn-danger btn-sm nav-item" href="/signout">Logout</a>
+              <%= button_to "Logout", signout_path, method: :post, class: "btn btn-danger btn-sm nav-item" %>
           <% else %>
             <span class="ms-auto"></span>
             <%= button_to "Staff Login", "/auth/google_oauth2", method: :post, class: "btn btn-primary ms-auto" %>

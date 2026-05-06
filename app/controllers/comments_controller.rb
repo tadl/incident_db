@@ -1,6 +1,5 @@
 class CommentsController < ApplicationController
     before_action :authenticate_user!
-    skip_before_action :verify_authenticity_token
 
     def save
         if (params[:description] && params[:description] != '')
@@ -65,6 +64,7 @@ class CommentsController < ApplicationController
 
     def edit
         @comment = Comment.find(params[:id])
+        return redirect_back_or_to root_path unless current_user.my_comment(@comment)
         @owner_id = params[:owner_id]
         @from = params[:comment_for]
         respond_to do |format|

@@ -3,6 +3,7 @@ class MainController < ApplicationController
   before_action :check_super_admin!, except: [:index]
   
   def index
+    redirect_to incidents_path if current_user
   end
 
   def admin_pannel

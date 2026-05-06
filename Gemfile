@@ -1,12 +1,13 @@
 source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby "3.3.8"
+ruby "3.4.9"
 
 #- GEMS WE ADDED
 
-gem 'bootstrap', '~> 5.1.3'
-gem 'font-awesome-sass', '~> 6.1.1'
+gem 'bootstrap', '~> 5.3'
+gem 'dartsass-sprockets'
+gem 'font-awesome-sass', '~> 6.7'
 gem 'omniauth'
 gem 'omniauth-rails_csrf_protection'
 gem 'omniauth-google-oauth2'
@@ -17,14 +18,14 @@ gem 'activestorage-validator'
 gem 'pg_search'
 gem 'will_paginate', '~> 3.3'
 gem 'will_paginate-bootstrap-style'
-gem 'redis', '~> 4.7.1'
+gem 'redis', '~> 5.4'
 gem 'sidekiq'
 gem 'sidekiq-scheduler'
 
 #- DEFAULT GEMS
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 7.2.2.1"
+gem "rails", "~> 8.1.3"
 
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
 gem "sprockets-rails"
@@ -57,7 +58,7 @@ gem "jbuilder"
 # gem "bcrypt", "~> 3.1.7"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem "tzinfo-data", platforms: %i[ mingw mswin x64_mingw jruby ]
+gem "tzinfo-data", platforms: %i[ windows jruby ]
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
@@ -88,5 +89,4 @@ group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"
-  gem "webdrivers"
 end
