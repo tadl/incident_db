@@ -58,8 +58,13 @@ class PatronsController < ApplicationController
 
   def list
     if params[:suspended] == 'true'
-      @title = "Currently Suspended Patrons"
-      @patrons = Patron.joins(:incidents).select { |p| p.is_suspended == true }.uniq.sort_by {|patron| patron.suspended_until_raw }.paginate(page: params[:page], per_page: 10)
+      if params[:call_911] == 'true'
+        @title = "Currently Suspended Patrons - Call 911 If Seen on Property"
+        @patrons = Patron.joins(:incidents).select { |p| p.is_suspended_details.is_a?(Array) && p.is_suspended_details[1].call_police == true }.uniq.sort_by {|patron| patron.suspended_until_raw }.paginate(page: params[:page], per_page: 10)
+      else
+        @title = "Currently Suspended Patrons"
+        @patrons = Patron.joins(:incidents).select { |p| p.is_suspended == true }.uniq.sort_by {|patron| patron.suspended_until_raw }.paginate(page: params[:page], per_page: 10)
+      end
     else
       @title = "All Patrons"
       @patrons = Patron.all.order(created_at: :desc).uniq.paginate(page: params[:page], per_page: 10)

@@ -31,6 +31,10 @@ class Patron < ApplicationRecord
         full_name += ' ' + self.middle_name if self.middle_name
         full_name += ' ' + self.last_name if self.last_name
         full_name += ' AKA: ' + self.known_as if self.known_as && self.known_as != ''
+        suspension_status = self.is_suspended_details
+        if suspension_status && suspension_status[0] == true
+            full_name += ' (Call 911 immediately)' if suspension_status[1].call_police
+        end
         return full_name
     end
 
@@ -87,6 +91,17 @@ class Patron < ApplicationRecord
         suspension.each do |s|
             if s.until > today && s.incident.published == true
                 return true
+            end
+        end
+        return false
+    end
+
+    def is_suspended_details
+        today = Date.today
+        suspension = self.suspensions
+        suspension.each do |s|
+            if s.until > today && s.incident.published == true
+                return true, s
             end
         end
         return false
