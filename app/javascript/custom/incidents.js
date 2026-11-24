@@ -1,77 +1,47 @@
-function save_incident(draft, add_patron){
-    var params = {}
-    params['title'] = $('#title').val()
-    params['description'] = $('#description').val()
-    params['date_of'] = picker.viewDate
-    params['location'] = $('#location').val()
-    if(draft == 'true'){
-        params['draft'] = true
-    }
-    if(add_patron == 'true'){
-        params['add_patron'] = true 
-    }
-    if($('#no_patrons').is(':checked')){
-        params['no_patrons'] = true 
-    }
-    params['incident_id'] = $('#incident_id').html()
-    
-    var incident_params = new FormData()
-    $.each(params, function(k,v){
-        incident_params.append(k, v)
-    });
+import "jquery"
 
-    $('.violation-summary').each(function(){
-      var val = ($(this).val() || '').trim()
-      if(val.length === 0){ return }
-      incident_params.append($(this).attr('name'), val)
-    })
+function saveIncident({ draft, addPatron }) {
+    const data = new FormData()
+    data.append("incident_id", $("#incident_id").text())
+    data.append("draft", draft === "true")
+    data.append("add_patron", addPatron === "true")
 
-    var incident_images = $('#incident_images').prop("files");
-    if(incident_images && incident_images[0]){
-        $.each(incident_images, function(i){
-            incident_params.append('images[]', this)
-        });
+    for (const field of ["title", "description", "date_of", "location"]) {
+        data.append(field, document.getElementById(field).value)
+    }
+    for (const summary of document.querySelectorAll(".violation-summary")) {
+        data.append(summary.name, summary.value)
+    }
+    for (const image of document.getElementById("incident_images").files) {
+        data.append("images[]", image)
     }
 
+    const buttons = $('[data-incident-action="save"]').prop("disabled", true)
     $.ajax({
         url: "/incidents/save.js",
-        data: incident_params,
-        type:'POST',
+        method: "POST",
+        data,
         contentType: false,
-        processData: false,
-    });
+        processData: false
+    }).always(() => buttons.prop("disabled", false))
+}
 
-    if(add_patron == 'true'){
-        $('#save_incident_buttons').hide()
+const actions = {
+    save: saveIncident,
+    "clear-images": () => $("#incident_images").val(""),
+    "delete-image": ({ imageId }) => {
+        $.post("/incidents/delete_image.js", { incident_id: $("#incident_id").text(), image_id: imageId })
+    },
+    delete: ({ incidentId }) => {
+        if (confirm("Delete this incident?")) {
+            $.post("/incidents/delete_incident.js", { id: incidentId })
+        }
     }
 }
-window.save_incident = save_incident
 
-function delete_incident_image(image_id){
-    var params = {}
-    params['incident_id'] = $('#incident_id').html()
-    params['image_id'] = image_id
-    $.post("/incidents/delete_image.js", params);
-}
-window.delete_incident_image = delete_incident_image
-
-function cancel_incident_images(){
-    $('#incident_images').val(null)
-}
-window.cancel_incident_images = cancel_incident_images
-
-function search_incidents(){
-    var query = $('#query').val()
-    window.location.href = '/incidents/search?query=' + query
-}
-window.search_incidents = search_incidents
-
-function delete_incident(incident_id){
-    var confirmation = confirm("Are you sure you want to delete this incident?")
-    if(confirmation == true){
-        var params = {}
-        params['id'] = incident_id
-        $.post("/incidents/delete_incident.js", params);
+document.addEventListener("click", (event) => {
+    const control = event.target.closest("[data-incident-action]")
+    if (control && Object.hasOwn(actions, control.dataset.incidentAction)) {
+        actions[control.dataset.incidentAction](control.dataset)
     }
-}
-window.delete_incident = delete_incident
+})

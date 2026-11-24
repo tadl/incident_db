@@ -10,11 +10,11 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <%= icon('fa-solid', 'xmark') %> 
+                    <%= icon('fa-solid', 'xmark') %>
                     Close
                 </button>
-                <button type="button" class="btn btn-primary" onclick="save_patron('<%= patron.id %>')">
-                    <%= icon('fa-solid', 'check') %> 
+                <button type="button" class="btn btn-primary" data-patron-action="save" data-patron-id="<%= patron.id %>">
+                    <%= icon('fa-solid', 'check') %>
                     Save
                 </button>
             </div>

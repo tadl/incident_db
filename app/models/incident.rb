@@ -1,81 +1,58 @@
 class Incident < ApplicationRecord
-    include PgSearch::Model
+  include PgSearch::Model
 
-    has_many :incident_comments
-    has_many :violations
-    has_many :violation_summaries, dependent: :destroy
-    has_many :suspensions
-    has_many :patrons, through: :violations
-    has_many :summary_patrons, through: :violation_summaries, source: :patron
+  belongs_to :author, class_name: "User", foreign_key: :created_by, optional: true
+  belongs_to :last_editor, class_name: "User", foreign_key: :last_edit_by, optional: true
 
-    def involved_patrons
-        (patrons + summary_patrons).uniq
-    end
-    
-    has_many_attached :images do |attachable|
-        attachable.variant :thumb, resize_to_fill: [250, 250]
-    end
+  has_many :incident_comments, dependent: :destroy
+  has_many :incident_patrons, dependent: :destroy
+  has_many :patrons, through: :incident_patrons
+  has_many :violations, dependent: :destroy
+  has_many :violation_summaries, dependent: :destroy
+  has_many :suspensions, dependent: :destroy
 
-    enum :violation_format, { legacy: "legacy", summary: "summary" }, prefix: true
+  has_many_attached :images do |attachment|
+    attachment.variant :thumb, resize_to_fill: [250, 250]
+  end
 
-    validates :images, blob: { content_type: ['image/png', 'image/jpg', 'image/jpeg'], size_range: 1..(10.megabytes) }
-    validates :location, presence: { message: 'Location required' }, allow_blank: false
-    validates :date_of, presence: { message: 'Date and Time of Incident Required' }, allow_blank: false
-    validates :title, presence: { message: 'Title required'}, allow_blank: false
-    validates :title, uniqueness: { scope: [:date_of], message: 'An incident with this title has already been submitted for this time.'  }
-    validates :description, presence: { message: 'Description required' }, allow_blank: false
-    validates :description, uniqueness: { message: 'An incident type with this description already exisits'}
+  enum :violation_format, { legacy: "legacy", summary: "summary" }, prefix: true
 
-    pg_search_scope :search, against: [:title, :description, :id], associated_against: {
-        patrons: [:first_name, :last_name, :middle_name, :known_as, :description],
-        violations: :description,
-        incident_comments: :description
-      },    
-      using: {
-        tsearch: {prefix: true}
-      }
+  validates :images, blob: { content_type: ["image/png", "image/jpg", "image/jpeg"], size_range: 1..10.megabytes }
+  validates :title, :location, :date_of, :description, presence: true
+  validates :title, uniqueness: { scope: :date_of, message: "has already been used for an incident at this time" }
 
-    
+  pg_search_scope :search, against: [:title, :description, :id], associated_against: {
+    patrons: [:first_name, :last_name, :middle_name, :known_as, :description],
+    violations: :description,
+    violation_summaries: :description,
+    incident_comments: :description
+  }, using: { tsearch: { prefix: true } }
 
-    def created_by_name
-        user = User.find(self.created_by)
-        return user.name
-    end
+  def created_by_name
+    author&.name || "Unknown staff member"
+  end
 
-    def last_edit_by_name
-        user = User.find(self.last_edit_by)
-        return user.name
-    end
+  def last_edit_by_name
+    last_editor&.name || "Unknown staff member"
+  end
 
-    def date_of_in_time_zone
-        return self.date_of.in_time_zone("Eastern Time (US & Canada)").strftime("%m/%d/%Y at %l:%M %p")
-    end
-    
-    def date_of_in_time_zone_minus_time
-        return self.date_of.in_time_zone("Eastern Time (US & Canada)").strftime("%m/%d/%Y")
-    end
+  def date_of_in_time_zone
+    date_of&.strftime("%m/%d/%Y at %l:%M %p")
+  end
 
-    def updated_at_in_time_zone
-        return self.updated_at.in_time_zone("Eastern Time (US & Canada)").strftime("%m/%d/%Y at %l:%M %p")
-    end
+  def date_of_in_time_zone_minus_time
+    date_of&.strftime("%m/%d/%Y")
+  end
 
-    def published_on_in_time_zone
-        return self.published_on.in_time_zone("Eastern Time (US & Canada)").strftime("%m/%d/%Y at %l:%M %p")
-    end
+  def updated_at_in_time_zone
+    updated_at.strftime("%m/%d/%Y at %l:%M %p")
+  end
 
-    def primary_pic
-        if self.images.size >= 1
-            return self.images[0]
-        elsif self.patrons
-            patron_pics = []
-            self.patrons.each do |p|
-                if p.images[0]
-                    patron_pics.push(p.images[0])
-                end
-            end
-            if patron_pics[0]
-                return patron_pics[0]
-            end
-        end
-    end
+  def published_on_in_time_zone
+    published_on&.strftime("%m/%d/%Y at %l:%M %p")
+  end
+
+  def primary_pic
+    images.first || patrons.lazy.filter_map { |patron| patron.images.first }.first
+  end
 end

@@ -1,3 +1,5 @@
-$('#add_patron').html('')
-$('#patron_list').append("<%= escape_javascript(render 'add_violation', patron: @patron, incident: @incident)%>")
-$('#save_incident_buttons').show()
+$('#add_patron').empty();
+if (!document.getElementById('patron_<%= @patron.id %>')) {
+  $('#patron_list').append("<%= escape_javascript(render 'add_violation', patron: @patron, incident: @incident) %>");
+}
+$('#save_incident_buttons, #add_patron_to_incident_button').show();

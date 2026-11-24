@@ -53,11 +53,11 @@
         <%= render 'patrons/patron_pics', patron: patron %>
     </div>
 <div class="mb-3">
-    <label for="image" class="form-label">Add Images to Patron Record</label>
+    <label for="patron_images_<%= patron.id %>" class="form-label">Add images to patron record</label>
     <br>
-    <%= file_field_tag ('patron_images_' + patron.id.to_s ), multiple: true, accept: 'image/png,image/gif,image/jpeg', autocomplete: "off" %>
+    <%= file_field_tag ('patron_images_' + patron.id.to_s ), multiple: true, accept: 'image/png,image/jpeg', autocomplete: "off" %>
     <br>
-    <button class="btn-small btn-secondary mt-3" onclick="cancel_patron_images()">Cancel Image Upload</button>
+    <button type="button" class="btn btn-sm btn-outline-secondary mt-3" data-patron-action="clear-images" data-patron-id="<%= patron.id %>">Clear selection</button>
 </div>
-<div id="patron_messages" class="mb-3">
+</div><div id="patron_messages_<%= patron.id %>" class="mb-3" role="status">
 </div>

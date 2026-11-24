@@ -1,0 +1,6 @@
+<%= render "shared/section_links", label: "Incident views", links: [
+  ["All incidents", incidents_path, action_name == "all" && @search_param == "all"],
+  ["My incidents", incidents_path(just_mine: true), action_name == "all" && @search_param == "just_mine"],
+  ["My drafts", incidents_path(just_drafts: true), action_name == "all" && @search_param == "just_drafts"],
+  ["Search", incidents_search_path, action_name == "search"]
+] %>

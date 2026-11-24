@@ -1,0 +1,10 @@
+<nav aria-label="<%= label %>" class="section-navigation">
+  <ul class="nav">
+    <% links.each do |text, path, active| %>
+      <li class="nav-item">
+        <%= link_to text, path, class: ["nav-link", ("is-current" if active)],
+                    aria: { current: ("page" if active) } %>
+      </li>
+    <% end %>
+  </ul>
+</nav>

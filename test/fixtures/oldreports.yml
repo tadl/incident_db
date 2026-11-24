@@ -8,12 +8,12 @@ one:
   patron_name: MyString
   patron_address: MyString
   description: MyString
-  narative: MyString
+  narrative: MyString
   location: MyString
   date_entered: 2023-04-21 18:25:15
   submitted_by: MyString
   suspension: MyString
-  suspension_duraction: MyString
+  suspension_duration: MyString
   a_violations: MyString
   b_violations: MyString
 
@@ -25,11 +25,11 @@ two:
   patron_name: MyString
   patron_address: MyString
   description: MyString
-  narative: MyString
+  narrative: MyString
   location: MyString
   date_entered: 2023-04-21 18:25:15
   submitted_by: MyString
   suspension: MyString
-  suspension_duraction: MyString
+  suspension_duration: MyString
   a_violations: MyString
   b_violations: MyString

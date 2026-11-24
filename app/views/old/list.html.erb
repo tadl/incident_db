@@ -1,6 +1,9 @@
-<h2 class="mb-3"><%= icon('fa-solid', 'person-falling-burst') %> <%= @title %> Legacy Incident Reports</h2>
-<%= will_paginate @reports, renderer: WillPaginate::ActionView::BootstrapLinkRenderer %>
-<% @reports.each do |r| %>
-    <%= render 'old_stub', r: r %>
+<% content_for :title, "Legacy reports" %>
+
+<h1>Legacy Incident Reports</h1>
+<%= render "section_links" %>
+<% @reports.each do |report| %>
+  <%= render "old_stub", r: report %>
 <% end %>
-<%= will_paginate @reports, renderer: WillPaginate::ActionView::BootstrapLinkRenderer %>
+<%= render "shared/empty_results", message: "No legacy reports in this view." if @reports.empty? %>
+<%= render "shared/list_pagination", records: @reports %>

@@ -1,17 +1,11 @@
-require 'sidekiq-scheduler'
-
 class CheckUnsentSuspensions
-  include Sidekiq::Worker
+  include Sidekiq::Job
+
   def perform
-    suspensions = Suspension.where(issued_email_sent: false)
-    suspensions.each do |s|
-        if s.incident.published == true
-            patron = s.patron
-            incident = s.incident
-            IncidentMailer.suspension_published(patron, incident, s).deliver
-            s.issued_email_sent = true
-            s.save
-        end
+    return unless IncidentMailer.perform_deliveries
+
+    Suspension.published.active.where(issued_email_sent: [false, nil]).find_each do |suspension|
+      SuspensionPublishedJob.perform_now(suspension)
     end
   end
 end

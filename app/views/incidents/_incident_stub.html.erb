@@ -1,35 +1,41 @@
-<div class="card mb-3">
-    <div class="card-body">
-        <div class="row">
-            <div class="col-lg-3">
-                <% if i.primary_pic %>
-                    <%= image_tag i.primary_pic.variant(:thumb), class: 'img-thumbnail' %>
-                <% else %>
-                <% end %>
-            </div>
-            <div class="col-lg-9">
-                <h4 class="card-title"><%= i.title %></h4>
-                <b>Date of Incident:</b> <%= i.date_of_in_time_zone %>
-                <b>ID:</b> <%= i.id %> 
-                <p class="card-text" style="white-space: pre-wrap;"><%= i.description %></p>
-                <% if i.patrons.size >= 1 %>
-                    <p>
-                        <b>Patrons Involved:</b>
-                        <% i.patrons.uniq.each do |p| %>
-                            <a href="/patrons/view?id=<%= p.id %>"><%= p.full_name %></a>, 
-                        <% end %>
-                    </p>
-                <% end %>
-                <div class="mt-3">
-                    <a href="/incidents/view?id=<%= i.id %>" class="btn btn-primary"> <%= icon('fa-solid', 'eye') %> View Full Details</a>
-                    <% if current_user.can_edit_incident( i.id ) %>
-                        <a href="/incidents/edit?id=<%= i.id %>" class="btn btn-primary"><%= icon('fa-solid', 'pen') %> Edit</a>
-                    <% end %>
-                    <% if current_user.can_delete_this_incident(i) %>
-                        <a onclick="delete_incident(<%= i.id %>)" class="btn btn-danger"><%= icon('fa-solid', 'trash') %> Delete</a>
-                    <% end %>
-                </div>
-            </div>
+<article class="card record-card mb-3">
+  <div class="card-body">
+    <div class="record-preview">
+      <% if (picture = i.primary_pic) %>
+        <%= image_tag private_thumbnail_path(picture), alt: "", class: "record-thumbnail", loading: "lazy", decoding: "async", width: 112, height: 112 %>
+      <% end %>
+      <div class="record-preview-content">
+        <div class="record-title-row">
+          <h2 class="card-title"><%= link_to i.title.presence || "Incident report", incidents_view_path(id: i.id) %></h2>
+          <% if i.draft? %>
+            <span class="status-label">Draft</span>
+          <% end %>
         </div>
+        <ul class="record-meta">
+          <li><%= i.date_of_in_time_zone %></li>
+          <li><%= i.location %></li>
+          <li>Report #<%= i.id %></li>
+        </ul>
+        <p class="record-description"><%= truncate(i.description, length: 400, separator: /\s/) %></p>
+        <% if (patrons = i.patrons).any? %>
+          <p class="record-related"><strong>Patrons involved</strong>
+            <%= safe_join(patrons.map { |patron| link_to patron.full_name, patrons_view_path(id: patron.id) }, ", ") %>
+          </p>
+        <% end %>
+        <% can_edit = current_user.can_edit_incident(i) %>
+        <% can_delete = current_user.can_delete_this_incident(i) %>
+        <% if can_edit || can_delete %>
+          <div class="record-actions">
+            <% if can_edit %>
+              <%= link_to "Edit", incidents_edit_path(id: i.id), class: "btn btn-sm btn-outline-primary",
+                          aria: { label: "Edit report ##{i.id}" } %>
+            <% end %>
+            <% if can_delete %>
+              <button type="button" data-incident-action="delete" data-incident-id="<%= i.id %>" class="btn btn-sm btn-outline-danger" aria-label="Delete report #<%= i.id %>">Delete</button>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
     </div>
-</div>
+  </div>
+</article>

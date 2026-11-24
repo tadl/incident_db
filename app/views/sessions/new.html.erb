@@ -1,0 +1,9 @@
+<% content_for :title, "Staff sign-in" %>
+
+<section class="card staff-sign-in">
+  <div class="card-body">
+    <h1>Staff sign-in</h1>
+    <p class="text-body-secondary">Sign in with your TADL Google account to access the incident reports and patron records.</p>
+    <%= button_to "Sign in with Google", "/auth/google_oauth2", method: :post, class: "btn btn-primary" %>
+  </div>
+</section>

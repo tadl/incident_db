@@ -10,9 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_02_12_210318) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_24_151000) do
   # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
+  enable_extension "pg_catalog.plpgsql"
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -50,6 +50,13 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_12_210318) do
     t.integer "user_id"
     t.integer "patron_id"
     t.integer "incident_id"
+  end
+
+  create_table "incident_patrons", force: :cascade do |t|
+    t.bigint "incident_id", null: false
+    t.bigint "patron_id", null: false
+    t.index ["incident_id", "patron_id"], name: "index_incident_patrons_on_incident_id_and_patron_id", unique: true
+    t.index ["patron_id"], name: "index_incident_patrons_on_patron_id"
   end
 
   create_table "incidents", force: :cascade do |t|
@@ -152,6 +159,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_12_210318) do
     t.string "email"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["provider", "uid"], name: "index_users_on_provider_and_uid", unique: true
   end
 
   create_table "violation_summaries", force: :cascade do |t|
@@ -177,6 +185,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_12_210318) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "incident_patrons", "incidents"
+  add_foreign_key "incident_patrons", "patrons"
   add_foreign_key "suspensions", "incidents"
   add_foreign_key "suspensions", "patrons"
   add_foreign_key "violation_summaries", "incidents"

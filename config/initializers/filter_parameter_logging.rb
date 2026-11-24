@@ -1,8 +1,6 @@
-# Be sure to restart your server when you modify this file.
-
-# Configure parameters to be partially matched (e.g. passw matches password) and filtered from the log file.
-# Use this to limit dissemination of sensitive information.
-# See the ActiveSupport::ParameterFilter documentation for supported notations and behaviors.
+# Upload metadata, search terms, and staff/patron fields are private too.
 Rails.application.config.filter_parameters += [
-  :passw, :email, :secret, :token, :_key, :crypt, :salt, :certificate, :otp, :ssn
+  :passw, :email, :secret, :token, :_key, :crypt, :salt, :certificate, :otp, :ssn,
+  :code, :state, :query, :name, :address, :phone, :card, :description, :violation,
+  :behavior, :comment, :text, :note, :body, :information, :image, :pic, :letter
 ]

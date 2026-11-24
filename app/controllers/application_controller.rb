@@ -1,32 +1,33 @@
 class ApplicationController < ActionController::Base
-    config.time_zone = 'Eastern Time (US & Canada)'
+  SESSION_LIFETIME = 12.hours
 
-    def current_user
-        @current_user ||= User.find(session[:user_id]) if session[:user_id]
+  before_action :prevent_caching
+  before_action :authenticate_user!
+  helper_method :current_user
+
+  private
+
+  def current_user
+    return @current_user if defined?(@current_user)
+
+    signed_in_at = session[:signed_in_at]
+    @current_user = if signed_in_at.is_a?(Integer) && signed_in_at >= SESSION_LIFETIME.ago.to_i
+      User.find_by(id: session[:user_id])
     end
+  end
 
-    def a_rules
-        @a_infractions = Rule.where(track: 'A').where(legacy: false).sort_by {|i| (i.description.split('.')[0].to_i)}
+  def authenticate_user!
+    return if current_user
+
+    if request.get? && request.format.html?
+      session[:return_to] = request.fullpath
+      redirect_to sign_in_path
+    else
+      head :unauthorized
     end
+  end
 
-    def b_rules
-        @b_infractions = Rule.where(track: 'B').where(legacy: false).sort_by {|i| (i.description.split('.')[0].to_i)}
-    end
-
-    def authenticate_user!
-        if !current_user
-            url = request.url
-            redirect_to ('/auth/google_oauth2?origin=') + url
-        end
-    end
-
-    def check_super_admin!
-        if current_user.is_super_admin == false
-            redirect_to ('/')
-        end
-    end
-
-    helper_method :current_user
-    helper_method :a_rules
-    helper_method :b_rules  
+  def prevent_caching
+    no_store
+  end
 end

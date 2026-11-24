@@ -1,16 +1,16 @@
 class CommentAddedJob < ApplicationJob
-    queue_as :default
+  queue_as :default
 
-    def perform(comment)
-        if comment.kind_of?(IncidentComment)
-            incident = Incident.find(comment.incident_id)
-            type = 'incident'
-            IncidentMailer.comment_added(comment, type, incident).deliver
-        elsif comment.kind_of?(PatronComment)
-            patron = Patron.find(comment.patron_id)
-            type = 'patron'
-            IncidentMailer.comment_added(comment, type, patron).deliver
-        end
+  def perform(comment)
+    return unless IncidentMailer.perform_deliveries
+
+    case comment.reload
+    when IncidentComment
+      incident = comment.incident
+      IncidentMailer.comment_added(incident).deliver_now if incident&.published?
+    when PatronComment
+      patron = comment.patron
+      IncidentMailer.comment_added(patron).deliver_now if patron
     end
-
+  end
 end

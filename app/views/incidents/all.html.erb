@@ -1,6 +1,9 @@
-<h2 class="mb-3"><%= icon('fa-solid', 'person-falling-burst') %> <%= @title %> Incidents</h2>
-<%= will_paginate @incidents, renderer: WillPaginate::ActionView::BootstrapLinkRenderer %>
-<% @incidents.each do |i| %>
-   <%= render 'incident_stub', i: i %>
+<% content_for :title, "#{@title} incidents" %>
+
+<h1><%= @title %> Incidents</h1>
+<%= render "section_links" %>
+<% @incidents.each do |incident| %>
+  <%= render "incident_stub", i: incident %>
 <% end %>
-<%= will_paginate @incidents, renderer: WillPaginate::ActionView::BootstrapLinkRenderer %>
+<%= render "shared/empty_results", message: "No incidents in this view." if @incidents.empty? %>
+<%= render "shared/list_pagination", records: @incidents %>

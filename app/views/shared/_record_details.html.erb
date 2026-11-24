@@ -1,0 +1,10 @@
+<% if details.values.any?(&:present?) %>
+  <dl class="record-details">
+    <% details.compact_blank.each do |label, value| %>
+      <div>
+        <dt><%= label %></dt>
+        <dd><%= value %></dd>
+      </div>
+    <% end %>
+  </dl>
+<% end %>

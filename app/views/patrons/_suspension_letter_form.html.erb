@@ -1,14 +1,14 @@
-<% if @patron.suspension_for_letter(incident.id) == false %>
+<% if !suspension.letter.attached? %>
     <div class="col-lg-12 col-sm" id="suspension_letter_upload">
         <label for="letter_<%= patron.id %>" class="form-label">Add Suspension Letter</label>
         <br>
         <%= file_field_tag ('letter_' + patron.id.to_s), multiple: false, accept: 'application/pdf', autocomplete: "off" %>
         <br>
-        <button class="btn-small btn-secondary mt-3" onclick="cancel_suspension_letter(<%= patron.id.to_s %>)">Cancel Suspension Letter Upload</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary mt-3" data-patron-action="clear-letter" data-patron-id="<%= patron.id %>">Clear selection</button>
     </div>
 <% else %>
-    <a href="<%= url_for(@suspension.letter) %>">Suspension Letter</a>
-    <button type="button" class="btn btn-danger btn-sm mb-1" onclick="delete_letter(<%= patron.id %>, <%= suspension.id %>, <%= incident.id %>)">
+    <a href="<%= private_attachment_path(@suspension.letter.attachment) %>">Suspension Letter</a>
+    <button type="button" class="btn btn-danger btn-sm mb-1" data-patron-action="delete-letter" data-patron-id="<%= patron.id %>" data-suspension-id="<%= suspension.id %>" aria-label="Remove suspension letter">
         <%= icon('fa-solid', 'xmark') %>
     </button>
 <% end %>

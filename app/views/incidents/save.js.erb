@@ -1,40 +1,15 @@
-<% if @updated == true %>
-    $('#messages').html('')
-    <% if @incident.draft %>
-        <% if @add_patron == true %>
-            $('#add_patron').html("<%= escape_javascript(render 'add_patron_form', patron: Patron.new)%>")
-            $('#no_patron_div').hide()
-            $('#add_patron').show()
-            $('#incident_id').html('<%= @incident.id %>')
-            $('#incident_pics').html('<%= escape_javascript(render "incident_pics")%>')
-            $('#incident_images').val(null)
-            $('#add_patron_to_incident_button').hide()
-        <% else %>
-            $('#messages').html('<p class="text-success">Incident successfully saved as a draft.</p>')
-            setTimeout(function(){ window.location.href="/incidents/view?id=<%= escape_javascript(@incident.id)%>" }, 1400);
-        <% end %>
-    <% else %>
-        <% if @add_patron == true %>
-            $('#add_patron').html("<%= escape_javascript(render 'add_patron_form', patron: Patron.new)%>")
-            $('#no_patron_div').hide()
-            $('#add_patron').show()
-            $('#incident_id').html('<%= @incident.id %>')
-            $('#incident_pics').html('<%= escape_javascript(render "incident_pics")%>')
-            $('#incident_images').val(null)
-            $('#add_patron_to_incident_button').hide()
-        <% else %>
-            <% if @new_publish == true %>
-                $('#messages').html('<p class="text-success">Incident successfully published.</p>')
-            <% else %>
-                $('#messages').html('<p class="text-success">Incident successfully updated.</p>')
-            <% end %>
-            setTimeout(function(){ window.location.href="/incidents/view?id=<%= escape_javascript(@incident.id)%>" }, 1400);
-        <% end %>
-    <% end %>
-    window.history.replaceState('', 'New Incident', '/incidents/edit?id=<%= @incident.id %>')
+<% if @updated %>
+  $('#messages').empty();
+  <% if @add_patron %>
+    $('#add_patron').html("<%= escape_javascript(render 'add_patron_form', patron: Patron.new) %>").show();
+    $('#incident_id').text('<%= @incident.id %>');
+    $('#incident_pics').html("<%= escape_javascript(render 'incident_pics') %>");
+    $('#incident_images').val('');
+    $('#add_patron_to_incident_button, #save_incident_buttons').hide();
+    window.history.replaceState(null, '', '<%= incidents_edit_path(id: @incident.id) %>');
+  <% else %>
+    window.location.assign('<%= incidents_view_path(id: @incident.id) %>');
+  <% end %>
 <% else %>
-    $('#messages').html('')
-    <% @incident.errors.messages.values.flatten.each do |e| %>
-        $("#messages").append( '<p class="text-danger">Error: <%= escape_javascript(e) %></p>' );
-    <% end %>
+  $('#messages').text('<%= escape_javascript(@errors.to_sentence) %>').addClass('text-danger');
 <% end %>

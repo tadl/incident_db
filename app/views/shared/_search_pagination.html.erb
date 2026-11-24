@@ -1,0 +1,14 @@
+<% if results.total_pages > 1 %>
+  <nav aria-label="Search result pages" class="search-pagination">
+    <%= form_with url: path, method: :post, local: true do %>
+      <% filters.each do |name, value| %>
+        <%= hidden_field_tag name, value, id: nil %>
+      <% end %>
+      <%= button_tag "Previous", name: :page, value: results.previous_page,
+                     disabled: results.previous_page.nil?, class: "btn btn-outline-primary btn-sm" %>
+      <span>Page <%= results.current_page %> of <%= results.total_pages %></span>
+      <%= button_tag "Next", name: :page, value: results.next_page,
+                     disabled: results.next_page.nil?, class: "btn btn-outline-primary btn-sm" %>
+    <% end %>
+  </nav>
+<% end %>

@@ -1,27 +1,2 @@
-<h2><%= icon('fa-solid', 'pen') %> Editing Incident Report</h2>
-
-<%= render 'incident_form' %>
-<div id="patron_list">
-    <% @incident.patrons.uniq.each do |p| %>
-        <%= render '/patrons/add_violation', patron: p,  incident: @incident  %>
-    <% end %>
-</div>
-<div id="add_patron_to_incident_button" <% if @incident.no_patrons == true %>style='display:none'<% end %>>
-    <% if @incident.published != true || @incident.draft == true %>
-        <button type="button" class="btn btn-primary btn-lg" onclick="save_incident('true','true')"><%= icon('fa-solid', 'person') %> Add Patron to Incident</button>
-    <% else %>
-        <button type="button" class="btn btn-primary btn-lg" onclick="save_incident('false','true')"><%= icon('fa-solid', 'person') %> Add Patron to Incident</button>
-    <% end %>
-</div>
-<div id="add_patron"></div>
-<div id="messages" class="mb-3"></div>
-<div class="mb-3">
-    <div id="save_incident_buttons">
-        <% if @incident.published != true || @incident.draft == true %>
-            <button type="button" class="btn btn-primary btn-lg mt-3" onclick="save_incident('false','false')"><%= icon('fa-solid', 'plus') %> Publish</button>
-            <button type="button" class="btn btn-secondary btn-lg mt-3" onclick="save_incident('true', 'false')"><%= icon('fa-solid', 'floppy-disk') %> Save as Draft</button>
-        <% else %>
-            <button type="button" class="btn btn-primary btn-lg mt-3" onclick="save_incident('false','false')"><%= icon('fa-solid', 'arrows-rotate') %> Update</button>
-        <% end %>
-    </div>
-</div>
+<h1>Edit incident report</h1>
+<%= render 'editor' %>

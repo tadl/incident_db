@@ -1,72 +1,47 @@
-<h2>
-   <% if @incident.draft %>
-    Draft: 
-   <% end %> 
-   <%= @incident.title %>
-</h2>
-<div class="mt-1 mb-2">
-    <b>Date of Incident:</b> <%= @incident.date_of_in_time_zone %>
-    <b>Location:</b> <%= @incident.location %>
-    <b> Submitted by:</b> <%= @incident.created_by_name %>
-    <b>ID:</b> <%= @incident.id %> 
+<% content_for :title, "Incident report" %>
+
+<div class="record-title-row mb-3">
+  <h1 class="mb-0"><%= @incident.title %></h1>
+  <% if @incident.draft? %>
+    <span class="status-label">Draft</span>
+  <% end %>
 </div>
-<% if @incident.images.size >= 1 %>
-    <div class="row mt-3 mb-3">
-        <% @incident.images.each do |i| %>
-            <div class="col-lg-3 col-md-6">
-                <a href="<%= url_for(i) %>" target="_blank">
-                    <%= image_tag i.variant(:thumb), class: 'img-thumbnail' %>
-                </a>
-            </div>
-        <% end %>
-    </div>
-<% end %>
-<div class="mb-3">
-    <p style="white-space: pre-wrap;"><%= @incident.description %></p>
-</div>
-<% if @incident.patrons.size >= 1 %>
-    <h3>Patrons involved:</h3>
-    <% @incident.patrons.uniq.each do |p| %>
-        <h5>
-            <a href="/patrons/view?id=<%= p.id %>"><%= p.full_name %></a>
-        </h5>
-        <% if p.images.first %>
-            <div class="mt-3 mb-3">
-                <%= image_tag p.images.first.variant(:thumb), class: 'img-thumbnail' %>
-            </div>
-        <% end %>
-        <div class="mb-3">
-            <b>Violations:</b>
-            
-        <% if @incident.violation_format_summary? %>
-            <% summary = ViolationSummary.find_by(incident: @incident, patron: p) %>
+<section class="card record-section mb-4" aria-label="Incident report details">
+  <div class="card-body">
+    <%= render "shared/record_details", details: {
+      "Incident date" => @incident.date_of_in_time_zone,
+      "Location" => @incident.location,
+      "Submitted by" => @incident.created_by_name,
+      "Report number" => @incident.id
+    } %>
+    <%= render "shared/record_images", label: "Incident", attachments: @incident.images %>
+    <h2 class="h5">Description</h2>
+    <p class="record-description"><%= @incident.description %></p>
+  </div>
+</section>
 
-            <% if summary&.description.present? %>
-                <p><%= simple_format(h(summary.description)) %></p>
-            <% else %>
-                <p><i>None</i></p>
+<% if @incident.patrons.any? %>
+  <section class="mb-4" aria-labelledby="involved-patrons-heading">
+    <h2 id="involved-patrons-heading" class="h4">Patrons involved</h2>
+    <% @incident.patrons.each do |patron| %>
+      <article class="card record-section mb-3">
+        <div class="card-body">
+          <div class="record-title-row mb-2">
+            <h3 class="h5 mb-0">
+              <%= link_to patron.full_name(show_call_911: false), patrons_view_path(id: patron.id) %>
+            </h3>
+            <% if patron.call_911? %>
+              <span class="status-label-urgent">Call 911 immediately if seen on property</span>
             <% end %>
-
-        <% else %>
-            <% violations = p.violations_from_incident(@incident.id) %>
-
-            <% if violations.size == 1 %>
-                <%= violations[0].description %>
-            <% else %>
-                <% violations.each do |v| %>
-                    <% unless v.description == 'None' %>
-                        <p><%= v.description %></p>
-                    <% end %>
-                <% end %>
-            <% end %>
-        <% end %>
-            <% if p.suspension_for(@incident.id) %>
-                <b>Suspended for this Incident Until:</b> <%= p.suspension_for_details(@incident.id) %>
-                <% if p.suspension_for_letter(@incident.id) %>
-                    <br>
-                    <a href="<%= url_for(p.suspension_for_letter(@incident.id)) %>">Download Suspension Letter</a>
-                <% end %>
-            <% end %> 
-        </div>       
+          </div>
+          <% if (picture = patron.images.first) %>
+            <%= render "shared/record_images", label: "Patron", attachments: [picture] %>
+          <% end %>
+          <strong>Violations</strong>
+          <%= render "shared/violation_notes", patron: patron, incident: @incident %>
+          <%= render "shared/suspension_details", patron: patron, incident_id: @incident.id %>
+        </div>
+      </article>
     <% end %>
+  </section>
 <% end %>

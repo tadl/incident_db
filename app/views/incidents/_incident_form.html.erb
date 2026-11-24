@@ -1,52 +1,29 @@
-<div class="mt-3 mb-3">
-    <label for="title" class="form-label">Title</label>
-    <input type="text" class="form-control" id="title" value="<%= @incident.title %>" autocomplete="off">
+<div class="mb-3">
+  <label for="title" class="form-label">Title</label>
+  <input type="text" class="form-control" id="title" value="<%= @incident.title %>" autocomplete="off" required>
 </div>
-<div class="row mb-3">
-    <div class="col-lg-3 col-sm">
-        <label for="date_of" class="form-label">Date and Time of Incident</label>
-        <div class='input-group' id='datetimepicker1' data-td-target-input='nearest' data-td-target-toggle='nearest'>
-            <input id='date_of' type='text' class='form-control' data-td-target='#datetimepicker1' autocomplete="off" value="<%= incident_time_helper(@incident, @date_time_today) %>"/>
-            <span class='input-group-text' data-td-target='#datetimepicker1'data-td-toggle='datetimepicker'>
-                <span class='fa-solid fa-calendar'></span>
-            </span>
-        </div>
-    </div>
-    <div class="col-lg-3 col-sm">
-        <label for="locaiton" class="form-label">Location</label>
-        <select id="location" class="form-select" aria-label="location" autocomplete="off">
-            <% Settings.locations.each do |l| %>
-                <option value="<%= l %>"><%= l %></option>
-            <% end %>
-        </select>
-    </div>
+<div class="row mb-3 g-3">
+  <div class="col-md-6">
+    <label for="date_of" class="form-label">Date and time of incident (Eastern)</label>
+    <input id="date_of" type="datetime-local" class="form-control" value="<%= @incident.date_of&.strftime('%Y-%m-%dT%H:%M') %>" required>
+  </div>
+  <div class="col-md-6">
+    <label for="location" class="form-label">Location</label>
+    <% locations = Settings.locations.to_a %>
+    <% locations = locations | [@incident.location] if @incident.location.present? %>
+    <%= select_tag :location, options_for_select(locations, @incident.location), prompt: "Select a location", class: "form-select", required: true %>
+  </div>
 </div>
 <div class="mb-3">
-    <label for="description" class="form-label">Description</label>
-    <textarea class="form-control" id="description" rows="10" autocomplete="off"><%= @incident.description %></textarea>
+  <label for="description" class="form-label">Description</label>
+  <textarea class="form-control" id="description" rows="8" autocomplete="off" required><%= @incident.description %></textarea>
+</div>
+<div class="row mb-3" id="incident_pics">
+  <%= render 'incident_pics' %>
 </div>
 <div class="mb-3">
-    <div class="row mt-3" id="incident_pics">
-        <%= render 'incident_pics' %>
-    </div>
-<div class="mb-3">
-    <label for="image" class="form-label">Add Images to Incident Report</label>
-    <br>
-    <%= file_field_tag 'incident_images', multiple: true, accept: 'image/png,image/gif,image/jpeg', autocomplete: "off" %>
-    <br>
-    <button class="btn-small btn-secondary mt-3" onclick="cancel_incident_images()">Cancel Image Upload</button>
+  <label for="incident_images" class="form-label">Add incident images</label>
+  <%= file_field_tag 'incident_images', multiple: true, accept: 'image/png,image/jpeg', autocomplete: "off", class: "form-control" %>
+  <button type="button" class="btn btn-sm btn-outline-secondary mt-2" data-incident-action="clear-images">Clear selection</button>
 </div>
-<div id="incident_id" style="display:none"><%= @incident.id %></div>
-</div>
-<script>
-    const picker = new tempusDominus.TempusDominus(document.getElementById('datetimepicker1'),{
-        allowInputToggle: true,
-        display: {
-            theme: 'light',
-            viewMode: 'clock',
-            components:{
-                decades: false,
-            },
-        }    
-    });
-</script>
+<span id="incident_id" hidden><%= @incident.id %></span>

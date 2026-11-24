@@ -1,45 +1,32 @@
 class Oldreport < ApplicationRecord
-    include PgSearch::Model
-    
-    has_many_attached :images do |attachable|
-        attachable.variant :thumb, resize_to_fill: [250, 250]
-    end
+  include PgSearch::Model
 
-    pg_search_scope :search, against: [:title, :description, :narrative, :legacy_id, :patron_name, :submitted_by],using: {
-        tsearch: {prefix: true}
-    }
+  has_many_attached :images do |attachment|
+    attachment.variant :thumb, resize_to_fill: [250, 250]
+  end
 
-    def time_of_in_zone 
-        return self.time_of.strftime("at %l:%M %p") rescue ''
-    end
+  pg_search_scope :search, against: [:title, :description, :narrative, :legacy_id, :patron_name, :submitted_by],
+    using: { tsearch: { prefix: true } }
 
-    def date_of_pretty
-        return self.date_of.strftime("%m/%d/%Y")
-    end
+  def time_of_in_zone
+    time_of&.strftime("at %l:%M %p")
+  end
 
-    def primary_pic
-        if self.images.size >= 1
-            return self.images[0]
-        end
-    end
+  def date_of_pretty
+    date_of&.strftime("%m/%d/%Y")
+  end
 
-    def violations
-        violations = self.a_violations + self.b_violations
-        #detects if string contains a capital A or B followed by a number
-        regex = /([AB]\d+)/
-        i = 0
-        violations.gsub!(regex) do |match|
-            ", #{match}"
-        end
-        return violations.sub!(/\A\s*,\s*/, '')
-    end
+  def primary_pic
+    images.first
+  end
 
-    def has_violations?
-        if self.a_violations == '' && self.b_violations == ''
-            return false
-        else
-            return true
-        end
-    end
+  def violations
+    [a_violations, b_violations].compact_blank.map do |text|
+      text.gsub(/(?<!\A)(?<![\s,])(?=[AB]\d+)/, ", ")
+    end.join(", ")
+  end
 
+  def has_violations?
+    a_violations.present? || b_violations.present?
+  end
 end

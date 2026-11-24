@@ -1,0 +1,5 @@
+<%= label_tag field_id, label, class: "form-label" %>
+<div class="staff-search-fields">
+  <%= search_field_tag :query, @query, id: field_id, class: "form-control", maxlength: 50, autocomplete: "off" %>
+  <%= submit_tag "Search", class: "btn btn-primary", name: nil %>
+</div>

@@ -1,10 +1,13 @@
-<h2 class="mb-3"><%= icon('fa-solid', 'person') %> <%= @title %></h2>
-<%= will_paginate @patrons, renderer: WillPaginate::ActionView::BootstrapLinkRenderer %>
-<% @patrons.each do |p| %>
-    <div class="card mb-3">
-        <div class="card-body">
-            <%= render 'patron_full', p: p, stub: true %>
-        </div>
+<% content_for :title, "Patrons" %>
+
+<h1><%= @title %></h1>
+<%= render "section_links" %>
+<% @patrons.each do |patron| %>
+  <article class="card record-card mb-3">
+    <div class="card-body">
+      <%= render "patron_full", p: patron, stub: true %>
     </div>
+  </article>
 <% end %>
-<%= will_paginate @patrons, renderer: WillPaginate::ActionView::BootstrapLinkRenderer %>
+<%= render "shared/empty_results", message: "No patrons in this view." if @patrons.empty? %>
+<%= render "shared/list_pagination", records: @patrons %>

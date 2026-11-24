@@ -1,19 +1,11 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
 one:
-  provider: MyString
-  uid: MyString
-  name: MyString
-  oauth_token: MyString
-  oauth_expires_at: 2022-05-26 16:27:55
-  avatar: MyString
-  email: MyString
+  provider: google_oauth2
+  uid: synthetic-staff-1
+  name: Alice Example
+  email: alice@example.org
 
 two:
-  provider: MyString
-  uid: MyString
-  name: MyString
-  oauth_token: MyString
-  oauth_expires_at: 2022-05-26 16:27:55
-  avatar: MyString
-  email: MyString
+  provider: google_oauth2
+  uid: synthetic-staff-2
+  name: Alex Example
+  email: alex@example.org

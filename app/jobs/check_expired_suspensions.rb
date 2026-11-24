@@ -1,18 +1,31 @@
-require 'sidekiq-scheduler'
-
 class CheckExpiredSuspensions
-  include Sidekiq::Worker
+  include Sidekiq::Job
+
   def perform
-    patrons = Patron.all
-    patrons.each do |p|
-        is_expired = p.suspension_expired
-        if is_expired[0] == true && is_expired[1].expired_email_sent == false
-            patron = p
-            suspension = is_expired[1]
-            IncidentMailer.suspension_expired(patron).deliver
-            suspension.expired_email_sent = true
-            suspension.save
-        end
+    return unless IncidentMailer.perform_deliveries
+
+    expiration_date = Date.yesterday
+    Suspension.published.where(until: expiration_date, expired_email_sent: [false, nil]).includes(:patron).find_each do |suspension|
+      deliver_if_latest(suspension, expiration_date)
     end
+  end
+
+  private
+
+  def deliver_if_latest(suspension, expiration_date)
+    patron = suspension.patron
+    patron&.with_lock do
+      latest = patron.suspensions.published.where.not(until: nil).order(until: :desc, id: :desc).first
+      next unless latest&.id == suspension.id
+
+      latest.with_lock do
+        next if latest.expired_email_sent? || latest.until != expiration_date || !latest.incident&.published?
+
+        IncidentMailer.suspension_expired(patron).deliver_now
+        latest.update_columns(expired_email_sent: true)
+      end
+    end
+  rescue ActiveRecord::RecordNotFound
+    # The patron or suspension was removed after the scan.
   end
 end

@@ -1,33 +1,29 @@
-<div class="card mb-3">
-    <div class="card-body">
-        <div class="row">
-            <div class="col-lg-3">
-                <% if r.primary_pic %>
-                    <%= image_tag r.primary_pic.variant(:thumb), class: 'img-thumbnail' %>
-                <% else %>
-                <% end %>
-            </div>
-            <div class="col-lg-9">
-                <h4 class="card-title"><%= r.title %></h4>
-                <b>Date of Incident:</b> <%= r.date_of_pretty %> <%= r.time_of_in_zone %>
-                <b>ID:</b> <%= r.legacy_id %> 
-                <p class="card-text" style="white-space: pre-wrap;"><%= truncate(r.description, length: 400, separator: /\s/, omission: '...') %></p>
-                <% if r.patron_name && r.patron_name != '' %>
-                    <p>
-                        <b>Patron Involved:</b> <%= r.patron_name %>
-                    </p>
-                <% end %>
-                
-                <% if r.has_violations? %>
-                    <p class="card-text" style="white-space: pre-wrap;"><b>Violations:</b> <%= r.violations %></p>
-                <% end %>
-                <% if r.suspension == 'Yes' %>
-                    <p class="card-text" style="white-space: pre-wrap;"><b>Suspended for:</b> <%= r.suspension_duration %></p>
-                <% end %>
-                <div class="mt-3">
-                    <a href="/old/view?id=<%= r.id %>" class="btn btn-primary"> <%= icon('fa-solid', 'eye') %> View Full Details</a>
-                </div>
-            </div>
-        </div>
+<article class="card record-card mb-3">
+  <div class="card-body">
+    <div class="record-preview">
+      <% if (picture = r.primary_pic) %>
+        <%= image_tag private_thumbnail_path(picture), alt: "", class: "record-thumbnail", loading: "lazy", decoding: "async", width: 112, height: 112 %>
+      <% end %>
+      <div class="record-preview-content">
+        <h2 class="card-title"><%= link_to r.title.presence || "Legacy report", old_view_path(id: r.id) %></h2>
+        <ul class="record-meta">
+          <li><%= r.date_of_pretty %> <%= r.time_of_in_zone %></li>
+          <% if r.location.present? %>
+            <li><%= r.location %></li>
+          <% end %>
+          <li>Report #<%= r.legacy_id %></li>
+        </ul>
+        <p class="record-description"><%= truncate(r.description, length: 400, separator: /\s/) %></p>
+        <% if r.patron_name.present? %>
+          <p class="record-related"><strong>Patron involved</strong> <%= r.patron_name %></p>
+        <% end %>
+        <% if r.has_violations? %>
+          <p class="record-related"><strong>Violations</strong> <%= r.violations %></p>
+        <% end %>
+        <% if r.suspension == "Yes" %>
+          <p class="record-related"><strong>Suspension</strong> <%= r.suspension_duration %></p>
+        <% end %>
+      </div>
     </div>
-</div>
+  </div>
+</article>

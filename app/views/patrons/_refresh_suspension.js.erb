@@ -1,0 +1,6 @@
+$('#suspension_modal_<%= @patron.id %>').one('hidden.bs.modal', function () {
+  const summary = $('#violation_summary_<%= @patron.id %>').val();
+  $('#patron_<%= @patron.id %>').replaceWith("<%= escape_javascript(render 'add_violation', patron: @patron, incident: @incident) %>");
+  $('#violation_summary_<%= @patron.id %>').val(summary);
+});
+bootstrap.Modal.getInstance(document.getElementById('suspension_modal_<%= @patron.id %>')).hide();

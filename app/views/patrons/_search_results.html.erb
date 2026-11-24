@@ -1,30 +1,29 @@
-<% @patrons.each do |p| %>
-    <div class="row mt-3 mb-3">
-        <div class="col-lg-3">
-            <% if p.images.first %>
-                <%= image_tag p.images.first.variant(:thumb), class: 'img-thumbnail', style: 'width: 250px' %>
-            <% end %>
-        </div>
-        <div class="col-lg-9">
-            <h5><%= p.full_name %></h5>
-            <% if p.description && !p.description.blank? %>
-                <b>Description:</b>
-                <br>
-                <%= p.description %>
-                <br>
-            <% end %>
-            <% if p.incidents.size >= 1 %>
-                <b>Previous Incidents:</b>
-                <br>
-                <% p.unique_incidents.uniq.last(4).each do |i| %>
-                        <a href="/incidents/view?id=<%=i.id%>" target="_blank"><%= i.title %></a>
-                    <br>
-                <% end %>
-            <% end %>
-            <div class="mt-3">
-                <a onclick="add_existing_to_incident(<%= p.id %>)" class="btn btn-primary btn-sm"><%= icon('fa-solid', 'plus') %> Add Patron to Incident</a>
-                <a href="/patrons/view?id=<%= p.id %>" class="btn btn-primary btn-sm"><%= icon('fa-solid', 'eye') %> View Full Patron Record</a>
-            </div>
-        </div>
+<% if @patrons.blank? %>
+  <p>No patrons found.</p>
+<% end %>
+<% @patrons.each do |patron| %>
+  <div class="row mt-3 mb-3">
+    <% if patron.images.first %>
+      <div class="col-md-3">
+        <%= image_tag private_thumbnail_path(patron.images.first), class: 'img-thumbnail' %>
+      </div>
+    <% end %>
+    <div class="col">
+      <h3 class="h5"><%= patron.full_name %></h3>
+      <% if patron.description.present? %>
+        <p><%= patron.description %></p>
+      <% end %>
+      <% incidents = patron.published_incidents.limit(4) %>
+      <% if incidents.present? %>
+        <p class="mb-1"><strong>Recent incidents</strong></p>
+        <ul>
+          <% incidents.each do |incident| %>
+            <li><%= link_to incident.title, incidents_view_path(id: incident.id) %></li>
+          <% end %>
+        </ul>
+      <% end %>
+      <button type="button" data-patron-action="add" data-patron-id="<%= patron.id %>" class="btn btn-primary btn-sm">Add patron to incident</button>
+      <%= link_to 'View patron record', patrons_view_path(id: patron.id), class: 'btn btn-outline-secondary btn-sm', target: '_blank', rel: 'noopener' %>
     </div>
+  </div>
 <% end %>

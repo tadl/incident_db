@@ -1,28 +1,20 @@
 class Comment < ApplicationRecord
-  def submitted_by
-    user = User.find(self.user_id)
-    return user.name
-  end
+  belongs_to :user, optional: true
+  validates :description, presence: true, length: { maximum: 16_000 }
 
-  def submitted_by_pic
-    user = User.find(self.user_id)
-    return user.avatar
+  def submitted_by
+    user&.name.presence || "Former staff member"
   end
 
   def posted_on
-    return self.created_at.in_time_zone("Eastern Time (US & Canada)").strftime("%m/%d/%Y at %l:%M %p")
+    created_at&.strftime("%m/%d/%Y at %l:%M %p")
   end
 
   def edited_on
-    return self.updated_at.in_time_zone("Eastern Time (US & Canada)").strftime("%m/%d/%Y at %l:%M %p")
+    updated_at&.strftime("%m/%d/%Y at %l:%M %p")
   end
 
   def was_edited
-    if self.updated_at != self.created_at
-      return true
-    else
-      return false
-    end
+    updated_at != created_at
   end
-
 end

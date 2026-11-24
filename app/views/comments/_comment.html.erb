@@ -1,23 +1,31 @@
-<div id="comment_<%= c.id %>" class="card mb-3">
-    <div class="card-body">
-        <div class="row">
-            <div class="col-lg-1 col-sm-3 col-3">
-                <img src='<%= c.submitted_by_pic %>' class="img-fluid">
-            </div>
-            <div class="col-lg-10 col-sm-8 col-8">
-                <b><%= c.submitted_by %></b> 
-                <i>Posted on: <%= c.posted_on %></i>
-                <% if c.was_edited %>
-                <i>Edited on: <%= c.edited_on %></i>
-                <% end %>
-                <% if current_user.my_comment(c) %>
-                    <a href="#" onclick="edit_comment(<%= c.id %>, '<%= from %>', <%= owner_id %>)">Edit</a>
-                    <a href="#" onclick="delete_comment(<%= c.id %>, '<%= from %>', <%= owner_id %>); event.preventDefault()">Delete</a>
-                <% end %>
-                <br>
-                <%= c.description %>
-                <br>
-            </div>
-        </div>
-    </div>
-</div>
+<article id="<%= dom_id(comment, :entry) %>" class="card mb-3">
+  <div class="card-body">
+    <header class="d-flex flex-wrap align-items-baseline gap-2">
+      <strong><%= comment.submitted_by %></strong>
+      <span class="small text-body-secondary"><%= comment.posted_on %></span>
+      <% if comment.was_edited %>
+        <span class="small text-body-secondary">Edited <%= comment.edited_on %></span>
+      <% end %>
+    </header>
+    <p class="mt-2"><%= safe_join(comment.description.to_s.lines, tag.br) %></p>
+
+    <% if current_user.my_comment(comment) %>
+      <details>
+        <summary>Edit comment</summary>
+        <%= form_with url: comments_update_path, class: "mt-2" do |form| %>
+          <%= form.hidden_field :comment_for, value: from, id: nil %>
+          <%= form.hidden_field :owner_id, value: owner_id, id: nil %>
+          <%= form.hidden_field :id, value: comment.id, id: nil %>
+          <% field_id = dom_id(comment, :description) %>
+          <%= form.label :description, "Comment", for: field_id, class: "form-label" %>
+          <%= form.text_area :description, value: comment.description, id: field_id, required: true,
+            maxlength: 16_000, rows: 4, class: "form-control mb-2" %>
+          <%= form.submit "Save changes", class: "btn btn-sm btn-primary" %>
+        <% end %>
+        <%= button_to "Delete comment", comments_delete_path,
+          params: { comment_for: from, owner_id: owner_id, id: comment.id },
+          class: "btn btn-sm btn-outline-danger mt-2", data: { confirm_delete: true } %>
+      </details>
+    <% end %>
+  </div>
+</article>

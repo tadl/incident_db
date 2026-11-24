@@ -1,10 +1,10 @@
 <% @incident.images.each do |i| %>
     <div class="col-lg-3 col-md-6">
-        <a href="<%= url_for(i) %>" target="_blank">
-            <%= image_tag i.variant(:thumb), class: 'img-thumbnail' %>
+        <a href="<%= private_attachment_path(i) %>" target="_blank">
+            <%= image_tag private_thumbnail_path(i), class: 'img-thumbnail' %>
         </a>
         <br>
-        <button type="button" class="btn btn-danger btn-sm mb-1 mt-1" onclick="delete_incident_image(<%= i.id %>)">
+        <button type="button" class="btn btn-danger btn-sm mb-1 mt-1" data-incident-action="delete-image" data-image-id="<%= i.id %>">
             <%= icon('fa-solid', 'trash') %> Delete Image
         </button>
     </div>

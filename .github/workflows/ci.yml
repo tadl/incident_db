@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      RAILS_ENV: test
+      DATABASE_URL: postgresql:///incident_db_test
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Install PostgreSQL and image-processing dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y libpq-dev libvips42t64
+          sudo systemctl start postgresql.service
+          sudo -u postgres createuser --createdb --no-superuser "$USER"
+      - uses: ruby/setup-ruby@4e97ecde5048e1e0816923020652678063ffbf65 # v1
+        with:
+          bundler-cache: true
+      - name: Check migrations and run tests
+        run: |
+          bin/rails db:create db:migrate
+          bin/rails zeitwerk:check
+          bin/rails test
+          bin/rails test:system
+      - name: Build and boot production assets
+        env:
+          RAILS_ENV: production
+          SECRET_KEY_BASE_DUMMY: "1"
+        run: |
+          bin/rails assets:precompile
+          bin/rails runner 'abort "Precompiled assets missing" unless Rails.application.assets_manifest.assets["application.css"]'

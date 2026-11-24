@@ -1,173 +1,138 @@
 class IncidentsController < ApplicationController
-  skip_before_action :verify_authenticity_token
-  before_action :authenticate_user!
+  before_action :require_script_request, only: [:save, :delete_image, :delete_incident]
 
   def all
-    if params[:just_mine] == 'true'
-      @title = 'My'
-      @search_param = 'just_mine'
-      @incidents = Incident.paginate(page: params[:page], per_page: 10).where(published: true, created_by: current_user.id).order(date_of: :desc)
-    elsif params[:just_drafts] == 'true'
-      @title = 'My Draft'
-      @incidents = Incident.paginate(page: params[:page], per_page: 10).where(draft: true, created_by: current_user.id).order(date_of: :desc)
-      @search_param = 'just_drafts'
+    incidents = Incident.includes(:author, patrons: { suspensions: :incident }).order(date_of: :desc, id: :desc)
+
+    if params[:just_mine] == "true"
+      @title = "My"
+      @search_param = "just_mine"
+      incidents = incidents.where(published: true, created_by: current_user.id)
+    elsif params[:just_drafts] == "true"
+      @title = "My Draft"
+      @search_param = "just_drafts"
+      incidents = incidents.where(published: false, draft: true, created_by: current_user.id)
     else
-      @title = 'All'
-      @incidents = Incident.paginate(page: params[:page], per_page: 10).where(published: true).order(date_of: :desc)
-      @search_param = 'all'
+      @title = "All"
+      @search_param = "all"
+      incidents = incidents.where(published: true)
     end
+
+    @incidents = incidents.paginate(page: params[:page], per_page: 10)
   end
 
   def view
-    id = params[:id].to_i
-    @incident = Incident.find(id)
-    @comments = Comment.where(incident_id: id) 
+    @incident = Incident.find(params[:id])
+    return head :not_found unless current_user.can_view_incident(@incident)
   end
 
   def new
-    @date_time_today = DateTime.now.in_time_zone("Eastern Time (US & Canada)").strftime("%m/%d/%Y,  %H:%M")
-    @incident = Incident.new(violation_format: :summary)
+    @incident = Incident.new(violation_format: :summary, date_of: Time.current)
   end
 
   def edit
-    id = params[:id].to_i
-    if current_user.can_edit_incident(id)
-      @incident = Incident.find(id) 
-    else
-      redirect_back_or_to '/'
-    end
+    @incident = Incident.find(params[:id])
+    return head :forbidden unless current_user.can_edit_incident(@incident)
   end
 
   def save
-    if params[:incident_id] && params[:incident_id] != ''
-      if current_user.can_edit_incident(params[:incident_id])
-        @incident = Incident.find(params[:incident_id])     
-        @incident.last_edit_by = current_user.id
-        unless params[:draft] == 'true'
-          if @incident.draft == true
-            @incident.draft = false
-            @incident.published_on = DateTime.now
-            @incident.published = true
-           @new_publish = true
-          end
-        end
-        puts "Goooooott hereeeee"
-      else
-        redirect_back_or_to '/'
-      end
+    if params[:incident_id].present?
+      @incident = Incident.find(params[:incident_id])
+      return head :forbidden unless current_user.can_edit_incident(@incident)
+
+      @incident.with_lock { save_incident }
     else
-      @incident = Incident.new(violation_format: :summary)
-      @incident.created_by = current_user.id
-      unless params[:draft] == 'true'
-        @incident.published_on = DateTime.now
-        @incident.published = true
-        @new_publish = true
-      end
+      @incident = Incident.new(violation_format: :summary, created_by: current_user.id)
+      Incident.transaction { save_incident }
     end
-    if @incident
-      @incident.assign_attributes(incident_params)
-      @incident.date_of = params[:date_of].to_datetime
-      @incident.images.attach(params[:images])
-      if @incident.valid?
-        @incident.save
-         if @incident.violation_format_summary?
-          violation_summaries_param.each do |patron_id, attrs|
-            # attrs may be Parameters or Hash
-            description =
-              if attrs.respond_to?(:[])
-                (attrs[:description] || attrs["description"]).to_s.strip
-              else
-                ""
-              end
 
-            summary = ViolationSummary.find_or_initialize_by(
-              incident_id: @incident.id,
-              patron_id: patron_id
-            )
-
-            if description.blank?
-              # Treat blank as "clear"
-              summary.destroy if summary.persisted?
-              next
-            end
-
-            summary.description = description
-            summary.save!
-          end
-        end
-        @updated = true
-        if @new_publish == true
-          IncidentMailerJob.perform_later(@incident)
-        end
-        if params[:add_patron] == "true"
-          @add_patron = true
-        else
-          @add_patron = false
-        end
-      else
-        @updated = false
-      end
-    else
-        @updated = false 
-    end
-    respond_to do |format|
-        format.js
-    end
+    @updated = true
+    @add_patron = params[:add_patron] == "true"
+    IncidentMailerJob.perform_later(@incident) if @new_publish
+    render :save
+  rescue ActiveRecord::RecordInvalid => error
+    @errors = error.record.errors.full_messages
+    render :save
   end
 
   def delete_image
-    @image = ActiveStorage::Attachment.find_by(id: params[:image_id])
-    @image.purge
     @incident = Incident.find(params[:incident_id])
-    
-    respond_to do |format|
-      format.js
-    end
+    return head :forbidden unless current_user.can_edit_incident(@incident)
+
+    @incident.images.attachments.find(params[:image_id]).purge_later
   end
 
   def search
-    @query = params[:query]
-    @incidents = Incident.paginate(page: params[:page], per_page: 5).where(published: true).search(params[:query])
-    respond_to do |format|
-      format.html
-      format.json {render :json => @incidents}
-    end
+    @query = params[:query] if params[:query].is_a?(String)
+    incidents = Incident.where(published: true).includes(:author, patrons: { suspensions: :incident })
+    incidents = @query.present? ? incidents.search(@query) : incidents.none
+    @incidents = incidents.paginate(page: params[:page], per_page: 5)
   end
 
   def delete_incident
     @incident = Incident.find(params[:id])
-    if current_user.can_delete_this_incident(@incident)
-      @violations = Violation.where(incident_id: @incident.id)
-      @violations.each do |v|
-        v.destroy
-      end
-      @suspensions = Suspension.where(incident_id: @incident.id)
-      @suspensions.each do |s|
-        s.destroy
-      end
-      @comments = Comment.where(incident_id: @incident.id)
-      @comments.each do |c|
-        c.destroy
-      end
-      @incident.destroy
-    else
-      @error = 'You do not have permission to delete this incident'
-    end
-    respond_to do |format|
-      format.js
+    @incident.with_lock do
+      return head :forbidden unless current_user.can_delete_this_incident(@incident)
+
+      @incident.destroy!
     end
   end
 
   private
 
-  def incident_params
-      params.permit(:title, :description, :location, :draft, :no_patrons)
+  def require_script_request
+    head :not_acceptable unless request.xhr? && request.format.js?
   end
 
-  
-  def violation_summaries_param
-    return {} unless params[:violation_summaries].is_a?(ActionController::Parameters) || params[:violation_summaries].is_a?(Hash)
-    params[:violation_summaries]
+  def save_incident
+    @incident.assign_attributes(params.permit(:title, :description, :location))
+    @incident.last_edit_by = current_user.id if @incident.persisted?
+    @incident.date_of = incident_date
+
+    @new_publish = !@incident.published? && params[:draft] != "true"
+    @incident.published_on = Time.current if @new_publish
+    @incident.published = true if @new_publish
+    @incident.draft = !@incident.published?
+
+    images = Array(params[:images]).grep(ActionDispatch::Http::UploadedFile)
+    @incident.images.attach(images) if images.any?
+    @incident.save!
+    save_violation_summaries
   end
 
+  def incident_date
+    value = params[:date_of]
+    return unless value.is_a?(String) && value.match?(/\A\d{4}-\d{2}-\d{2}T\d{2}:\d{2}\z/)
+
+    parsed = Time.zone.iso8601(value)
+    return unless parsed.strftime("%Y-%m-%dT%H:%M") == value
+
+    existing = @incident.date_of
+    existing&.strftime("%Y-%m-%dT%H:%M") == value ? existing : parsed
+  rescue ArgumentError
+    nil
+  end
+
+  def save_violation_summaries
+    descriptions = params[:violation_summaries]
+    return unless descriptions.is_a?(ActionController::Parameters)
+
+    patron_ids = @incident.incident_patrons.pluck(:patron_id).map(&:to_s)
+    if (descriptions.keys - patron_ids).any?
+      @incident.errors.add(:base, "A violation was submitted for a patron who is no longer linked to this incident")
+      raise ActiveRecord::RecordInvalid, @incident
+    end
+
+    descriptions.each_pair do |patron_id, attributes|
+      next unless attributes.is_a?(ActionController::Parameters) && attributes[:description].is_a?(String)
+
+      summary = @incident.violation_summaries.find_or_initialize_by(patron_id: patron_id)
+      description = attributes[:description].strip
+      if description.present?
+        summary.update!(description: description)
+      elsif summary.persisted?
+        summary.destroy!
+      end
+    end
+  end
 end

@@ -1,81 +1,61 @@
 class CommentsController < ApplicationController
-    before_action :authenticate_user!
-    skip_before_action :verify_authenticity_token
+  before_action :load_parent
+  before_action :load_owned_comment, only: [:update, :delete]
 
-    def save
-        if (params[:description] && params[:description] != '')
-            if params[:comment_for] == 'incident'
-                comment = IncidentComment.new
-                comment.description = params[:description] 
-                comment.incident_id = params[:id]
-                comment.user_id = current_user.id
-                comment.save!
-                @comments = IncidentComment.where(incident_id: params[:id])
-                CommentAddedJob.perform_later(comment)
-            elsif params[:comment_for] == 'patron'
-                comment = PatronComment.new
-                comment.description = params[:description] 
-                comment.patron_id = params[:id]
-                comment.user_id = current_user.id
-                comment.save!
-                @comments = PatronComment.where(patron_id: params[:id])
-                CommentAddedJob.perform_later(comment)
-            else
-                @error = 'Something went wrong. Please let IT know.'
-            end
-        else
-            @error = 'Please enter your extra information in the box above'
-        end
-        @from = params[:comment_for]
-        @owner_id = params[:id]
-        respond_to do |format|
-            format.js
-        end
+  def save
+    comment = @comments.build(comment_params.merge(user: current_user))
+    if comment.save
+      CommentAddedJob.perform_later(comment) if !@parent.is_a?(Incident) || @parent.published?
+      redirect_to parent_path, status: :see_other
+    else
+      redirect_to parent_path, alert: comment.errors.full_messages.to_sentence, status: :see_other
     end
+  end
 
-    def update
-        @comment = Comment.find(params[:id])
-        if current_user.my_comment(@comment)
-            @comment.description = params[:description]
-            @comment.save 
-        end
-        @owner_id = params[:owner_id]
-        @from = params[:comment_for]
-        respond_to do |format|
-            format.js
-        end
+  def update
+    if @comment.update(comment_params)
+      redirect_to parent_path, status: :see_other
+    else
+      redirect_to parent_path, alert: @comment.errors.full_messages.to_sentence, status: :see_other
     end
+  end
 
-    def delete
-        comment = Comment.find(params[:id])
-        if current_user.my_comment(comment)
-            comment.destroy
-        end
-        if params[:comment_for] == 'incident'
-            @comments = IncidentComment.where(incident_id: params[:owner_id])
-        elsif params[:comment_for] == 'patron'
-            @comments = PatronComment.where(patron_id: params[:owner_id])
-        end
-        @owner_id = params[:owner_id]
-        @from = params[:comment_for]
-        respond_to do |format|
-            format.js
-        end
+  def delete
+    @comment.destroy!
+    redirect_to parent_path, status: :see_other
+  end
+
+  private
+
+  def load_parent
+    case params[:comment_for]
+    when "incident"
+      @parent = Incident.find(params[:owner_id])
+      return head :not_found unless current_user.can_view_incident(@parent)
+
+      @comments = @parent.incident_comments
+    when "patron"
+      @parent = Patron.find(params[:owner_id])
+      @comments = @parent.patron_comments
+    else
+      head :bad_request
     end
+  end
 
-    def edit
-        @comment = Comment.find(params[:id])
-        @owner_id = params[:owner_id]
-        @from = params[:comment_for]
-        respond_to do |format|
-            format.js
-        end
+  def load_owned_comment
+    @comment = @comments.find(params[:id])
+    head :forbidden unless current_user.my_comment(@comment)
+  end
+
+  def parent_path
+    if @parent.is_a?(Incident)
+      incidents_view_path(id: @parent.id)
+    else
+      patrons_view_path(id: @parent.id)
     end
+  end
 
-    private
-
-    def comment_params
-        params.permit(:description)
-    end
-
+  def comment_params
+    params.permit(:description)
+  end
 end

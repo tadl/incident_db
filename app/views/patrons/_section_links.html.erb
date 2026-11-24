@@ -1,0 +1,8 @@
+<% suspended = params[:suspended] == "true" %>
+<% call_911 = params[:call_911] == "true" %>
+<%= render "shared/section_links", label: "Patron views", links: [
+  ["All patrons", patrons_list_path, action_name == "list" && !suspended],
+  ["Suspended", patrons_list_path(suspended: true), action_name == "list" && suspended && !call_911],
+  ["Call 911", patrons_list_path(suspended: true, call_911: true), action_name == "list" && suspended && call_911],
+  ["Search", patrons_search_path, action_name == "search"]
+] %>

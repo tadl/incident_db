@@ -1,328 +1,177 @@
 class PatronsController < ApplicationController
-  skip_before_action :verify_authenticity_token
-  before_action :authenticate_user!
+  before_action :require_script_request, except: [:edit, :list, :view, :search]
+  before_action :load_editable_incident, only: [:add_existing_to_incident, :remove_patron_from_incident, :load_patron_search, :load_new_patron_form]
+  before_action :load_optional_editable_incident, only: [:save, :edit, :delete_image, :search]
+  before_action :load_suspension_incident, only: [:load_suspension_form, :save_suspension, :delete_suspension, :delete_letter]
 
   def save
-    if params[:patron_id] && params[:patron_id] != ''
-      @patron = Patron.find(params[:patron_id])
-      @edit = true
-    else
-      @patron = Patron.new
-    end
-    @patron.assign_attributes(patron_params)
-    @patron.images.attach(params[:images])
-    if @patron.valid?
-      @patron.save
-      if params[:incident_id] && params[:incident_id].to_i != 0
-        @incident = Incident.find(params[:incident_id].to_i)
-        if @incident
-          violation = Violation.new
-          violation.patron_id = @patron.id
-          violation.incident_id = @incident.id
-          violation.description = 'None'
-          violation.save
-        end
-      else
-        @editing_without_incident = true
+    @edit = params[:patron_id].present?
+    @editing_without_incident = @incident.nil?
+    @patron = @edit ? patron_scope.find(params[:patron_id]) : Patron.new
+    if @incident
+      @incident.with_lock do
+        save_patron
+        @incident.incident_patrons.find_or_create_by!(patron: @patron) unless @edit
       end
     else
-      @error = true
+      @patron.with_lock { save_patron }
     end
-    respond_to do |format|
-      format.js
-    end
+    render :save
+  rescue ActiveRecord::RecordInvalid => error
+    @errors = error.record.errors.full_messages
+    render :save
   end
 
   def add_existing_to_incident
     @patron = Patron.find(params[:patron_id])
-    @incident = Incident.find(params[:incident_id].to_i)
-    if @incident
-      violation = Violation.new
-      violation.patron_id = @patron.id
-      violation.incident_id = @incident.id
-      violation.description = 'None'
-      violation.save
-    end
-    respond_to do |format|
-      format.js
-    end
+    @incident.with_lock { @incident.incident_patrons.find_or_create_by!(patron: @patron) }
   end
 
   def edit
-    @patron = Patron.find(params[:patron_id])
-    respond_to do |format|
-      format.html
-      format.js
-    end
+    @patron = patron_scope.find(params[:patron_id])
   end
 
   def list
-    if params[:suspended] == 'true'
-      if params[:call_911] == 'true'
-        @title = "Currently Suspended Patrons - Call 911 If Seen on Property"
-        @patrons = Patron.joins(:incidents).select { |p| p.is_suspended_details.is_a?(Array) && p.is_suspended_details[1].call_police == true }.uniq.sort_by {|patron| patron.suspended_until_raw }.paginate(page: params[:page], per_page: 10)
-      else
-        @title = "Currently Suspended Patrons"
-        @patrons = Patron.joins(:incidents).select { |p| p.is_suspended == true }.uniq.sort_by {|patron| patron.suspended_until_raw }.paginate(page: params[:page], per_page: 10)
-      end
+    if params[:suspended] == "true"
+      call_911 = params[:call_911] == "true"
+      @title = call_911 ? "Currently Suspended Patrons - Call 911 If Seen on Property" : "Currently Suspended Patrons"
+      patrons = Patron.currently_suspended(call_911: call_911)
     else
       @title = "All Patrons"
-      @patrons = Patron.all.order(created_at: :desc).uniq.paginate(page: params[:page], per_page: 10)
+      patrons = Patron.order(created_at: :desc, id: :desc)
     end
-    respond_to do |format|
-      format.html
-      format.json {render :json => @patrons}
-    end
+    @patrons = patrons.includes(suspensions: :incident).paginate(page: params[:page], per_page: 10)
   end
 
   def view
-    @patron = Patron.find(params[:id])
-  end
-
-  def load_violation_modal
-    if params[:track] == 'A'
-      @violations = a_rules
-    end
-    if params[:track] == 'B'
-      @violations = b_rules
-    end
-    @patron_id = params[:patron_id]
-    respond_to do |format|
-      format.js
-    end
-  end
-
-  def save_violations
-    @violation_ids = params[:violation_ids]
-    @patron = Patron.find(params[:patron_id].to_i)
-    @incident = Incident.find(params[:incident_id].to_i)
-    if !@violation_ids.nil?
-      @violation_ids.each do |v|
-        violation = Violation.new
-        violation.patron_id = @patron.id
-        violation.incident_id = @incident.id
-        rule = Rule.find(v)
-        violation.description = rule.violation_format
-        violation.save
-      end
-    end
-    @violations = Violation.where(patron_id: @patron.id, incident_id:@incident.id).order('description DESC')
-    respond_to do |format|
-      format.js
-    end
-  end
-
-  def remove_violation
-    @patron = Patron.find(params[:patron_id].to_i)
-    @incident = Incident.find(params[:incident_id].to_i)
-    unless @patron.suspension_for(@incident.id) && !current_user.can_suspend
-      violation = Violation.find(params[:violation_id].to_i)
-      violation.destroy
-      @violations = Violation.where(patron_id: @patron.id, incident_id:@incident.id).order('description DESC')
-    else
-      @error = "This account does not have permission to create or modify suspensions"
-    end
-    respond_to do |format|
-      format.js
-    end
+    @patron = Patron.includes(suspensions: :incident).find(params[:id])
   end
 
   def remove_patron_from_incident
-    @patron = Patron.find(params[:patron_id].to_i)
-    @incident = Incident.find(params[:incident_id].to_i)
-    unless @patron.suspension_for(@incident.id) && !current_user.can_suspend
-      violations = Violation.where(patron_id: @patron.id, incident_id:@incident.id)
-      violations.each do |v|
-        v.destroy
+    @incident.with_lock do
+      link = @incident.incident_patrons.find_by!(patron_id: params[:patron_id])
+      @patron = link.patron
+      suspensions = @patron.suspensions.where(incident: @incident)
+      if !current_user.can_suspend && suspensions.exists?
+        return head :forbidden
       end
-      suspensions = Suspension.where(patron_id: @patron.id, incident_id:@incident.id)
-      suspensions.each do |s|
-        s.destroy
-      end
-    else
-      @error = "This account does not have permission to create or modify suspensions"
-    end
-    respond_to do |format|
-      format.js
+
+      suspensions.destroy_all
+      @patron.violation_summaries.where(incident: @incident).destroy_all
+      @patron.violations.where(incident: @incident).destroy_all
+      link.destroy!
     end
   end
 
   def delete_image
-    @image = ActiveStorage::Attachment.find_by(id: params[:image_id])
-    @image.purge
-    @patron = Patron.find(params[:patron_id])
-    if params[:incident_id]
-      @incident = Incident.find(params[:incident_id])
-    end
-    respond_to do |format|
-      format.js
-    end
+    @patron = patron_scope.find(params[:patron_id])
+    @patron.images.attachments.find(params[:image_id]).purge_later
   end
 
   def delete_letter
-    @incident = Incident.find(params['incident_id'])
-    @patron = Patron.find(params['patron_id'])
-    @suspension = Suspension.find(params['suspension_id'])
-    letter = ActiveStorage::Attachment.find_by(id: @suspension.letter.id)
-    letter.purge
-    respond_to do |format|
-      format.js
+    @incident.with_lock do
+      @suspension = suspension_scope.find(params[:suspension_id])
+      @suspension.letter.purge_later
     end
   end
 
   def load_patron_search
-    incidents = Incident.all.includes(:patrons, :violations).order('date_of DESC').first(20)
-    @incident = Incident.find(params[:incident_id])
-    @patrons = []
-    incidents.each do |i|
-      i.patrons.each do |p|
-        unless p.incidents.exists?(@incident.id)
-          @patrons.push(p)
-        end
-      end
-    end
-    @patrons = @patrons.uniq
-    respond_to do |format|
-      format.js
-    end
+    recent_incidents = Incident.where(published: true).order(date_of: :desc, id: :desc).limit(20).select(:id)
+    recent_patrons = IncidentPatron.where(incident_id: recent_incidents).select(:patron_id)
+    @patrons = other_patrons.where(id: recent_patrons).order(updated_at: :desc, id: :desc).limit(5)
   end
 
   def load_new_patron_form
-    respond_to do |format|
-      format.js
-    end
   end
 
   def load_suspension_form
-    if current_user.can_suspend
-      @patron = Patron.find(params[:patron_id])
-      @incident = Incident.find(params[:incident_id])
-      @suspension = Suspension.where(incident_id: @incident.id, patron_id: @patron.id).first
-      if @suspension.nil?
-        @suspension = Suspension.new
-        @title = 'Creating New Suspension'
-      else
-        @title = 'Editing Suspension'
-      end
-    end
-    respond_to do |format|
-      format.js
-    end
+    @suspension = suspension_scope.first_or_initialize
+    @title = @suspension.persisted? ? "Editing Suspension" : "Creating New Suspension"
   end
 
   def save_suspension
-    @incident = Incident.find(params[:incident_id])
-    @patron = Patron.find(params[:patron_id])
-    if params[:suspension_id] && params[:suspension_id] != ''
-      @suspension = Suspension.find(params[:suspension_id])
-      @new_suspension = false
-    else
-      @suspension = Suspension.new
-      @new_suspension = true
-    end
-    @suspension.assign_attributes(suspension_params)
-    if params[:letter]
-      @suspension.letter.attach(params[:letter])
-    end
-    valid_date = @suspension.until.strftime("%m/%d/%Y") rescue nil
-    if valid_date != nil
-      if current_user.can_suspend
-        @suspension.save
-        if @new_suspension == true && @incident.published == true
-          SuspensionPublishedJob.perform_later(@patron, @incident, @suspension)
-          @suspension.issued_email_sent = true
-          @suspension.save
-        end
+    @incident.with_lock do
+      @suspension = if params[:suspension_id].present?
+        suspension_scope.find(params[:suspension_id])
+      else
+        suspension_scope.first_or_initialize
       end
-    else
-      @error = 'Please enter a valid suspension expiration date.'
+      @new_suspension = @suspension.new_record?
+      @suspension.assign_attributes(params.permit(:until, :call_police, :letter_sent))
+      @suspension.letter.attach(params[:letter]) if params[:letter].is_a?(ActionDispatch::Http::UploadedFile)
+      @suspension.save!
     end
-    respond_to do |format|
-      format.js
-    end
+
+    SuspensionPublishedJob.perform_later(@suspension) if @new_suspension && @incident.published?
+    render :save_suspension
+  rescue ActiveRecord::RecordInvalid => error
+    @errors = error.record.errors.full_messages
+    render :save_suspension
   end
 
   def delete_suspension
-    if current_user.can_suspend
-      @incident = Incident.find(params[:incident_id])
-      @patron = Patron.find(params[:patron_id])
-      @suspension = Suspension.find(params[:suspension_id])
-      @suspension.destroy
-    else
-      @error = "This account does not have permission to create or modify suspensions"
-    end
-    respond_to do |format|
-      format.js
-    end
+    @incident.with_lock { suspension_scope.find(params[:suspension_id]).destroy! }
   end
 
   def search
-    if params[:incident_id]
-      all_patrons = Patron.search_by_name_alias_description(params[:query]).with_pg_search_rank.first(10)
-      @incident = Incident.find(params[:incident_id])
-      @patrons = []
-      all_patrons.each do |p|
-        unless p.incidents.exists?(@incident.id)
-          @patrons.push(p)
-        end
-      end
-      @patrons = @patrons.last(5)
+    @query = params[:query] if params[:query].is_a?(String)
+    if @incident
+      @patrons = @query.present? ? other_patrons.search_by_name_alias_description(@query).limit(5) : Patron.none
     else
-      @query = params[:query]
-      if params[:unknown_only] == 'true'
-        @unknown_only = true
-      else
-        @unknown_only = false
-      end
-      if !@query.blank? && @unknown_only == false
-        @patrons = Patron.order(created_at: :desc).search_by_name_alias_description(params[:query]).uniq.paginate(page: params[:page], per_page: 5)
-      elsif !@query.blank? && @unknown_only == true
-        @patrons = Patron.search_by_name_alias_description(params[:query]).order(created_at: :desc).select { |p| p.unknown_name == true }.uniq.paginate(page: params[:page], per_page: 5)
-      elsif @query.blank? && @unknown_only == true
-        @patrons = Patron.order(created_at: :desc).select { |p| p.unknown_name == true }.uniq.paginate(page: params[:page], per_page: 5)
-      else
-        @patrons = [].paginate(page: params[:page], per_page: 5)
-      end
-    end
-    respond_to do |format|
-      format.html
-      format.json {render :json => @patrons}
-      format.js
+      @unknown_only = params[:unknown_only] == "true"
+      patrons = @unknown_only ? Patron.unknown_name : Patron.all
+      patrons = patrons.search_by_name_alias_description(@query) if @query.present?
+      patrons = patrons.none unless @query.present? || @unknown_only
+      @patrons = patrons.includes(suspensions: :incident).order(created_at: :desc, id: :desc).paginate(page: params[:page], per_page: 5)
     end
   end
 
   def delete_patron
+    return head :forbidden unless current_user.is_super_admin
+
     @patron = Patron.find(params[:id])
-    if current_user.is_super_admin
-      @violations = Violation.where(patron_id: @patron.id)
-      @violations.each do |v|
-        v.destroy
-      end
-      @suspensions = Suspension.where(patron_id: @patron.id)
-      @suspensions.each do |s|
-        s.destroy
-      end
-      @comments = Comment.where(patron_id: @patron.id)
-      @comments.each do |c|
-        c.destroy
-      end
-      @patron.destroy
-    else
-      @error = 'You do not have permission to delete this patron.'
-    end
-    respond_to do |format|
-      format.js
-    end
+    @patron.with_lock { @patron.destroy! }
   end
 
   private
 
-  def patron_params
-    params.permit(:first_name, :middle_name, :last_name, :no_name, :no_address, :address, :city, :state, :zip, :known_as, :description, :notes, :card_number)
+  def require_script_request
+    head :not_acceptable unless request.xhr? && request.format.js?
   end
 
-  def suspension_params
-    params.permit(:until, :call_police, :letter_sent, :patron_id, :incident_id)
+  def load_editable_incident
+    @incident = Incident.find(params[:incident_id])
+    head :forbidden unless current_user.can_edit_incident(@incident)
   end
 
+  def load_optional_editable_incident
+    load_editable_incident if params[:incident_id].present?
+  end
+
+  def load_suspension_incident
+    return head :forbidden unless current_user.can_suspend
+
+    @incident = Incident.find(params[:incident_id])
+    head :not_found unless current_user.can_view_incident(@incident)
+  end
+
+  def patron_scope
+    @incident ? @incident.patrons : Patron
+  end
+
+  def other_patrons
+    Patron.where.not(id: @incident.incident_patrons.select(:patron_id))
+  end
+
+  def suspension_scope
+    @patron = @incident.patrons.find(params[:patron_id])
+    @patron.suspensions.where(incident: @incident)
+  end
+
+  def save_patron
+    @patron.assign_attributes(params.permit(:first_name, :middle_name, :last_name, :address, :city, :state, :zip, :known_as, :description, :card_number))
+    images = Array(params[:images]).grep(ActionDispatch::Http::UploadedFile)
+    @patron.images.attach(images) if images.any?
+    @patron.save!
+  end
 end
