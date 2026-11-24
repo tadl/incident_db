@@ -7,6 +7,7 @@ class IncidentMailer < ApplicationMailer
   MAX_INLINE_PHOTOS = 8
   MAX_INLINE_PHOTO_BYTES = 160.kilobytes
   MAX_INLINE_TOTAL_BYTES = 640.kilobytes
+  MAX_SUBJECT_TITLE_BYTES = 200
 
   def incident_published(incident)
     @incident = incident
@@ -16,20 +17,22 @@ class IncidentMailer < ApplicationMailer
       :violations, :violation_summaries, :images_attachments, suspensions: :incident
     ).map { |patron| [patron, photo_for(patron.images.first)] }
 
-    mail(to: ENV["EMAIL_TO"], subject: "New incident report")
+    title = incident.title.to_s.squish.truncate_bytes(MAX_SUBJECT_TITLE_BYTES)
+    subject = title.present? ? "New Incident: #{title} (##{incident.id})" : "New Incident ##{incident.id}"
+    mail(to: ENV["EMAIL_TO"], subject: subject)
   end
 
   def suspension_published(suspension)
     set_suspension_details(suspension)
     @letter_url = private_attachment_url(suspension.letter.attachment) if suspension.letter.attached?
 
-    mail(to: ENV["EMAIL_TO"], subject: "New suspension")
+    mail(to: ENV["EMAIL_TO"], subject: "New suspension ##{suspension.id}")
   end
 
   def suspension_expired(suspension)
     set_suspension_details(suspension)
 
-    mail(to: ENV["EMAIL_TO"], subject: "Suspension expired")
+    mail(to: ENV["EMAIL_TO"], subject: "Suspension expired ##{suspension.id}")
   end
 
   def comment_added(comment)
@@ -48,7 +51,7 @@ class IncidentMailer < ApplicationMailer
       subject = "New patron comment"
     end
 
-    mail(to: ENV["COMMENT_EMAIL_TO"], subject: subject)
+    mail(to: ENV["COMMENT_EMAIL_TO"], subject: "#{subject} ##{comment.id}")
   end
 
   private

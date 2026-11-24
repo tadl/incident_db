@@ -20,7 +20,7 @@ class IncidentMailerTest < ActionMailer::TestCase
   test "incident mail includes the report and patron details in both formats" do
     with_addresses do
       mail = IncidentMailer.incident_published(@incident)
-      assert_envelope(mail, "New incident report")
+      assert_envelope(mail, "New Incident: #{@incident.title} (##{@incident.id})")
       assert_mail_contains(mail, @incident.title, @incident.date_of_in_time_zone, @incident.location, @user.name,
         "First line", "Second line", "Fixture Patron", "Current policy note", "A3 Historical policy entry",
         "http://www.example.com/incidents/view?id=#{@incident.id}", "http://www.example.com/patrons/view?id=#{@patron.id}")
@@ -28,6 +28,29 @@ class IncidentMailerTest < ActionMailer::TestCase
       assert_includes mail.html_part.decoded, "&lt;svg&gt;"
       refute_match(/<script|<svg/i, mail.html_part.decoded)
       assert_includes mail.text_part.decoded, "<script>synthetic()</script>"
+    end
+  end
+
+  test "a repeated incident title does not reuse the subject" do
+    title = "Synthetic \r\nincident title"
+    @incident.update!(title: title)
+    other = incidents(:two)
+    other.update!(title: title)
+
+    with_addresses do
+      assert_envelope(IncidentMailer.incident_published(@incident), "New Incident: Synthetic incident title (##{@incident.id})")
+      assert_envelope(IncidentMailer.incident_published(other), "New Incident: Synthetic incident title (##{other.id})")
+    end
+  end
+
+  test "long incident titles leave room for the report number and mail encoding" do
+    @incident.update!(title: "🧪" * 500)
+
+    with_addresses do
+      mail = IncidentMailer.incident_published(@incident)
+      assert_match(/\ANew Incident: 🧪+… \(##{@incident.id}\)\z/, mail.subject)
+      headers = mail.encoded.split("\r\n\r\n", 2).first
+      assert_operator headers.lines(chomp: true).map(&:bytesize).max, :<=, 998
     end
   end
 
@@ -97,7 +120,7 @@ class IncidentMailerTest < ActionMailer::TestCase
 
     with_addresses do
       mail = IncidentMailer.suspension_published(@suspension)
-      assert_envelope(mail, "New suspension")
+      assert_envelope(mail, "New suspension ##{@suspension.id}")
       assert_mail_contains(mail, "Fixture Patron", "12/03/2026", "Call 911 immediately if seen on library property.",
         "Current policy note", "A3 Historical policy entry", "Suspension letter has not been mailed.",
         "http://www.example.com/incidents/view?id=#{@incident.id}", "http://www.example.com/patrons/view?id=#{@patron.id}",
@@ -113,7 +136,7 @@ class IncidentMailerTest < ActionMailer::TestCase
 
     with_addresses do
       mail = IncidentMailer.suspension_expired(@suspension)
-      assert_envelope(mail, "Suspension expired")
+      assert_envelope(mail, "Suspension expired ##{@suspension.id}")
       assert_mail_contains(mail, "Fixture Patron", "12/03/2026",
         "http://www.example.com/incidents/view?id=#{@incident.id}", "http://www.example.com/patrons/view?id=#{@patron.id}",
         "http://www.example.com/attachments/#{photo.id}")
@@ -128,12 +151,12 @@ class IncidentMailerTest < ActionMailer::TestCase
 
     with_addresses do
       mail = IncidentMailer.comment_added(incident_comment)
-      assert_envelope(mail, "New incident comment", "comments@example.org")
+      assert_envelope(mail, "New incident comment ##{incident_comment.id}", "comments@example.org")
       assert_mail_contains(mail, @incident.title, @user.name, incident_comment.posted_on, incident_comment.description,
         "http://www.example.com/incidents/view?id=#{@incident.id}#entry_incident_comment_#{incident_comment.id}")
 
       mail = IncidentMailer.comment_added(patron_comment)
-      assert_envelope(mail, "New patron comment", "comments@example.org")
+      assert_envelope(mail, "New patron comment ##{patron_comment.id}", "comments@example.org")
       assert_mail_contains(mail, "Fixture Patron", @user.name, patron_comment.posted_on, "Synthetic patron note",
         "http://www.example.com/patrons/view?id=#{@patron.id}#entry_patron_comment_#{patron_comment.id}")
       assert_includes mail.html_part.decoded, "&lt;b&gt;literal text&lt;/b&gt;"
