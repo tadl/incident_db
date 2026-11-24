@@ -8,7 +8,9 @@
     </div>
 <% else %>
     <a href="<%= private_attachment_path(@suspension.letter.attachment) %>">Suspension Letter</a>
-    <button type="button" class="btn btn-danger btn-sm mb-1" data-patron-action="delete-letter" data-patron-id="<%= patron.id %>" data-suspension-id="<%= suspension.id %>" aria-label="Remove suspension letter">
+    <button type="button" class="btn btn-danger btn-sm mb-1" data-patron-action="delete-letter" data-patron-id="<%= patron.id %>" data-suspension-id="<%= suspension.id %>" aria-label="Remove suspension letter"
+            data-confirm-title="Remove suspension letter?" data-confirm-message="The attached letter will be removed from the suspension record."
+            data-confirm-label="Remove letter">
         <%= icon('fa-solid', 'xmark') %>
     </button>
 <% end %>

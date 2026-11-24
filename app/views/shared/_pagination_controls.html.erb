@@ -1,0 +1,30 @@
+<%
+  current = records.current_page
+  last = records.total_pages
+  controls = [
+    { text: "|< First", label: "First page", page: 1, disabled: current <= 1 },
+    { text: "< Previous", label: "Previous page", page: (current - 1).clamp(1, last), disabled: current <= 1 }
+  ]
+  controls.concat(compact_page_numbers(current, last).map do |page|
+    { text: page.to_s, label: "Page #{page}", page: page, current: page == current } if page
+  end)
+  controls.concat([
+    { text: "Next >", label: "Next page", page: (current + 1).clamp(1, last), disabled: current >= last },
+    { text: "Last >|", label: "Last page", page: last, disabled: current >= last }
+  ])
+%>
+<% controls.each do |control| %>
+  <% if control.nil? %>
+    <span class="pagination-gap" aria-hidden="true">…</span>
+  <% elsif control[:current] %>
+    <span class="btn btn-primary btn-sm pagination-current" aria-current="page"><%= control[:text] %></span>
+  <% elsif page_url && control[:disabled] %>
+    <span class="btn btn-outline-primary btn-sm disabled" role="link" aria-disabled="true" aria-label="<%= control[:label] %>"><%= control[:text] %></span>
+  <% elsif page_url %>
+    <%= link_to control[:text], page_url.call(control[:page]), class: "btn btn-outline-primary btn-sm",
+                aria: { label: control[:label] } %>
+  <% else %>
+    <%= button_tag control[:text], name: :page, value: control[:page], disabled: control[:disabled],
+                   class: "btn btn-outline-primary btn-sm", aria: { label: control[:label] } %>
+  <% end %>
+<% end %>

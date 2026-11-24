@@ -38,10 +38,12 @@
             <p id="suspension_messages_<%= @patron.id %>" class="text-danger px-3" role="status"></p><div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <%= icon('fa-solid', 'xmark') %>
-                    Close
+                    Cancel
                 </button>
                 <% if @suspension.id %>
-                    <button type="button" class="btn btn-danger" data-patron-action="delete-suspension" data-suspension-id="<%= @suspension.id %>" data-patron-id="<%= @patron.id %>">
+                    <button type="button" class="btn btn-danger" data-patron-action="delete-suspension" data-suspension-id="<%= @suspension.id %>" data-patron-id="<%= @patron.id %>"
+                            data-confirm-title="Revoke suspension?" data-confirm-message="This removes the suspension and its letter from the incident."
+                            data-confirm-label="Revoke suspension">
                         <%= icon('fa-solid', 'trash') %>
                         Revoke Suspension
                     </button>

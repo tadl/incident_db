@@ -23,6 +23,9 @@
       <div data-request-feedback role="alert" class="alert alert-danger" hidden></div>
       <%= yield %>
     </main>
-    <%= render "shared/image_viewer" if current_user %>
+    <% if current_user %>
+      <%= render "shared/image_viewer" %>
+      <%= render "shared/destructive_confirmation" %>
+    <% end %>
   </body>
 </html>

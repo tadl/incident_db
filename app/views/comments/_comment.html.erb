@@ -10,7 +10,7 @@
     <p class="mt-2"><%= safe_join(comment.description.to_s.lines, tag.br) %></p>
 
     <% if current_user.my_comment(comment) %>
-      <details>
+      <details data-comment-editor>
         <summary>Edit comment</summary>
         <%= form_with url: comments_update_path, class: "mt-2" do |form| %>
           <%= form.hidden_field :comment_for, value: from, id: nil %>
@@ -21,10 +21,16 @@
           <%= form.text_area :description, value: comment.description, id: field_id, required: true,
             maxlength: 16_000, rows: 4, class: "form-control mb-2" %>
           <%= form.submit "Save changes", class: "btn btn-sm btn-primary" %>
+          <%= form.button "Cancel", type: :reset, class: "btn btn-sm btn-outline-secondary" %>
         <% end %>
-        <%= button_to "Delete comment", comments_delete_path,
-          params: { comment_for: from, owner_id: owner_id, id: comment.id },
-          class: "btn btn-sm btn-outline-danger mt-2", data: { confirm_delete: true } %>
+        <%= form_with url: comments_delete_path, class: "mt-2" do |form| %>
+          <%= form.hidden_field :comment_for, value: from, id: nil %>
+          <%= form.hidden_field :owner_id, value: owner_id, id: nil %>
+          <%= form.hidden_field :id, value: comment.id, id: nil %>
+          <%= form.button "Delete comment", type: :button, class: "btn btn-sm btn-outline-danger",
+            data: { confirm_form: true, confirm_title: "Delete comment?", confirm_label: "Delete comment",
+              confirm_message: "The comment will be removed from this record." } %>
+        <% end %>
       </details>
     <% end %>
   </div>

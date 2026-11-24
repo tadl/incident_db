@@ -1,7 +1,17 @@
 <%= render "incident_full" %>
-<% if current_user.can_edit_incident(@incident) %>
-  <div class="mb-3">
-    <%= link_to "Edit incident", incidents_edit_path(id: @incident.id), class: "btn btn-secondary" %>
+<% can_edit = current_user.can_edit_incident(@incident) %>
+<% can_delete = current_user.can_delete_this_incident(@incident) %>
+<% if can_edit || can_delete %>
+  <div class="record-actions mb-3">
+    <% if can_edit %>
+      <%= link_to "Edit incident", incidents_edit_path(id: @incident.id), class: "btn btn-secondary" %>
+    <% end %>
+    <% if can_delete %>
+      <button type="button" class="btn btn-outline-danger" data-incident-action="delete"
+              data-incident-id="<%= @incident.id %>" data-confirm-title="Delete incident?"
+              data-confirm-message="This permanently deletes the report and its comments, attachments, violations, and suspensions."
+              data-confirm-label="Delete incident">Delete incident</button>
+    <% end %>
   </div>
 <% end %>
 <%= render "comments/comments", comments: @incident.incident_comments, from: "incident", owner_id: @incident.id %>

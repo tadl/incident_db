@@ -20,9 +20,11 @@ $.ajaxSetup({
   }
 })
 
-document.addEventListener("submit", (event) => {
-  if (event.submitter?.matches("[data-confirm-delete]") && !window.confirm("Delete this comment?")) {
-    event.preventDefault()
+document.addEventListener("reset", (event) => {
+  const editor = event.target.closest("[data-comment-editor]")
+  if (editor) {
+    editor.open = false
+    editor.querySelector("summary").focus()
   }
 })
 

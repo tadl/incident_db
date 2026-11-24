@@ -1,12 +1,14 @@
 <% content_for :title, "Search incidents" %>
 
 <%= render "shared/section_heading", glyph: "person-falling-burst", heading: "Search Incidents" %>
-<%= render "section_links" %>
+<div class="list-toolbar">
+  <%= render "section_links" %>
+  <%= render "shared/search_pagination", results: @incidents, path: incidents_search_path,
+             filters: { query: @query }, position: "top" %>
+</div>
 <%= form_with url: incidents_search_path, method: :post, local: true, class: "staff-search" do %>
   <%= render "shared/search_fields", label: "Incident keywords", field_id: "incident-query" %>
 <% end %>
-<%= render "shared/search_pagination", results: @incidents, path: incidents_search_path,
-           filters: { query: @query }, position: "top" %>
 <% @incidents.each do |incident| %>
   <%= render "incident_stub", i: incident %>
 <% end %>

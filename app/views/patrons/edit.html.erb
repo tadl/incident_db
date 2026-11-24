@@ -1,3 +1,6 @@
 <h2 class="mb-3"><%= icon('fa-solid', 'pen') %> Edit Patron Record</h2>
 <%= render 'patron_form', patron: @patron %>
-<button type="button" class="btn btn-primary mt-3 mb-3" data-patron-action="save" data-patron-id="<%= @patron.id %>"><%= icon('fa-solid', 'check') %> Save Patron Record</button>
+<div class="record-actions mb-3">
+  <button type="button" class="btn btn-primary" data-patron-action="save" data-patron-id="<%= @patron.id %>"><%= icon('fa-solid', 'check') %> Save Patron Record</button>
+  <%= link_to "Cancel", patrons_view_path(id: @patron.id), class: "btn btn-outline-secondary" %>
+</div>

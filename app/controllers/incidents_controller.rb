@@ -43,7 +43,10 @@ class IncidentsController < ApplicationController
       @incident.with_lock { save_incident }
     else
       @incident = Incident.new(violation_format: :summary, created_by: current_user.id)
-      Incident.transaction { save_incident }
+      Incident.transaction do
+        save_incident
+        save_pending_patrons
+      end
     end
 
     @updated = true
@@ -111,6 +114,37 @@ class IncidentsController < ApplicationController
     existing&.strftime("%Y-%m-%dT%H:%M") == value ? existing : parsed
   rescue ArgumentError
     nil
+  end
+
+  def save_pending_patrons
+    entries = params.permit(pending_patrons: [:patron_id, :violation_summary, *Patron::EDITABLE_ATTRIBUTES, images: []])[:pending_patrons]
+    return unless entries.is_a?(ActionController::Parameters)
+
+    entries.each_value do |attributes|
+      patron = pending_patron(attributes)
+      @incident.incident_patrons.find_or_create_by!(patron: patron)
+      description = attributes[:violation_summary].to_s.strip
+      if description.present?
+        summary = @incident.violation_summaries.find_or_initialize_by(patron: patron)
+        summary.update!(description: description)
+      end
+    end
+  end
+
+  def pending_patron(attributes)
+    if attributes[:patron_id].present?
+      patron = Patron.find_by(id: attributes[:patron_id])
+      return patron if patron
+
+      @incident.errors.add(:base, "A selected patron is no longer available")
+      raise ActiveRecord::RecordInvalid, @incident
+    end
+
+    patron = Patron.new(attributes.slice(*Patron::EDITABLE_ATTRIBUTES))
+    images = Array(attributes[:images]).grep(ActionDispatch::Http::UploadedFile)
+    patron.images.attach(images) if images.any?
+    patron.save!
+    patron
   end
 
   def save_violation_summaries

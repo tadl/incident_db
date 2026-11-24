@@ -1,12 +1,14 @@
 <% content_for :title, "Search legacy reports" %>
 
 <%= render "shared/section_heading", glyph: "box-archive", heading: "Search Legacy Reports" %>
-<%= render "section_links" %>
+<div class="list-toolbar">
+  <%= render "section_links" %>
+  <%= render "shared/search_pagination", results: @reports, path: old_search_path,
+             filters: { query: @query }, position: "top" %>
+</div>
 <%= form_with url: old_search_path, method: :post, local: true, class: "staff-search" do %>
   <%= render "shared/search_fields", label: "Legacy report keywords", field_id: "legacy-query" %>
 <% end %>
-<%= render "shared/search_pagination", results: @reports, path: old_search_path,
-           filters: { query: @query }, position: "top" %>
 <% @reports.each do |report| %>
   <%= render "old_stub", r: report %>
 <% end %>

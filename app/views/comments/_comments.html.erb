@@ -12,5 +12,6 @@
       <%= form.text_area :description, rows: 4, required: true, maxlength: 16_000, class: "form-control" %>
     </div>
     <%= form.submit "Save extra information", class: "btn btn-primary" %>
+    <%= form.button "Cancel", type: :reset, class: "btn btn-outline-secondary" %>
   <% end %>
 </section>

@@ -13,7 +13,10 @@
     <div class="mb-3">
       <button type="button" class="btn btn-outline-secondary btn-sm" data-patron-action="edit" data-patron-id="<%= patron.id %>">Edit patron record</button>
       <% if !suspension || current_user.can_suspend %>
-        <button type="button" class="btn btn-outline-danger btn-sm" data-patron-action="remove" data-patron-id="<%= patron.id %>">Remove patron from incident</button>
+        <button type="button" class="btn btn-outline-danger btn-sm" data-patron-action="remove" data-patron-id="<%= patron.id %>"
+                data-confirm-title="Remove patron from incident?"
+                data-confirm-message="This also removes the violations and any suspension recorded for this patron on this incident."
+                data-confirm-label="Remove patron">Remove patron from incident</button>
       <% end %>
       <% if current_user.can_suspend %>
         <button type="button" class="btn btn-outline-danger btn-sm" data-patron-action="suspension-form" data-patron-id="<%= patron.id %>"><%= suspension ? 'Edit suspension' : 'Suspend patron' %></button>

@@ -1,6 +1,8 @@
 class Patron < ApplicationRecord
   include PgSearch::Model
 
+  EDITABLE_ATTRIBUTES = %i[first_name middle_name last_name address city state zip known_as description card_number].freeze
+
   has_many :patron_comments, dependent: :destroy
   has_many :incident_patrons, dependent: :destroy
   has_many :incidents, through: :incident_patrons

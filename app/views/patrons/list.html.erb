@@ -1,8 +1,10 @@
 <% content_for :title, "Patrons" %>
 
 <%= render "shared/section_heading", glyph: "person", heading: @title %>
-<%= render "section_links" %>
-<%= render "shared/list_pagination", records: @patrons, position: "top" %>
+<div class="list-toolbar">
+  <%= render "section_links" %>
+  <%= render "shared/list_pagination", records: @patrons, position: "top" %>
+</div>
 <% @patrons.each do |patron| %>
   <article class="card record-card mb-3">
     <div class="card-body">

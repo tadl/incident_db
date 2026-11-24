@@ -2,7 +2,9 @@
   <div class="col-auto mb-2">
     <%= render "shared/image_thumbnail", attachment: attachment, label: "Patron image #{index + 1}" %>
     <div class="mt-1">
-      <button type="button" class="btn btn-danger btn-sm" data-patron-action="delete-image" data-image-id="<%= attachment.id %>" data-patron-id="<%= patron.id %>">
+      <button type="button" class="btn btn-danger btn-sm" data-patron-action="delete-image" data-image-id="<%= attachment.id %>" data-patron-id="<%= patron.id %>"
+              data-confirm-title="Delete patron image?" data-confirm-message="The image will be removed from this patron record."
+              data-confirm-label="Delete image">
         <%= icon('fa-solid', 'trash') %> Delete Image
       </button>
     </div>

@@ -1,4 +1,6 @@
 import "jquery"
+import { confirmDestructiveAction } from "custom/destructive_confirmation"
+import { appendPendingPatrons, canStagePatrons, openPatronPicker } from "custom/pending_patrons"
 
 function saveIncident({ draft, addPatron }) {
     const data = new FormData()
@@ -15,8 +17,9 @@ function saveIncident({ draft, addPatron }) {
     for (const image of document.getElementById("incident_images").files) {
         data.append("images[]", image)
     }
+    if (canStagePatrons()) appendPendingPatrons(data)
 
-    const buttons = $('[data-incident-action="save"]').prop("disabled", true)
+    const buttons = $('[data-incident-action="save"], [data-incident-action="choose-patron"], [data-remove-pending-patron]').prop("disabled", true)
     $.ajax({
         url: "/incidents/save.js",
         method: "POST",
@@ -28,20 +31,19 @@ function saveIncident({ draft, addPatron }) {
 
 const actions = {
     save: saveIncident,
+    "choose-patron": () => openPatronPicker("new"),
     "clear-images": () => $("#incident_images").val(""),
-    "delete-image": ({ imageId }) => {
+    "delete-image": ({ imageId }, control) => confirmDestructiveAction(control, () => {
         $.post("/incidents/delete_image.js", { incident_id: $("#incident_id").text(), image_id: imageId })
-    },
-    delete: ({ incidentId }) => {
-        if (confirm("Delete this incident?")) {
-            $.post("/incidents/delete_incident.js", { id: incidentId })
-        }
-    }
+    }),
+    delete: ({ incidentId }, control) => confirmDestructiveAction(control, () => {
+        $.post("/incidents/delete_incident.js", { id: incidentId })
+    })
 }
 
 document.addEventListener("click", (event) => {
     const control = event.target.closest("[data-incident-action]")
     if (control && Object.hasOwn(actions, control.dataset.incidentAction)) {
-        actions[control.dataset.incidentAction](control.dataset)
+        actions[control.dataset.incidentAction](control.dataset, control)
     }
 })

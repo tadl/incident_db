@@ -22,7 +22,7 @@
           <% end %>
         </ul>
       <% end %>
-      <button type="button" data-patron-action="add" data-patron-id="<%= patron.id %>" class="btn btn-primary btn-sm">Add patron to incident</button>
+      <button type="button" data-patron-action="add" data-patron-id="<%= patron.id %>" data-patron-name="<%= patron.full_name(show_call_911: false) %>" class="btn btn-primary btn-sm">Add patron to incident</button>
       <%= link_to 'View patron record', patrons_view_path(id: patron.id), class: 'btn btn-outline-secondary btn-sm', target: '_blank', rel: 'noopener' %>
     </div>
   </div>

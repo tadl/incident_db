@@ -25,6 +25,7 @@ class ImageViewerTest < ActionDispatch::SystemTestCase
     end
 
     with_google_auth(users(:one)) do
+      set_viewport(width: 1280, height: 900)
       visit incidents_path
       click_button "Sign in with Google"
       assert_current_path incidents_path
@@ -38,8 +39,10 @@ class ImageViewerTest < ActionDispatch::SystemTestCase
       assert_record_thumbnail_link(report_path)
       assert_image_preview(report_path, incident.images.first, dismiss_with: :escape)
 
-      page.current_window.resize_to(390, 844)
-      assert_operator page.evaluate_script("window.innerWidth"), :<=, 575
+      set_viewport(width: 756, height: 413)
+      assert_image_preview(report_path, incident.images.first, dismiss_with: :escape)
+
+      set_viewport(width: 390, height: 844)
       assert_image_preview(patrons_list_path, patron.images.first, dismiss_with: :backdrop)
       assert_image_preview(patrons_view_path(id: patron.id), patron.images.first)
       visit old_list_path
@@ -50,6 +53,12 @@ class ImageViewerTest < ActionDispatch::SystemTestCase
   end
 
   private
+
+  def set_viewport(width:, height:)
+    page.driver.browser.execute_cdp("Emulation.setDeviceMetricsOverride",
+      width: width, height: height, deviceScaleFactor: 1, mobile: false)
+    assert_equal [width, height], page.evaluate_script("[window.innerWidth, window.innerHeight]")
+  end
 
   def assert_record_thumbnail_link(path)
     find("a.record-image-trigger[href='#{path}']").click
@@ -65,7 +74,8 @@ class ImageViewerTest < ActionDispatch::SystemTestCase
 
     within "dialog[open]" do
       assert_selector "img[data-image-viewer-picture][src$='#{original_path}']", visible: true
-      assert_link "Open original in a new tab", href: /#{Regexp.escape(original_path)}\z/
+      assert_link "Open original", href: /#{Regexp.escape(original_path)}\z/
+      assert_selector 'a[aria-label="Open original in a new tab"]'
       assert_selector "button:focus", text: "Close"
       case dismiss_with
       when :escape
@@ -86,17 +96,31 @@ class ImageViewerTest < ActionDispatch::SystemTestCase
   end
 
   def assert_portrait_fits_viewer
-    gaps = page.evaluate_script(<<~JS)
-      (() => {
-        const panel = document.querySelector("dialog[open]").getBoundingClientRect()
-        const image = document.querySelector("[data-image-viewer-picture]").getBoundingClientRect()
-        return [image.left - panel.left, panel.right - image.right, panel.bottom - image.bottom]
-      })()
+    gaps = page.evaluate_async_script(<<~JS)
+      const done = arguments[0]
+      // Allow the toolbar height measurement to settle after the image loads.
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        const dialog = document.querySelector("dialog[open]")
+        const panel = dialog.getBoundingClientRect()
+        const photo = document.querySelector("[data-image-viewer-picture]")
+        const image = photo.getBoundingClientRect()
+        done([
+          image.left - panel.left,
+          panel.right - image.right,
+          panel.bottom - image.bottom,
+          dialog.scrollHeight - dialog.clientHeight,
+          dialog.scrollWidth - dialog.clientWidth,
+          Math.abs(image.width / image.height - photo.naturalWidth / photo.naturalHeight)
+        ])
+      }))
     JS
 
-    left, right, bottom = gaps
+    left, right, bottom, vertical_overflow, horizontal_overflow, aspect_ratio_error = gaps
     assert_in_delta left, right, 1
     assert_in_delta left, bottom, 1
     assert_operator bottom, :>=, 12
+    assert_operator vertical_overflow, :<=, 1
+    assert_operator horizontal_overflow, :<=, 1
+    assert_operator aspect_ratio_error, :<, 0.01
   end
 end

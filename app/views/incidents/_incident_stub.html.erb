@@ -20,17 +20,10 @@
             <%= safe_join(patrons.map { |patron| link_to patron.full_name, patrons_view_path(id: patron.id) }, ", ") %>
           </p>
         <% end %>
-        <% can_edit = current_user.can_edit_incident(i) %>
-        <% can_delete = current_user.can_delete_this_incident(i) %>
-        <% if can_edit || can_delete %>
+        <% if current_user.can_edit_incident(i) %>
           <div class="record-actions">
-            <% if can_edit %>
-              <%= link_to "Edit", incidents_edit_path(id: i.id), class: "btn btn-sm btn-outline-primary",
-                          aria: { label: "Edit report ##{i.id}" } %>
-            <% end %>
-            <% if can_delete %>
-              <button type="button" data-incident-action="delete" data-incident-id="<%= i.id %>" class="btn btn-sm btn-outline-danger" aria-label="Delete report #<%= i.id %>">Delete</button>
-            <% end %>
+            <%= link_to "Edit", incidents_edit_path(id: i.id), class: "btn btn-sm btn-outline-primary",
+                        aria: { label: "Edit report ##{i.id}" } %>
           </div>
         <% end %>
       </div>

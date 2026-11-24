@@ -5,8 +5,19 @@ if (typeof dialog?.showModal === "function") {
   const image = dialog.querySelector("[data-image-viewer-picture]")
   const original = dialog.querySelector("[data-image-viewer-original]")
   const status = dialog.querySelector("[data-image-viewer-status]")
+  const toolbar = dialog.querySelector(".image-viewer-toolbar")
   let opener
   let pressedBackdrop = false
+
+  if (typeof ResizeObserver === "function") {
+    new ResizeObserver(([entry]) => {
+      const height = entry.contentRect.height
+      if (height > 0) {
+        // The photo can change the panel width and cause the toolbar to wrap.
+        requestAnimationFrame(() => dialog.style.setProperty("--image-viewer-toolbar-height", `${height}px`))
+      }
+    }).observe(toolbar)
+  }
 
   const isBackdrop = (event) => {
     if (event.target !== dialog) return false

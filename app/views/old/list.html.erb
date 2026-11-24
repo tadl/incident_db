@@ -1,8 +1,10 @@
 <% content_for :title, "Legacy reports" %>
 
 <%= render "shared/section_heading", glyph: "box-archive", heading: "Legacy Incident Reports" %>
-<%= render "section_links" %>
-<%= render "shared/list_pagination", records: @reports, position: "top" %>
+<div class="list-toolbar">
+  <%= render "section_links" %>
+  <%= render "shared/list_pagination", records: @reports, position: "top" %>
+</div>
 <% @reports.each do |report| %>
   <%= render "old_stub", r: report %>
 <% end %>

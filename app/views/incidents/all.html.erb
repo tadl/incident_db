@@ -1,8 +1,10 @@
 <% content_for :title, "#{@title} incidents" %>
 
 <%= render "shared/section_heading", glyph: "person-falling-burst", heading: "#{@title} Incidents" %>
-<%= render "section_links" %>
-<%= render "shared/list_pagination", records: @incidents, position: "top" %>
+<div class="list-toolbar">
+  <%= render "section_links" %>
+  <%= render "shared/list_pagination", records: @incidents, position: "top" %>
+</div>
 <% @incidents.each do |incident| %>
   <%= render "incident_stub", i: incident %>
 <% end %>

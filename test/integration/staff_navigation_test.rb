@@ -30,7 +30,12 @@ class StaffNavigationTest < ActionDispatch::IntegrationTest
       assert_select "nav[aria-label='Search result pages at #{position}'] form[method='post'][action=?]", old_search_path do
         assert_select "input[type='hidden'][name='query'][value=?]", query
         assert_select "input[name='query'][id]", count: 0
-        assert_select "button[name='page'][value='2']", text: "Next"
+        assert_select "button[aria-label='First page'][disabled]", text: "|< First"
+        assert_select "button[aria-label='Previous page'][disabled]", text: "< Previous"
+        assert_select "[aria-current='page']", text: "1"
+        assert_select "button[name='page'][value='2'][aria-label='Page 2']", text: "2"
+        assert_select "button[name='page'][value='2'][aria-label='Next page']", text: "Next >"
+        assert_select "button[name='page'][value='2'][aria-label='Last page']", text: "Last >|"
       end
     end
 
@@ -38,6 +43,11 @@ class StaffNavigationTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "article.record-card", count: 1
+    assert_select "nav.search-pagination" do
+      assert_select "[aria-current='page']", text: "2"
+      assert_select "button[aria-label='Next page'][disabled]"
+      assert_select "button[aria-label='Last page'][disabled]"
+    end
   end
 
   test "both draft pagination controls keep the draft filter" do
@@ -54,7 +64,11 @@ class StaffNavigationTest < ActionDispatch::IntegrationTest
     %w[top bottom].each do |position|
       assert_select "nav[aria-label='Result pages at #{position}']" do
         assert_select "[aria-current='page']", text: "1"
-        assert_select "a[href*='just_drafts=true'][href*='page=2']", text: "Next"
+        assert_select "[aria-label='First page'][aria-disabled='true']", text: "|< First"
+        assert_select "[aria-label='Previous page'][aria-disabled='true']", text: "< Previous"
+        assert_select "a[href*='just_drafts=true'][href*='page=2'][aria-label='Page 2']", text: "2"
+        assert_select "a[href*='just_drafts=true'][href*='page=2'][aria-label='Next page']", text: "Next >"
+        assert_select "a[href*='just_drafts=true'][href*='page=2'][aria-label='Last page']", text: "Last >|"
       end
     end
     assert_select "nav.list-pagination nav", count: 0
@@ -71,7 +85,7 @@ class StaffNavigationTest < ActionDispatch::IntegrationTest
       assert_select "nav[aria-label='Search result pages at #{position}'] form[method='post'][action=?]", patrons_search_path do
         assert_select "input[type='hidden'][name='query'][value='zebrafish']"
         assert_select "input[type='hidden'][name='unknown_only'][value='true']"
-        assert_select "button[name='page'][value='2']", text: "Next"
+        assert_select "button[name='page'][value='2'][aria-label='Next page']", text: "Next >"
       end
     end
   end

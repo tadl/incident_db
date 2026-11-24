@@ -115,8 +115,9 @@ class PatronsController < ApplicationController
 
   def search
     @query = params[:query] if params[:query].is_a?(String)
-    if @incident
-      @patrons = @query.present? ? other_patrons.search_by_name_alias_description(@query).limit(5) : Patron.none
+    if @incident || (request.xhr? && request.format.js? && params[:pending_incident] == "true")
+      candidates = @incident ? other_patrons : Patron.all
+      @patrons = @query.present? ? candidates.search_by_name_alias_description(@query).limit(5) : Patron.none
     else
       @unknown_only = params[:unknown_only] == "true"
       patrons = @unknown_only ? Patron.unknown_name : Patron.all
@@ -169,7 +170,7 @@ class PatronsController < ApplicationController
   end
 
   def save_patron
-    @patron.assign_attributes(params.permit(:first_name, :middle_name, :last_name, :address, :city, :state, :zip, :known_as, :description, :card_number))
+    @patron.assign_attributes(params.permit(*Patron::EDITABLE_ATTRIBUTES))
     images = Array(params[:images]).grep(ActionDispatch::Http::UploadedFile)
     @patron.images.attach(images) if images.any?
     @patron.save!

@@ -1,4 +1,6 @@
 import "jquery"
+import { confirmDestructiveAction } from "custom/destructive_confirmation"
+import { canStagePatrons, closePatronPicker, openPatronPicker, stageExistingPatron, stageNewPatron } from "custom/pending_patrons"
 
 const incidentId = () => $("#incident_id").text()
 
@@ -26,7 +28,11 @@ function savePatron({ patronId = "" }) {
         data.append("images[]", file)
     }
 
-    uploadPatronForm("/patrons/save.js", data)
+    if (canStagePatrons()) {
+        stageNewPatron(data)
+    } else {
+        uploadPatronForm("/patrons/save.js", data)
+    }
 }
 
 function saveSuspension({ patronId }) {
@@ -61,45 +67,36 @@ function postIncidentPatron(action, { patronId, imageId, suspensionId } = {}) {
 }
 
 function searchIncidentPatrons() {
-    $.post("/patrons/search.js", { incident_id: incidentId(), query: $("#patron_query").val() })
+    $.post("/patrons/search.js", {
+        incident_id: incidentId(),
+        pending_incident: canStagePatrons(),
+        query: $("#patron_query").val()
+    })
 }
 
 const actions = {
     save: savePatron,
     "save-suspension": saveSuspension,
-    cancel: () => {
-        $("#add_patron").empty().hide()
-        $("#add_patron_to_incident_button, #save_incident_buttons").show()
-    },
-    remove: (data) => {
-        if (confirm("Remove this patron and their violation and suspension details from this incident?")) {
-            postIncidentPatron("remove_patron_from_incident", data)
-        }
-    },
+    cancel: closePatronPicker,
+    remove: (data, control) => confirmDestructiveAction(control, () => postIncidentPatron("remove_patron_from_incident", data)),
     edit: (data) => postIncidentPatron("edit", data),
     "clear-images": ({ patronId = "" }) => $(`#patron_images_${patronId}`).val(""),
-    "delete-image": (data) => postIncidentPatron("delete_image", data),
-    "load-search": () => postIncidentPatron("load_patron_search"),
+    "delete-image": (data, control) => confirmDestructiveAction(control, () => postIncidentPatron("delete_image", data)),
+    "load-search": () => canStagePatrons() ? openPatronPicker("search") : postIncidentPatron("load_patron_search"),
     search: searchIncidentPatrons,
-    "load-new": () => postIncidentPatron("load_new_patron_form"),
-    add: (data) => postIncidentPatron("add_existing_to_incident", data),
+    "load-new": () => canStagePatrons() ? openPatronPicker("new") : postIncidentPatron("load_new_patron_form"),
+    add: (data) => canStagePatrons() ? stageExistingPatron(data) : postIncidentPatron("add_existing_to_incident", data),
     "suspension-form": (data) => postIncidentPatron("load_suspension_form", data),
-    "delete-suspension": (data) => {
-        if (confirm("Revoke this suspension?")) postIncidentPatron("delete_suspension", data)
-    },
+    "delete-suspension": (data, control) => confirmDestructiveAction(control, () => postIncidentPatron("delete_suspension", data)),
     "clear-letter": ({ patronId }) => $(`#letter_${patronId}`).val(""),
-    "delete-letter": (data) => {
-        if (confirm("Remove the attached suspension letter?")) postIncidentPatron("delete_letter", data)
-    },
-    delete: ({ patronId }) => {
-        if (confirm("Delete this patron record?")) $.post("/patrons/delete_patron.js", { id: patronId })
-    }
+    "delete-letter": (data, control) => confirmDestructiveAction(control, () => postIncidentPatron("delete_letter", data)),
+    delete: ({ patronId }, control) => confirmDestructiveAction(control, () => $.post("/patrons/delete_patron.js", { id: patronId }))
 }
 
 document.addEventListener("click", (event) => {
     const control = event.target.closest("[data-patron-action]")
     if (control && Object.hasOwn(actions, control.dataset.patronAction)) {
-        actions[control.dataset.patronAction](control.dataset)
+        actions[control.dataset.patronAction](control.dataset, control)
     }
 })
 

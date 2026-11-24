@@ -9,17 +9,39 @@
   <% end %>
 </div>
 <div id="add_patron_to_incident_button" class="mb-3">
-  <button type="button" class="btn btn-outline-primary" data-incident-action="save" data-add-patron="true" data-draft="<%= !@incident.published? %>">
+  <button type="button" class="btn btn-outline-primary" data-incident-action="<%= @incident.persisted? ? 'save' : 'choose-patron' %>" data-add-patron="true" data-draft="<%= !@incident.published? %>">
     <%= icon('fa-solid', 'person') %> Add patron
   </button>
 </div>
+<% unless @incident.persisted? %>
+  <template data-pending-patron-picker="new">
+    <%= render "incidents/add_patron_form", patron: Patron.new %>
+  </template>
+  <template data-pending-patron-picker="search">
+    <%= render "patrons/patron_search" %>
+  </template>
+  <template data-pending-patron-card>
+    <section class="card mb-3">
+      <div class="card-body">
+        <h2 class="h4" data-pending-patron-name></h2>
+        <label class="form-label d-block">
+          Violation summary
+          <textarea class="form-control" rows="4" data-pending-violation-summary></textarea>
+        </label>
+        <button type="button" class="btn btn-outline-danger btn-sm" data-remove-pending-patron>Remove patron</button>
+      </div>
+    </section>
+  </template>
+<% end %>
 <div id="add_patron"></div>
 <div id="messages" class="mb-3" role="status"></div>
-<div id="save_incident_buttons" class="mb-3">
+<div id="save_incident_buttons" class="record-actions mb-3">
   <% if @incident.published? %>
     <button type="button" class="btn btn-primary" data-incident-action="save">Update incident</button>
   <% else %>
     <button type="button" class="btn btn-primary" data-incident-action="save">Publish incident</button>
     <button type="button" class="btn btn-outline-secondary" data-incident-action="save" data-draft="true">Save as draft</button>
   <% end %>
+  <%= link_to "Cancel", @incident.persisted? ? incidents_view_path(id: @incident.id) : incidents_path,
+              id: "cancel_incident_editor", class: "btn btn-outline-secondary" %>
 </div>

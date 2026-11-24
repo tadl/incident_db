@@ -3,6 +3,7 @@
   <% if @add_patron %>
     $('#add_patron').html("<%= escape_javascript(render 'add_patron_form', patron: Patron.new) %>").show();
     $('#incident_id').text('<%= @incident.id %>');
+    $('#cancel_incident_editor').attr('href', '<%= incidents_view_path(id: @incident.id) %>');
     $('#incident_pics').html("<%= escape_javascript(render 'incident_pics') %>");
     $('#incident_images').val('');
     $('#add_patron_to_incident_button, #save_incident_buttons').hide();

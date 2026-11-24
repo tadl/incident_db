@@ -18,12 +18,12 @@ class IncidentsControllerTest < ActionDispatch::IntegrationTest
     assert_select 'input#date_of[type="datetime-local"]'
   end
 
-  test "the published list shows delete only to configured admins" do
+  test "published incident deletion is shown to configured admins on the detail page" do
     @incident.update_columns(published: true, draft: false)
     selector = 'button[data-incident-action="delete"][data-incident-id=?]'
 
     with_env("SUPER_ADMIN" => nil) do
-      get incidents_path
+      get incidents_view_path(id: @incident.id)
       assert_response :success
       assert_select selector, @incident.id.to_s, count: 0
     end
@@ -31,7 +31,24 @@ class IncidentsControllerTest < ActionDispatch::IntegrationTest
     with_env("SUPER_ADMIN" => @user.email) do
       get incidents_path
       assert_response :success
-      assert_select selector, @incident.id.to_s, text: "Delete"
+      assert_select selector, @incident.id.to_s, count: 0
+
+      get incidents_view_path(id: @incident.id)
+      assert_response :success
+      assert_select selector, @incident.id.to_s, text: "Delete incident"
+    end
+  end
+
+  test "draft owners retain the delete action on the draft detail page" do
+    with_env("SUPER_ADMIN" => nil) do
+      selector = 'button[data-incident-action="delete"][data-incident-id=?]'
+      get incidents_path(just_drafts: true)
+      assert_response :success
+      assert_select selector, @incident.id.to_s, count: 0
+
+      get incidents_view_path(id: @incident.id)
+      assert_response :success
+      assert_select selector, @incident.id.to_s, text: "Delete incident"
     end
   end
 

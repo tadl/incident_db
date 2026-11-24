@@ -1,1 +1,1 @@
-window.location.reload();
+window.location.assign('<%= escape_javascript(incidents_path(just_drafts: ("true" if @incident.draft?))) %>');

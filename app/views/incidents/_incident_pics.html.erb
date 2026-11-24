@@ -2,7 +2,9 @@
   <div class="col-auto mb-2">
     <%= render "shared/image_thumbnail", attachment: attachment, label: "Incident image #{index + 1}" %>
     <div class="mt-1">
-      <button type="button" class="btn btn-danger btn-sm" data-incident-action="delete-image" data-image-id="<%= attachment.id %>">
+      <button type="button" class="btn btn-danger btn-sm" data-incident-action="delete-image" data-image-id="<%= attachment.id %>"
+              data-confirm-title="Delete incident image?" data-confirm-message="The image will be removed from this report."
+              data-confirm-label="Delete image">
         <%= icon('fa-solid', 'trash') %> Delete Image
       </button>
     </div>
