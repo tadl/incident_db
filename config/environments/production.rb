@@ -8,7 +8,7 @@ Rails.application.configure do
 
   config.force_ssl = true
   config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
-  config.hosts = [ENV["APP_HOST"].presence || "localhost"]
+  config.hosts = [ENV["APP_HOST"].presence || "localhost", ENV["APP_ALIAS_HOST"].presence].compact
   config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 
   config.logger = ActiveSupport::TaggedLogging.new(ActiveSupport::Logger.new($stdout))
