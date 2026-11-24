@@ -18,6 +18,33 @@ class IncidentsControllerTest < ActionDispatch::IntegrationTest
     assert_select 'input#date_of[type="datetime-local"]'
   end
 
+  test "configured incident editors can open another staff member's report editor from the heading" do
+    @incident.update_columns(published: true, draft: false)
+    editor = users(:two)
+    sign_in(editor)
+    edit_path = incidents_edit_path(id: @incident.id)
+
+    with_env("CAN_EDIT" => nil) do
+      get incidents_view_path(id: @incident.id)
+      assert_response :success
+      assert_select "main a[href=?]", edit_path, count: 0
+      get edit_path
+      assert_response :forbidden
+    end
+
+    with_env("CAN_EDIT" => editor.email) do
+      get incidents_view_path(id: @incident.id)
+      assert_response :success
+      assert_select "main header" do
+        assert_select "h1", text: @incident.title
+        assert_select "a[href=?]", edit_path, text: "Edit incident"
+      end
+      get edit_path
+      assert_response :success
+      assert_select "input#title[value=?]", @incident.title
+    end
+  end
+
   test "published incident deletion is shown to configured admins on the detail page" do
     @incident.update_columns(published: true, draft: false)
     selector = 'button[data-incident-action="delete"][data-incident-id=?]'

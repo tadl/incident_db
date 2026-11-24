@@ -1,11 +1,3 @@
-<% content_for :title, "Incident report" %>
-
-<div class="record-title-row mb-3">
-  <h1 class="mb-0"><%= @incident.title %></h1>
-  <% if @incident.draft? %>
-    <span class="status-label">Draft</span>
-  <% end %>
-</div>
 <section class="card record-section mb-4" aria-label="Incident report details">
   <div class="card-body">
     <%= render "shared/record_details", details: {
