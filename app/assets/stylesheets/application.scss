@@ -451,9 +451,12 @@ a,
 }
 
 .image-viewer {
-  width: min(62rem, calc(100% - 2rem));
+  --image-viewer-padding: clamp(.75rem, 2vw, 1rem);
+  width: max-content;
+  min-width: min(18rem, calc(100% - 2rem));
+  max-width: min(62rem, calc(100% - 2rem));
   max-height: calc(100% - 2rem);
-  padding: 0;
+  padding: var(--image-viewer-padding);
   border: 1px solid var(--bs-border-color);
   border-radius: var(--bs-border-radius-lg);
   color: var(--bs-body-color);
@@ -478,12 +481,12 @@ a,
 }
 
 .image-viewer-toolbar {
+  contain: inline-size;
   justify-content: space-between;
-  padding: .75rem 1rem;
+  margin-bottom: var(--image-viewer-padding);
 }
 
 .image-viewer-status {
-  padding: 1rem;
   margin: 0;
 }
 
@@ -493,6 +496,7 @@ a,
   max-height: min(72dvh, 52rem);
   margin-inline: auto;
   object-fit: contain;
+  border-radius: var(--bs-border-radius);
   background: var(--staff-surface-soft);
 }
 

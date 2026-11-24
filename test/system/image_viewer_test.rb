@@ -1,5 +1,6 @@
 require "test_helper"
 require "base64"
+require "vips"
 
 class ImageViewerTest < ActionDispatch::SystemTestCase
   driven_by :selenium, using: :headless_chrome, screen_size: [1280, 900]
@@ -18,8 +19,9 @@ class ImageViewerTest < ActionDispatch::SystemTestCase
     incident_without_photo.update!(published: true)
     patron = patrons(:one)
     legacy_report = oldreports(:one)
-    [incident, patron, legacy_report].each do |record|
-      record.images.attach(io: StringIO.new(PNG), filename: "synthetic.png", content_type: "image/png")
+    portrait = Vips::Image.black(720, 1100).write_to_buffer(".png")
+    [[incident, portrait], [patron, PNG], [legacy_report, PNG]].each do |record, image|
+      record.images.attach(io: StringIO.new(image), filename: "synthetic.png", content_type: "image/png")
     end
 
     with_google_auth(users(:one)) do
@@ -67,6 +69,7 @@ class ImageViewerTest < ActionDispatch::SystemTestCase
       assert_selector "button:focus", text: "Close"
       case dismiss_with
       when :escape
+        assert_portrait_fits_viewer
         find("button", text: "Close").send_keys(:escape)
       when :backdrop
         find("img[data-image-viewer-picture]").click
@@ -80,5 +83,20 @@ class ImageViewerTest < ActionDispatch::SystemTestCase
     assert_no_selector "dialog[open]"
     assert_selector "#{thumbnail_link}:focus"
     assert_current_path path
+  end
+
+  def assert_portrait_fits_viewer
+    gaps = page.evaluate_script(<<~JS)
+      (() => {
+        const panel = document.querySelector("dialog[open]").getBoundingClientRect()
+        const image = document.querySelector("[data-image-viewer-picture]").getBoundingClientRect()
+        return [image.left - panel.left, panel.right - image.right, panel.bottom - image.bottom]
+      })()
+    JS
+
+    left, right, bottom = gaps
+    assert_in_delta left, right, 1
+    assert_in_delta left, bottom, 1
+    assert_operator bottom, :>=, 12
   end
 end
