@@ -231,6 +231,12 @@ a,
   margin-bottom: 1rem;
 }
 
+@include media-breakpoint-up(lg) {
+  .list-toolbar {
+    flex-wrap: nowrap;
+  }
+}
+
 .list-toolbar > .section-navigation,
 .list-toolbar > :is(.list-pagination, .search-pagination) {
   margin-block: 0;
@@ -505,6 +511,11 @@ a,
 
 .image-viewer-actions {
   column-gap: .5rem;
+}
+
+.image-viewer-close {
+  width: 2rem;
+  padding-inline: 0;
 }
 
 .image-viewer-status {

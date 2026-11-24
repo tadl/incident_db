@@ -20,10 +20,11 @@ class PaginationTest < ActionDispatch::SystemTestCase
     end)
 
     with_google_auth(users(:one)) do
+      set_viewport(1280, 900)
       visit incidents_path(page: 38)
       click_button "Sign in with Google"
       assert_current_path incidents_path(page: 38)
-      set_viewport(1280, 900)
+      assert_selector ".list-toolbar", style: { display: "flex", "flex-wrap" => "nowrap" }
       assert_selector ".list-toolbar nav[aria-label='Incident views']"
       assert_selector ".list-toolbar nav[aria-label='Result pages at top']"
       assert page.evaluate_script(<<~JS), "The desktop pager should be beside the incident filters"
@@ -34,7 +35,6 @@ class PaginationTest < ActionDispatch::SystemTestCase
         })()
       JS
       set_viewport(390, 844)
-      assert_equal 390, page.evaluate_script("window.innerWidth")
       assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth")
 
       visit old_list_path
@@ -70,5 +70,6 @@ class PaginationTest < ActionDispatch::SystemTestCase
   def set_viewport(width, height)
     page.driver.browser.execute_cdp("Emulation.setDeviceMetricsOverride",
       width: width, height: height, deviceScaleFactor: 1, mobile: false)
+    assert_equal [width, height], page.evaluate_script("[window.innerWidth, window.innerHeight]")
   end
 end

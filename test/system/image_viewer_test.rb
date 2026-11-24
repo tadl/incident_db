@@ -76,17 +76,17 @@ class ImageViewerTest < ActionDispatch::SystemTestCase
       assert_selector "img[data-image-viewer-picture][src$='#{original_path}']", visible: true
       assert_link "Open original", href: /#{Regexp.escape(original_path)}\z/
       assert_selector 'a[aria-label="Open original in a new tab"]'
-      assert_selector "button:focus", text: "Close"
+      assert_selector "button[aria-label='Close']:focus"
       case dismiss_with
       when :escape
         assert_portrait_fits_viewer
-        find("button", text: "Close").send_keys(:escape)
+        find("button[aria-label='Close']").send_keys(:escape)
       when :backdrop
         find("img[data-image-viewer-picture]").click
-        assert_selector "button", text: "Close"
+        assert_selector "button[aria-label='Close']"
         page.driver.browser.action.move_to_location(4, 4).click.perform
       else
-        click_button "Close"
+        find("button[aria-label='Close']").click
       end
     end
 
