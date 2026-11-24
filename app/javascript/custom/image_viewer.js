@@ -6,6 +6,27 @@ if (typeof dialog?.showModal === "function") {
   const original = dialog.querySelector("[data-image-viewer-original]")
   const status = dialog.querySelector("[data-image-viewer-status]")
   let opener
+  let pressedBackdrop = false
+
+  const isBackdrop = (event) => {
+    if (event.target !== dialog) return false
+
+    const { left, top, right, bottom } = dialog.getBoundingClientRect()
+    return event.clientX < left || event.clientX >= right || event.clientY < top || event.clientY >= bottom
+  }
+
+  dialog.addEventListener("pointerdown", (event) => {
+    pressedBackdrop = event.button === 0 && isBackdrop(event)
+  })
+
+  dialog.addEventListener("pointercancel", () => {
+    pressedBackdrop = false
+  })
+
+  dialog.addEventListener("click", (event) => {
+    if (pressedBackdrop && isBackdrop(event)) dialog.close()
+    pressedBackdrop = false
+  })
 
   document.addEventListener("click", (event) => {
     if (event.defaultPrevented || event.button !== 0 || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return
@@ -49,5 +70,6 @@ if (typeof dialog?.showModal === "function") {
     original.removeAttribute("href")
     opener?.focus({ preventScroll: true })
     opener = undefined
+    pressedBackdrop = false
   })
 }

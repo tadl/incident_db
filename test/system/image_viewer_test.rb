@@ -34,11 +34,11 @@ class ImageViewerTest < ActionDispatch::SystemTestCase
       assert_record_thumbnail_link(placeholder_path)
       visit incidents_path
       assert_record_thumbnail_link(report_path)
-      assert_image_preview(report_path, incident.images.first, escape: true)
+      assert_image_preview(report_path, incident.images.first, dismiss_with: :escape)
 
       page.current_window.resize_to(390, 844)
       assert_operator page.evaluate_script("window.innerWidth"), :<=, 575
-      assert_image_preview(patrons_list_path, patron.images.first)
+      assert_image_preview(patrons_list_path, patron.images.first, dismiss_with: :backdrop)
       assert_image_preview(patrons_view_path(id: patron.id), patron.images.first)
       visit old_list_path
       legacy_path = old_view_path(id: legacy_report.id)
@@ -55,7 +55,7 @@ class ImageViewerTest < ActionDispatch::SystemTestCase
     assert_no_selector "dialog[open]"
   end
 
-  def assert_image_preview(path, attachment, escape: false)
+  def assert_image_preview(path, attachment, dismiss_with: :button)
     visit path
     original_path = private_attachment_path(attachment)
     thumbnail_link = "a[data-image-preview][href='#{original_path}'][target='_blank']"
@@ -65,8 +65,13 @@ class ImageViewerTest < ActionDispatch::SystemTestCase
       assert_selector "img[data-image-viewer-picture][src$='#{original_path}']", visible: true
       assert_link "Open original in a new tab", href: /#{Regexp.escape(original_path)}\z/
       assert_selector "button:focus", text: "Close"
-      if escape
+      case dismiss_with
+      when :escape
         find("button", text: "Close").send_keys(:escape)
+      when :backdrop
+        find("img[data-image-viewer-picture]").click
+        assert_selector "button", text: "Close"
+        page.driver.browser.action.move_to_location(4, 4).click.perform
       else
         click_button "Close"
       end
