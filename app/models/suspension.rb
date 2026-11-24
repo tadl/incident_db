@@ -10,4 +10,8 @@ class Suspension < ApplicationRecord
 
   scope :published, -> { joins(:incident).where(incidents: { published: true }) }
   scope :active, -> { where(arel_table[:until].gt(Date.current)) }
+
+  def active?
+    self.until.present? && self.until > Date.current
+  end
 end

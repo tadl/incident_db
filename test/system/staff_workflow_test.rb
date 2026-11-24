@@ -146,6 +146,58 @@ class StaffWorkflowTest < ActionDispatch::SystemTestCase
     end
   end
 
+  test "opening and using the patron picker keeps report edits unsaved" do
+    user = users(:one)
+    incident = incidents(:one)
+    incident.update!(created_by: user.id, published: true, draft: false)
+    existing = patrons(:two)
+    existing.update!(first_name: "Synthetic Picker Match", middle_name: nil, last_name: nil, known_as: nil)
+    unsaved_title = "Unsaved change to a published incident"
+
+    with_google_auth(user) do
+      editor_path = incidents_edit_path(id: incident.id)
+      visit editor_path
+      click_button "Sign in with Google"
+      assert_current_path editor_path
+
+      assert_no_changes -> { incident.reload.attributes } do
+        fill_in "Title", with: unsaved_title
+        assert_no_difference ["Patron.count", "IncidentPatron.count"] do
+          click_button "Add patron"
+          within "#add_patron" do
+            fill_in "First Name", with: "Abandoned synthetic patron"
+            click_button "Cancel"
+          end
+        end
+        assert_field "Title", with: unsaved_title
+
+        click_button "Add patron"
+        within "#add_patron" do
+          click_button "Find an existing patron"
+          fill_in "Search patrons", with: existing.first_name
+          click_button "Search"
+          assert_text existing.first_name
+          click_button "Add patron to incident"
+        end
+        assert_selector "#patron_#{existing.id}"
+        assert incident.patrons.exists?(id: existing.id)
+
+        click_button "Add patron"
+        within "#add_patron" do
+          fill_in "First Name", with: "New synthetic patron"
+          click_button "Add patron to incident"
+        end
+        assert_selector "#patron_list h2", text: "New synthetic patron"
+        assert incident.patrons.exists?(first_name: "New synthetic patron")
+        assert_field "Title", with: unsaved_title
+
+        click_link "Cancel"
+        assert_current_path incidents_view_path(id: incident.id)
+      end
+      assert_selector "h1", text: incident.title
+    end
+  end
+
   test "cancel resets only the matching comment form" do
     incident = incidents(:one)
     incident.update!(published: true)

@@ -110,6 +110,24 @@ class IncidentsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "an older draft with no published flag is listed only in the author's drafts" do
+    @incident.update_columns(published: nil)
+    detail_path = incidents_view_path(id: @incident.id)
+
+    get incidents_path(just_drafts: true)
+    assert_response :success
+    assert_select "article a[href=?]", detail_path
+
+    get incidents_path
+    assert_response :success
+    assert_select "article a[href=?]", detail_path, count: 0
+
+    sign_in(users(:two))
+    get incidents_path(just_drafts: true)
+    assert_response :success
+    assert_select "article a[href=?]", detail_path, count: 0
+  end
+
   test "saves an Eastern timestamp and transitions a draft to published exactly once" do
     assert_enqueued_jobs 0, only: IncidentMailerJob do
       submit_incident(draft: "true")

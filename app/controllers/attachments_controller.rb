@@ -1,8 +1,8 @@
 class AttachmentsController < ApplicationController
   INLINE_TYPES = %w[image/jpeg image/png image/gif image/webp].freeze
 
-  skip_before_action :authenticate_user!
-  before_action :require_staff_session
+  skip_before_action :authenticate_user!, only: :thumbnail
+  before_action :require_staff_session, only: :thumbnail
   before_action :load_attachment
   rescue_from ActiveStorage::FileNotFoundError, ActionController::MissingFile, with: :missing_file
 

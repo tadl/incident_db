@@ -9,14 +9,14 @@
   <% end %>
 </div>
 <div id="add_patron_to_incident_button" class="mb-3">
-  <button type="button" class="btn btn-outline-primary" data-incident-action="<%= @incident.persisted? ? 'save' : 'choose-patron' %>" data-add-patron="true" data-draft="<%= !@incident.published? %>">
+  <button type="button" class="btn btn-outline-primary" data-incident-action="choose-patron">
     <%= icon('fa-solid', 'person') %> Add patron
   </button>
 </div>
+<template data-pending-patron-picker="new">
+  <%= render "incidents/add_patron_form", patron: Patron.new %>
+</template>
 <% unless @incident.persisted? %>
-  <template data-pending-patron-picker="new">
-    <%= render "incidents/add_patron_form", patron: Patron.new %>
-  </template>
   <template data-pending-patron-picker="search">
     <%= render "patrons/patron_search" %>
   </template>
@@ -43,5 +43,5 @@
     <button type="button" class="btn btn-outline-secondary" data-incident-action="save" data-draft="true">Save as draft</button>
   <% end %>
   <%= link_to "Cancel", @incident.persisted? ? incidents_view_path(id: @incident.id) : incidents_path,
-              id: "cancel_incident_editor", class: "btn btn-outline-secondary" %>
+              class: "btn btn-outline-secondary" %>
 </div>

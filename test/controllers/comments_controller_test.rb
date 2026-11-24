@@ -13,8 +13,11 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
         post comments_save_path, params: { comment_for: "incident", owner_id: incident.id, description: "Synthetic follow-up" }
       end
     end
-    assert_redirected_to incidents_view_path(id: incident.id)
-    assert_equal users(:two), incident.incident_comments.order(:id).last.user
+    comment = incident.incident_comments.find_by!(description: "Synthetic follow-up")
+    assert_redirected_to incidents_view_path(id: incident.id, anchor: "entry_incident_comment_#{comment.id}")
+    assert_equal users(:two), comment.user
+    follow_redirect!
+    assert_select "article#entry_incident_comment_#{comment.id}", text: /Synthetic follow-up/
   end
 
   test "unrelated staff cannot amend another person's comment" do
@@ -52,7 +55,8 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
         post comments_save_path, params: { comment_for: "incident", owner_id: incident.id, description: "Draft follow-up" }
       end
     end
-    assert_redirected_to incidents_view_path(id: incident.id)
+    comment = incident.incident_comments.find_by!(description: "Draft follow-up")
+    assert_redirected_to incidents_view_path(id: incident.id, anchor: "entry_incident_comment_#{comment.id}")
 
     assert_no_difference "Comment.count" do
       post comments_save_path, params: { comment_for: "patron", owner_id: patrons(:two).id, description: " " }
@@ -67,12 +71,12 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
 
     post comments_update_path, params: { comment_for: "patron", owner_id: comment.patron_id, id: comment.id, description: "Changed" }
-    assert_redirected_to patrons_view_path(id: comment.patron_id)
+    assert_redirected_to patrons_view_path(id: comment.patron_id, anchor: "entry_patron_comment_#{comment.id}")
     assert_equal "Changed", comment.reload.description
 
     assert_difference "Comment.count", -1 do
       post comments_delete_path, params: { comment_for: "patron", owner_id: comment.patron_id, id: comment.id }
     end
-    assert_redirected_to patrons_view_path(id: comment.patron_id)
+    assert_redirected_to patrons_view_path(id: comment.patron_id, anchor: "comments")
   end
 end

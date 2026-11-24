@@ -59,6 +59,8 @@ class PaginationTest < ActionDispatch::SystemTestCase
         assert_equal %w[1 2 3 … 7 8 9], all("[aria-current='page'], [aria-label^='Page '], .pagination-gap").map(&:text)
         find("button[aria-label='Last page']").click
       end
+      # The POST keeps the same URL. Wait for the last-page controls in the new document.
+      assert_selector "nav.search-pagination button[aria-label='Next page'][disabled]", count: 2, visible: :all
       assert_current_path old_search_path
       assert_selector "article.record-card", count: 5
       assert_selector "nav.search-pagination [aria-current='page']", text: "9", count: 2

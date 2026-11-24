@@ -12,10 +12,15 @@ class NotificationJobsTest < ActiveJob::TestCase
     @suspension.update_columns(until: Date.current + 7.days)
   end
 
-  test "published and scheduled jobs deliver an issued suspension only once" do
+  test "legacy queued and current jobs deliver an issued suspension only once" do
+    queued_job = SuspensionPublishedJob.new(@patron, @incident, @suspension).serialize
+    queued_job["arguments"] = [@patron, @incident, @suspension].map do |record|
+      { "_aj_globalid" => record.to_global_id(app: "rails7-base").to_s }
+    end
+
     with_notification_addresses do
       assert_emails 1 do
-        SuspensionPublishedJob.perform_now(@patron, @incident, @suspension)
+        ActiveJob::Base.execute(queued_job)
         CheckUnsentSuspensions.new.perform
         SuspensionPublishedJob.perform_now(@suspension)
       end
@@ -67,6 +72,26 @@ class NotificationJobsTest < ActiveJob::TestCase
         CheckExpiredSuspensions.new.perform
       end
       assert_equal 1, @patron.suspensions.where(expired_email_sent: true).count
+    end
+  end
+
+  test "suspensions expire on the local end date and staff are notified the following day" do
+    @suspension.update_columns(until: Date.new(2026, 6, 10))
+
+    with_notification_addresses do
+      travel_to Time.zone.local(2026, 6, 10, 21, 30) do
+        assert_no_emails do
+          SuspensionPublishedJob.perform_now(@suspension)
+          CheckUnsentSuspensions.new.perform
+          CheckExpiredSuspensions.new.perform
+        end
+      end
+
+      travel_to Time.zone.local(2026, 6, 11, 0, 30) do
+        assert_emails(1) { CheckExpiredSuspensions.new.perform }
+        assert @suspension.reload.expired_email_sent?
+        refute @suspension.issued_email_sent?
+      end
     end
   end
 

@@ -1,6 +1,18 @@
 require "test_helper"
 
 class PatronTest < ActiveSupport::TestCase
+  test "unknown patron search treats whitespace-only names as blank" do
+    unknown = patrons(:one)
+    unknown.update!(first_name: " \t", middle_name: "\u00a0\u0085", last_name: "\r\n")
+    named = patrons(:two)
+    named.update!(first_name: " \nExample", middle_name: nil, last_name: nil)
+
+    assert unknown.unknown_name
+    assert_includes Patron.unknown_name, unknown
+    assert_not named.unknown_name
+    assert_not_includes Patron.unknown_name, named
+  end
+
   test "call 911 remains visible with overlapping suspensions" do
     patron = patrons(:one)
     first = incidents(:one)

@@ -6,7 +6,7 @@ class CommentsController < ApplicationController
     comment = @comments.build(comment_params.merge(user: current_user))
     if comment.save
       CommentAddedJob.perform_later(comment) if !@parent.is_a?(Incident) || @parent.published?
-      redirect_to parent_path, status: :see_other
+      redirect_to parent_path(anchor: comment_anchor(comment)), status: :see_other
     else
       redirect_to parent_path, alert: comment.errors.full_messages.to_sentence, status: :see_other
     end
@@ -14,7 +14,7 @@ class CommentsController < ApplicationController
 
   def update
     if @comment.update(comment_params)
-      redirect_to parent_path, status: :see_other
+      redirect_to parent_path(anchor: comment_anchor(@comment)), status: :see_other
     else
       redirect_to parent_path, alert: @comment.errors.full_messages.to_sentence, status: :see_other
     end
@@ -22,7 +22,7 @@ class CommentsController < ApplicationController
 
   def delete
     @comment.destroy!
-    redirect_to parent_path, status: :see_other
+    redirect_to parent_path(anchor: "comments"), status: :see_other
   end
 
   private
@@ -47,12 +47,16 @@ class CommentsController < ApplicationController
     head :forbidden unless current_user.my_comment(@comment)
   end
 
-  def parent_path
+  def parent_path(anchor: nil)
     if @parent.is_a?(Incident)
-      incidents_view_path(id: @parent.id)
+      incidents_view_path(id: @parent.id, anchor:)
     else
-      patrons_view_path(id: @parent.id)
+      patrons_view_path(id: @parent.id, anchor:)
     end
+  end
+
+  def comment_anchor(comment)
+    ActionView::RecordIdentifier.dom_id(comment, :entry)
   end
 
   def comment_params

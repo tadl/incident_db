@@ -2,11 +2,10 @@ import "jquery"
 import { confirmDestructiveAction } from "custom/destructive_confirmation"
 import { appendPendingPatrons, canStagePatrons, openPatronPicker } from "custom/pending_patrons"
 
-function saveIncident({ draft, addPatron }) {
+function saveIncident({ draft }) {
     const data = new FormData()
     data.append("incident_id", $("#incident_id").text())
     data.append("draft", draft === "true")
-    data.append("add_patron", addPatron === "true")
 
     for (const field of ["title", "description", "date_of", "location"]) {
         data.append(field, document.getElementById(field).value)

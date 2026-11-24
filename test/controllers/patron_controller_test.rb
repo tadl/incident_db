@@ -125,6 +125,43 @@ class PatronControllerTest < ActionDispatch::IntegrationTest
     assert_not suspension.issued_email_sent?
   end
 
+  test "staff can add a letter later, download it from both records, and remove the attachment" do
+    suspension = suspensions(:one)
+    patron = suspension.patron
+    @incident.patrons << patron
+    pdf = "%PDF-1.4\n%%EOF\n"
+    letter = Rack::Test::UploadedFile.new(StringIO.new(pdf), "application/pdf",
+      original_filename: "example-letter.pdf")
+    params = { incident_id: @incident.id, patron_id: patron.id, suspension_id: suspension.id }
+
+    with_env("CAN_SUSPEND" => @user.email) do
+      assert_no_enqueued_jobs(only: SuspensionPublishedJob) do
+        post patrons_save_suspension_path(format: :js),
+          params: params.merge(until: Date.current + 2, letter_sent: "true", letter: letter), xhr: true
+      end
+      assert_response :success
+      assert suspension.reload.letter_sent?
+
+      download_path = private_attachment_path(suspension.letter.attachment)
+      [incidents_view_path(id: @incident.id), patrons_view_path(id: patron.id)].each do |path|
+        get path
+        assert_response :success
+        assert_select "a[href=?]", download_path, text: "Download suspension letter"
+      end
+
+      get download_path
+      assert_response :success
+      assert_equal pdf, response.body
+
+      post patrons_delete_letter_path(format: :js), params: params, xhr: true
+      assert_response :success
+      assert_not suspension.reload.letter.attached?
+      assert suspension.letter_sent?
+      get download_path
+      assert_response :not_found
+    end
+  end
+
   test "plain incident link removal preserves a suspension unless authorized to revoke it" do
     @incident.patrons << @patron
     @incident.suspensions.create!(patron: @patron, until: Date.current + 2)
@@ -153,6 +190,39 @@ class PatronControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Emergency"
     assert_not_includes response.body, "Limited"
+  end
+
+  test "incident and patron details keep historical emergency flags without active instructions" do
+    suspension = suspensions(:one)
+    patron = suspension.patron
+    @incident.patrons << patron
+    suspension.update!(call_police: true, until: Date.current + 2)
+
+    [incidents_view_path(id: @incident.id), patrons_view_path(id: patron.id)].each do |path|
+      get path
+      assert_response :success
+      assert_select ".status-label-urgent", count: 1
+      assert_select "p.record-related", /Please call 911 immediately/
+    end
+
+    suspension.update!(until: Date.current)
+
+    [incidents_view_path(id: @incident.id), patrons_view_path(id: patron.id)].each do |path|
+      get path
+      assert_response :success
+      assert_select ".status-label-urgent", count: 0
+      assert_select "p.record-related", /Call 911 flag recorded/
+      assert_select "p.record-related", { text: /Please call 911 immediately/, count: 0 }
+    end
+
+    suspension.update!(until: Date.current + 2)
+    @incident.update!(published: false, draft: true)
+
+    get incidents_view_path(id: @incident.id)
+    assert_response :success
+    assert_select ".status-label-urgent", count: 0
+    assert_select "p.record-related", /Call 911 flag recorded/
+    assert_select "p.record-related", { text: /Please call 911 immediately/, count: 0 }
   end
 
   test "invalid expiration cannot create a partial suspension" do

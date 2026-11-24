@@ -11,7 +11,7 @@ class IncidentsController < ApplicationController
     elsif params[:just_drafts] == "true"
       @title = "My Draft"
       @search_param = "just_drafts"
-      incidents = incidents.where(published: false, draft: true, created_by: current_user.id)
+      incidents = incidents.where(published: [false, nil], draft: true, created_by: current_user.id)
     else
       @title = "All"
       @search_param = "all"
@@ -50,7 +50,6 @@ class IncidentsController < ApplicationController
     end
 
     @updated = true
-    @add_patron = params[:add_patron] == "true"
     IncidentMailerJob.perform_later(@incident) if @new_publish
     render :save
   rescue ActiveRecord::RecordInvalid => error

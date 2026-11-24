@@ -1,16 +1,5 @@
 <% if @updated %>
-  $('#messages').empty();
-  <% if @add_patron %>
-    $('#add_patron').html("<%= escape_javascript(render 'add_patron_form', patron: Patron.new) %>").show();
-    $('#incident_id').text('<%= @incident.id %>');
-    $('#cancel_incident_editor').attr('href', '<%= incidents_view_path(id: @incident.id) %>');
-    $('#incident_pics').html("<%= escape_javascript(render 'incident_pics') %>");
-    $('#incident_images').val('');
-    $('#add_patron_to_incident_button, #save_incident_buttons').hide();
-    window.history.replaceState(null, '', '<%= incidents_edit_path(id: @incident.id) %>');
-  <% else %>
-    window.location.assign('<%= incidents_view_path(id: @incident.id) %>');
-  <% end %>
+  window.location.assign('<%= incidents_view_path(id: @incident.id) %>');
 <% else %>
   $('#messages').text(<%= raw json_escape(@errors.to_sentence.to_json) %>).addClass('text-danger');
 <% end %>

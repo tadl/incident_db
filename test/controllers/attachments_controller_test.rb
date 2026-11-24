@@ -12,10 +12,40 @@ class AttachmentsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "originals and thumbnails require a signed-in staff session" do
-    get private_attachment_path(@attachment)
+    get private_attachment_path(@attachment), headers: { "Accept" => "image/png" }
     assert_response :unauthorized
-    get private_thumbnail_path(@attachment)
+    get private_thumbnail_path(@attachment), headers: { "Accept" => "text/html" }
     assert_response :unauthorized
+  end
+
+  test "a suspension letter link from a staff notice resumes after sign-in" do
+    suspension = suspensions(:one)
+    suspension.incident.update!(published: true, draft: false)
+    pdf = "%PDF-1.4\n%%EOF\n"
+    suspension.letter.attach(io: StringIO.new(pdf), filename: "synthetic-letter.pdf", content_type: "application/pdf")
+    letter_path = private_attachment_path(suspension.letter.attachment)
+
+    get letter_path, headers: { "Accept" => "text/html" }
+    assert_redirected_to sign_in_path
+    assert_includes response.headers["Cache-Control"], "no-store"
+
+    sign_in users(:two)
+    assert_redirected_to letter_path
+    follow_redirect!
+    assert_response :success
+    assert_match(/\Aattachment;/, response.headers["Content-Disposition"])
+    assert_equal pdf, response.body
+  end
+
+  test "a staff member signing in through a draft photo link still needs permission to view it" do
+    photo_path = private_attachment_path(@attachment)
+    get photo_path, headers: { "Accept" => "text/html" }
+    assert_redirected_to sign_in_path
+
+    sign_in users(:two)
+    assert_redirected_to photo_path
+    follow_redirect!
+    assert_response :not_found
   end
 
   test "formerly public Active Storage endpoints are disabled" do

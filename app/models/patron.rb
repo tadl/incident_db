@@ -2,6 +2,8 @@ class Patron < ApplicationRecord
   include PgSearch::Model
 
   EDITABLE_ATTRIBUTES = %i[first_name middle_name last_name address city state zip known_as description card_number].freeze
+  # Match String#blank? for UTF-8 names regardless of the database's locale.
+  NONBLANK_NAME_CHARACTER = "[^[:space:]\u0085\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000]"
 
   has_many :patron_comments, dependent: :destroy
   has_many :incident_patrons, dependent: :destroy
@@ -23,7 +25,7 @@ class Patron < ApplicationRecord
     using: { tsearch: { prefix: true } }
 
   scope :unknown_name, -> {
-    where("COALESCE(TRIM(first_name), '') = '' AND COALESCE(TRIM(middle_name), '') = '' AND COALESCE(TRIM(last_name), '') = ''")
+    where('concat(first_name, middle_name, last_name) COLLATE "C" !~ ?', NONBLANK_NAME_CHARACTER)
   }
 
   def self.currently_suspended(call_911: false)
@@ -59,7 +61,13 @@ class Patron < ApplicationRecord
   def suspension_for_details(incident_id)
     suspension = suspension_for(incident_id)
     message = [suspension.until ? "#{suspension.until.strftime('%m/%d/%Y')}." : "End date unavailable."]
-    message << "Please call 911 immediately if seen on property." if suspension.call_police?
+    if suspension.call_police?
+      message << if suspension.active? && suspension.incident.published?
+        "Please call 911 immediately if seen on property."
+      else
+        "Call 911 flag recorded for this suspension."
+      end
+    end
     message << (suspension.letter_sent? ? "Letter has been mailed." : "Letter has not been mailed.") unless suspension.letter_sent.nil?
     message.join(" ")
   end
@@ -110,7 +118,7 @@ class Patron < ApplicationRecord
 
   def active_suspensions
     if suspensions.loaded?
-      suspensions.select { |suspension| suspension.until && suspension.until > Date.current && suspension.incident.published? }
+      suspensions.select { |suspension| suspension.active? && suspension.incident.published? }
     else
       suspensions.published.active.to_a
     end
