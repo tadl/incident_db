@@ -41,6 +41,27 @@ class DestructiveActionsTest < ActionDispatch::SystemTestCase
     end
   end
 
+  test "a draft owner can delete the incident from the editor" do
+    user = users(:one)
+    incident = incidents(:one)
+    incident.update!(created_by: user.id, published: false, draft: true)
+
+    with_env("SUPER_ADMIN" => nil) do
+      with_google_auth(user) do
+        editor_path = incidents_edit_path(id: incident.id)
+        visit editor_path
+        click_button "Sign in with Google"
+        assert_current_path editor_path
+
+        within("main header") { click_button "Delete incident" }
+        within(CONFIRMATION) { click_button "Delete incident" }
+
+        assert_current_path incidents_path(just_drafts: true)
+        assert_not Incident.exists?(incident.id)
+      end
+    end
+  end
+
   test "comment deletion opens the shared dialog and submits the original form only on confirmation" do
     incident = incidents(:one)
     incident.update!(published: true)

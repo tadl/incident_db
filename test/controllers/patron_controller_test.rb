@@ -11,6 +11,41 @@ class PatronControllerTest < ActionDispatch::IntegrationTest
     sign_in(@user)
   end
 
+  test "patron actions are in the detail heading and excluded from browse and search" do
+    detail_path = patrons_view_path(id: @patron.id)
+    edit_path = patrons_edit_path(patron_id: @patron.id)
+    delete_button = "button[data-patron-action='delete']"
+
+    with_env("SUPER_ADMIN" => @user.email) do
+      get patrons_list_path
+      assert_response :success
+      assert_select "main a[href=?]", detail_path
+      assert_select "main a[href=?]", edit_path, count: 0
+      assert_select delete_button, count: 0
+
+      post patrons_search_path, params: { query: @patron.first_name }
+      assert_response :success
+      assert_select "main a[href=?]", detail_path
+      assert_select "main a[href=?]", edit_path, count: 0
+      assert_select delete_button, count: 0
+
+      get detail_path
+      assert_response :success
+      assert_select "main header" do
+        assert_select "h1", text: "Patron record"
+        assert_select "a[href=?]", edit_path, text: "Edit patron record"
+        assert_select delete_button, text: "Delete patron"
+      end
+    end
+
+    with_env("SUPER_ADMIN" => nil) do
+      get detail_path
+      assert_response :success
+      assert_select "main header a[href=?]", edit_path
+      assert_select delete_button, count: 0
+    end
+  end
+
   test "creates and links a patron without inserting a legacy violation" do
     assert_difference "Patron.count", 1 do
       assert_difference "IncidentPatron.count", 1 do

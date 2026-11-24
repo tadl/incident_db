@@ -37,14 +37,5 @@
         <% end %>
       </section>
     <% end %>
-    <div class="record-actions">
-      <%= link_to "Edit patron record", patrons_edit_path(patron_id: p.id), class: "btn btn-outline-primary btn-sm" %>
-      <% if !stub && current_user.is_super_admin %>
-        <button type="button" class="btn btn-outline-danger btn-sm" data-patron-action="delete"
-                data-patron-id="<%= p.id %>" data-confirm-title="Delete patron record?"
-                data-confirm-message="This permanently deletes the patron record, photos, comments, suspensions, and links to incidents."
-                data-confirm-label="Delete patron">Delete patron</button>
-      <% end %>
-    </div>
   </div>
 </div>

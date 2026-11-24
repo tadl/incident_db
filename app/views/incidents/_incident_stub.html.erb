@@ -20,12 +20,6 @@
             <%= safe_join(patrons.map { |patron| link_to patron.full_name, patrons_view_path(id: patron.id) }, ", ") %>
           </p>
         <% end %>
-        <% if current_user.can_edit_incident(i) %>
-          <div class="record-actions">
-            <%= link_to "Edit", incidents_edit_path(id: i.id), class: "btn btn-sm btn-outline-primary",
-                        aria: { label: "Edit report ##{i.id}" } %>
-          </div>
-        <% end %>
       </div>
     </div>
   </div>

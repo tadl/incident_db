@@ -1,3 +1,14 @@
-<h1 class="mb-3">Patron record</h1>
+<header class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
+  <h1 class="mb-0">Patron record</h1>
+  <div class="record-actions mt-0">
+    <%= link_to "Edit patron record", patrons_edit_path(patron_id: @patron.id), class: "btn btn-primary" %>
+    <% if current_user.is_super_admin %>
+      <button type="button" class="btn btn-outline-danger" data-patron-action="delete"
+              data-patron-id="<%= @patron.id %>" data-confirm-title="Delete patron record?"
+              data-confirm-message="This permanently deletes the patron record, photos, comments, suspensions, and links to incidents."
+              data-confirm-label="Delete patron">Delete patron</button>
+    <% end %>
+  </div>
+</header>
 <%= render "patron_full", p: @patron, stub: false %>
 <%= render "comments/comments", comments: @patron.patron_comments, from: "patron", owner_id: @patron.id %>

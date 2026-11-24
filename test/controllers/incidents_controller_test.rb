@@ -16,6 +16,7 @@ class IncidentsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select 'input#date_of[type="datetime-local"]'
+    assert_select 'button[data-incident-action="delete"]', count: 0
   end
 
   test "configured incident editors can open another staff member's report editor from the heading" do
@@ -33,6 +34,16 @@ class IncidentsControllerTest < ActionDispatch::IntegrationTest
     end
 
     with_env("CAN_EDIT" => editor.email) do
+      get incidents_path
+      assert_response :success
+      assert_select "article a[href=?]", incidents_view_path(id: @incident.id)
+      assert_select "a[href=?]", edit_path, count: 0
+
+      post incidents_search_path, params: { query: @incident.title }
+      assert_response :success
+      assert_select "article a[href=?]", incidents_view_path(id: @incident.id)
+      assert_select "a[href=?]", edit_path, count: 0
+
       get incidents_view_path(id: @incident.id)
       assert_response :success
       assert_select "main header" do
@@ -45,7 +56,7 @@ class IncidentsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "published incident deletion is shown to configured admins on the detail page" do
+  test "published incident deletion is shown to configured admins on detail and edit pages" do
     @incident.update_columns(published: true, draft: false)
     selector = 'button[data-incident-action="delete"][data-incident-id=?]'
 
@@ -53,6 +64,14 @@ class IncidentsControllerTest < ActionDispatch::IntegrationTest
       get incidents_view_path(id: @incident.id)
       assert_response :success
       assert_select selector, @incident.id.to_s, count: 0
+
+      get incidents_edit_path(id: @incident.id)
+      assert_response :success
+      assert_select selector, @incident.id.to_s, count: 0
+
+      post incidents_delete_incident_path(format: :js), params: { id: @incident.id }, xhr: true
+      assert_response :forbidden
+      assert Incident.exists?(@incident.id)
     end
 
     with_env("SUPER_ADMIN" => @user.email) do
@@ -63,10 +82,16 @@ class IncidentsControllerTest < ActionDispatch::IntegrationTest
       get incidents_view_path(id: @incident.id)
       assert_response :success
       assert_select selector, @incident.id.to_s, text: "Delete incident"
+
+      get incidents_edit_path(id: @incident.id)
+      assert_response :success
+      assert_select selector, @incident.id.to_s, text: "Delete incident"
+
+      delete_incident_and_assert_location(incidents_path)
     end
   end
 
-  test "draft owners retain the delete action on the draft detail page" do
+  test "draft owners can delete from draft detail and edit pages" do
     with_env("SUPER_ADMIN" => nil) do
       selector = 'button[data-incident-action="delete"][data-incident-id=?]'
       get incidents_path(just_drafts: true)
@@ -76,6 +101,12 @@ class IncidentsControllerTest < ActionDispatch::IntegrationTest
       get incidents_view_path(id: @incident.id)
       assert_response :success
       assert_select selector, @incident.id.to_s, text: "Delete incident"
+
+      get incidents_edit_path(id: @incident.id)
+      assert_response :success
+      assert_select selector, @incident.id.to_s, text: "Delete incident"
+
+      delete_incident_and_assert_location(incidents_path(just_drafts: true))
     end
   end
 
@@ -187,6 +218,14 @@ class IncidentsControllerTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  def delete_incident_and_assert_location(path)
+    assert_difference "Incident.count", -1 do
+      post incidents_delete_incident_path(format: :js), params: { id: @incident.id }, xhr: true
+    end
+    assert_response :success
+    assert_includes response.body, "window.location.assign('#{path}')"
+  end
 
   def submit_incident(**attributes)
     params = {

@@ -13,12 +13,7 @@
       <% if can_edit %>
         <%= link_to "Edit incident", incidents_edit_path(id: @incident.id), class: "btn btn-primary" %>
       <% end %>
-      <% if can_delete %>
-        <button type="button" class="btn btn-outline-danger" data-incident-action="delete"
-                data-incident-id="<%= @incident.id %>" data-confirm-title="Delete incident?"
-                data-confirm-message="This permanently deletes the report and its comments, attachments, violations, and suspensions."
-                data-confirm-label="Delete incident">Delete incident</button>
-      <% end %>
+      <%= render "delete_button", incident: @incident if can_delete %>
     </div>
   <% end %>
 </header>
