@@ -1,0 +1,8 @@
+<% if photo %>
+  <p>
+    <% if photo[:inline_url] %>
+      <%= image_tag photo[:inline_url], alt: label, width: 250, height: 250 %><br>
+    <% end %>
+    <%= link_to "Open original #{label.downcase}", photo[:url] %>
+  </p>
+<% end %>

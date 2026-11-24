@@ -85,6 +85,15 @@ class NotificationJobsTest < ActiveJob::TestCase
     end
   end
 
+  test "comment job passes comment details to the mailer" do
+    comment = @incident.incident_comments.create!(user: users(:one), description: "Synthetic comment for delivery test")
+
+    with_notification_addresses do
+      assert_emails(1) { CommentAddedJob.perform_now(comment) }
+      assert_includes ActionMailer::Base.deliveries.last.text_part.decoded, comment.description
+    end
+  end
+
   private
 
   def with_notification_addresses(&block)

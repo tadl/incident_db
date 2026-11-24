@@ -1,0 +1,15 @@
+<% summary = patron.violation_summary_for(incident.id)&.description %>
+<% historical = patron.historical_violations_for(incident.id) %>
+<% if summary.present? %>
+  <%= simple_format(h(summary)) %>
+<% end %>
+<% if historical.present? %>
+  <ul>
+    <% historical.each do |entry| %>
+      <li><%= entry %></li>
+    <% end %>
+  </ul>
+<% end %>
+<% if summary.blank? && historical.empty? %>
+  <p>None recorded</p>
+<% end %>

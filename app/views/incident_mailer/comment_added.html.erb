@@ -1,0 +1,5 @@
+<h1>New comment on <%= @record_label %></h1>
+<p><strong><%= @record_name %></strong></p>
+<p><%= @comment.submitted_by %> on <%= @comment.posted_on %> (Eastern)</p>
+<%= simple_format(h(@comment.description)) %>
+<p><%= link_to "Open comment on #{@record_label}", @record_url %></p>

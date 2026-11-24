@@ -10,7 +10,7 @@ class SuspensionPublishedJob < ApplicationJob
       next if suspension.issued_email_sent? || !suspension.until || suspension.until <= Date.current
       next unless suspension.incident&.published? && suspension.patron
 
-      IncidentMailer.suspension_published(suspension.incident).deliver_now
+      IncidentMailer.suspension_published(suspension).deliver_now
       suspension.update_columns(issued_email_sent: true)
     end
   end

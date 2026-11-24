@@ -1,0 +1,27 @@
+<%= @incident.title %>
+
+Open full incident report
+<%= @record_url %>
+
+Date and time of incident (Eastern)
+<%= @incident.date_of_in_time_zone %>
+Location
+<%= @incident.location %>
+Submitted by
+<%= @incident.created_by_name %>
+
+Narrative
+<%= @incident.description %>
+<%= render "photo", photo: @incident_photo, label: "Incident photo" -%>
+
+<% if @patron_entries.any? -%>
+Patrons involved
+<% @patron_entries.each do |patron, photo| -%>
+
+<%= patron.full_name %>
+<%= patrons_view_url(id: patron.id) %>
+<%= render "photo", photo: photo, label: "Patron photo" -%>
+Violations
+<%= render "violations", patron: patron, incident: @incident -%>
+<% end -%>
+<% end -%>

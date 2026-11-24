@@ -1,0 +1,5 @@
+<h1>Suspension expired for <%= @patron.full_name(show_call_911: false) %></h1>
+<p>Expired on <%= @suspension.until.strftime("%m/%d/%Y") %>.</p>
+<p><%= link_to "Open patron record", patrons_view_url(id: @patron.id) %></p>
+<p><%= link_to "Open full incident report", incidents_view_url(id: @incident.id) %></p>
+<%= render "photo", photo: @patron_photo, label: "Patron photo" %>

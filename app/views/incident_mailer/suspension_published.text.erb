@@ -1,0 +1,23 @@
+New suspension for <%= @patron.full_name(show_call_911: false) %>
+Suspended until <%= @suspension.until.strftime("%m/%d/%Y") %>
+<% if @suspension.call_police? -%>
+
+Call 911 immediately if seen on library property.
+<% end -%>
+
+Open full incident report
+<%= incidents_view_url(id: @incident.id) %>
+Open patron record
+<%= patrons_view_url(id: @patron.id) %>
+<%= render "photo", photo: @patron_photo, label: "Patron photo" -%>
+
+Violations
+<%= render "violations", patron: @patron, incident: @incident -%>
+<% unless @suspension.letter_sent.nil? -%>
+
+<%= @suspension.letter_sent? ? "Suspension letter mailed." : "Suspension letter has not been mailed." %>
+<% end -%>
+<% if @letter_url -%>
+Open suspension letter
+<%= @letter_url %>
+<% end -%>

@@ -21,7 +21,7 @@ class CheckExpiredSuspensions
       latest.with_lock do
         next if latest.expired_email_sent? || latest.until != expiration_date || !latest.incident&.published?
 
-        IncidentMailer.suspension_expired(patron).deliver_now
+        IncidentMailer.suspension_expired(latest).deliver_now
         latest.update_columns(expired_email_sent: true)
       end
     end
