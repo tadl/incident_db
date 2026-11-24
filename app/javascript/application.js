@@ -3,6 +3,7 @@ import "popper"
 import "bootstrap"
 import "custom/incidents"
 import "custom/patrons"
+import "custom/image_viewer"
 
 const $ = window.jQuery
 const csrfToken = document.querySelector("meta[name='csrf-token']")?.content

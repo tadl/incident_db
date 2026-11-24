@@ -3,9 +3,9 @@
 <% end %>
 <% @patrons.each do |patron| %>
   <div class="row mt-3 mb-3">
-    <% if patron.images.first %>
-      <div class="col-md-3">
-        <%= image_tag private_thumbnail_path(patron.images.first), class: 'img-thumbnail' %>
+    <% if (picture = patron.images.first) %>
+      <div class="col-auto">
+        <%= render "shared/image_thumbnail", attachment: picture, label: "Patron image", compact: true %>
       </div>
     <% end %>
     <div class="col">

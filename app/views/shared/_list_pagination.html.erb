@@ -1,5 +1,6 @@
 <% if records.total_pages > 1 %>
-  <nav aria-label="Result pages" class="list-pagination">
-    <%= will_paginate records, renderer: WillPaginate::ActionView::BootstrapLinkRenderer %>
+  <nav aria-label="Result pages at <%= position %>" class="list-pagination">
+    <%= will_paginate records, renderer: WillPaginate::ActionView::LinkRenderer, container: false,
+                     previous_label: "Previous", next_label: "Next", inner_window: 1, outer_window: 0 %>
   </nav>
 <% end %>

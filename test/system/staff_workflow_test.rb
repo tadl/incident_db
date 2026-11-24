@@ -19,6 +19,9 @@ class StaffWorkflowTest < ActionDispatch::SystemTestCase
       click_button "Sign in with Google"
       assert_current_path incidents_new_path
 
+      click_button "Publish incident"
+      assert_selector "#messages", text: "Title can't be blank, Location can't be blank, and Description can't be blank"
+
       fill_in "Title", with: "Synthetic browser workflow"
       select "Woodmere", from: "Location"
       fill_in "Description", with: "A synthetic browser test report."

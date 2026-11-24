@@ -1,14 +1,17 @@
 <% content_for :title, "Search incidents" %>
 
-<h1>Search Incidents</h1>
+<%= render "shared/section_heading", glyph: "person-falling-burst", heading: "Search Incidents" %>
 <%= render "section_links" %>
 <%= form_with url: incidents_search_path, method: :post, local: true, class: "staff-search" do %>
   <%= render "shared/search_fields", label: "Incident keywords", field_id: "incident-query" %>
 <% end %>
+<%= render "shared/search_pagination", results: @incidents, path: incidents_search_path,
+           filters: { query: @query }, position: "top" %>
 <% @incidents.each do |incident| %>
   <%= render "incident_stub", i: incident %>
 <% end %>
 <% if @incidents.empty? && @query.present? %>
   <%= render "shared/empty_results", message: "No incidents match your search." %>
 <% end %>
-<%= render "shared/search_pagination", results: @incidents, path: incidents_search_path, filters: { query: @query } %>
+<%= render "shared/search_pagination", results: @incidents, path: incidents_search_path,
+           filters: { query: @query }, position: "bottom" %>

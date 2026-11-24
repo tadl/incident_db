@@ -18,6 +18,23 @@ class IncidentsControllerTest < ActionDispatch::IntegrationTest
     assert_select 'input#date_of[type="datetime-local"]'
   end
 
+  test "the published list shows delete only to configured admins" do
+    @incident.update_columns(published: true, draft: false)
+    selector = 'button[data-incident-action="delete"][data-incident-id=?]'
+
+    with_env("SUPER_ADMIN" => nil) do
+      get incidents_path
+      assert_response :success
+      assert_select selector, @incident.id.to_s, count: 0
+    end
+
+    with_env("SUPER_ADMIN" => @user.email) do
+      get incidents_path
+      assert_response :success
+      assert_select selector, @incident.id.to_s, text: "Delete"
+    end
+  end
+
   test "saves an Eastern timestamp and transitions a draft to published exactly once" do
     assert_enqueued_jobs 0, only: IncidentMailerJob do
       submit_incident(draft: "true")

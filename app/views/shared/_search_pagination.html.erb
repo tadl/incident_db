@@ -1,5 +1,5 @@
 <% if results.total_pages > 1 %>
-  <nav aria-label="Search result pages" class="search-pagination">
+  <nav aria-label="Search result pages at <%= position %>" class="search-pagination">
     <%= form_with url: path, method: :post, local: true do %>
       <% filters.each do |name, value| %>
         <%= hidden_field_tag name, value, id: nil %>

@@ -1,9 +1,10 @@
 <% content_for :title, "Legacy reports" %>
 
-<h1>Legacy Incident Reports</h1>
+<%= render "shared/section_heading", glyph: "box-archive", heading: "Legacy Incident Reports" %>
 <%= render "section_links" %>
+<%= render "shared/list_pagination", records: @reports, position: "top" %>
 <% @reports.each do |report| %>
   <%= render "old_stub", r: report %>
 <% end %>
 <%= render "shared/empty_results", message: "No legacy reports in this view." if @reports.empty? %>
-<%= render "shared/list_pagination", records: @reports %>
+<%= render "shared/list_pagination", records: @reports, position: "bottom" %>

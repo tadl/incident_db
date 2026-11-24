@@ -11,6 +11,7 @@ class StaffNavigationTest < ActionDispatch::IntegrationTest
     assert_select "main nav[aria-label='Incident views'] a[aria-current='page']", text: "My drafts"
     assert_select "header form[method='post'][action=?]", signout_path
     assert_select "header a[href=?]", incidents_new_path
+    assert_select "h1 i.fa-person-falling-burst[aria-hidden='true']"
   end
 
   test "legacy search pagination resubmits the search in a POST body" do
@@ -25,15 +26,54 @@ class StaffNavigationTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "article.record-card", count: 10
-    assert_select "nav[aria-label='Search result pages'] form[method='post'][action=?]", old_search_path do
-      assert_select "input[type='hidden'][name='query'][value=?]", query
-      assert_select "button[name='page'][value='2']", text: "Next"
+    %w[top bottom].each do |position|
+      assert_select "nav[aria-label='Search result pages at #{position}'] form[method='post'][action=?]", old_search_path do
+        assert_select "input[type='hidden'][name='query'][value=?]", query
+        assert_select "input[name='query'][id]", count: 0
+        assert_select "button[name='page'][value='2']", text: "Next"
+      end
     end
 
     post old_search_path, params: { query: query, page: 2 }
 
     assert_response :success
     assert_select "article.record-card", count: 1
+  end
+
+  test "both draft pagination controls keep the draft filter" do
+    user = users(:one)
+    sign_in user
+    11.times do |index|
+      Incident.create!(created_by: user.id, draft: true, title: "Example report #{index}",
+        date_of: Time.zone.local(2025, 1, 1) + index.days, location: "Woodmere", description: "Synthetic report")
+    end
+
+    get incidents_path(just_drafts: true)
+
+    assert_response :success
+    %w[top bottom].each do |position|
+      assert_select "nav[aria-label='Result pages at #{position}']" do
+        assert_select "[aria-current='page']", text: "1"
+        assert_select "a[href*='just_drafts=true'][href*='page=2']", text: "Next"
+      end
+    end
+    assert_select "nav.list-pagination nav", count: 0
+  end
+
+  test "both patron search controls retain the unknown-name filter" do
+    sign_in users(:one)
+    6.times { |index| Patron.create!(known_as: "Fictional zebrafish alias #{index}") }
+
+    post patrons_search_path, params: { query: "zebrafish", unknown_only: "true" }
+
+    assert_response :success
+    %w[top bottom].each do |position|
+      assert_select "nav[aria-label='Search result pages at #{position}'] form[method='post'][action=?]", patrons_search_path do
+        assert_select "input[type='hidden'][name='query'][value='zebrafish']"
+        assert_select "input[type='hidden'][name='unknown_only'][value='true']"
+        assert_select "button[name='page'][value='2']", text: "Next"
+      end
+    end
   end
 
   test "call 911 filter highlights published active suspensions" do

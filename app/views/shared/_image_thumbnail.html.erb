@@ -1,0 +1,18 @@
+<% record_path = local_assigns[:record_path] %>
+<% compact = record_path.present? || local_assigns.fetch(:compact, false) %>
+<% size = compact ? 144 : 160 %>
+<% attributes = {
+  class: class_names("record-image-trigger", "record-image-trigger-compact" => compact),
+  aria: { label: "View #{label.downcase}" }
+} %>
+<% attributes.merge!(target: "_blank", rel: "noopener", data: { image_preview: label }) unless record_path %>
+<%= link_to record_path || private_attachment_path(attachment), attributes do %>
+  <% if attachment %>
+    <%= image_tag private_thumbnail_path(attachment), alt: "", class: "record-thumbnail", loading: "lazy",
+                  decoding: "async", width: size, height: size %>
+  <% else %>
+    <span class="record-thumbnail record-thumbnail-placeholder" aria-hidden="true">
+      <%= icon("fa-solid", "person-falling-burst") %>
+    </span>
+  <% end %>
+<% end %>

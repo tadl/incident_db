@@ -2,11 +2,7 @@
   <ul class="record-images" aria-label="<%= label %> images">
     <% attachments.each_with_index do |attachment, index| %>
       <li>
-        <%= link_to private_attachment_path(attachment), target: "_blank", rel: "noopener",
-                    aria: { label: "Open #{label.downcase} image #{index + 1} in a new tab" } do %>
-          <%= image_tag private_thumbnail_path(attachment), alt: "", loading: "lazy",
-                        decoding: "async", width: 112, height: 112 %>
-        <% end %>
+        <%= render "shared/image_thumbnail", attachment: attachment, label: "#{label} image #{index + 1}" %>
       </li>
     <% end %>
   </ul>

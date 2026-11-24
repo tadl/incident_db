@@ -1,9 +1,10 @@
 <% content_for :title, "#{@title} incidents" %>
 
-<h1><%= @title %> Incidents</h1>
+<%= render "shared/section_heading", glyph: "person-falling-burst", heading: "#{@title} Incidents" %>
 <%= render "section_links" %>
+<%= render "shared/list_pagination", records: @incidents, position: "top" %>
 <% @incidents.each do |incident| %>
   <%= render "incident_stub", i: incident %>
 <% end %>
 <%= render "shared/empty_results", message: "No incidents in this view." if @incidents.empty? %>
-<%= render "shared/list_pagination", records: @incidents %>
+<%= render "shared/list_pagination", records: @incidents, position: "bottom" %>

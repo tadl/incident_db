@@ -11,5 +11,5 @@
     window.location.assign('<%= incidents_view_path(id: @incident.id) %>');
   <% end %>
 <% else %>
-  $('#messages').text('<%= escape_javascript(@errors.to_sentence) %>').addClass('text-danger');
+  $('#messages').text(<%= raw json_escape(@errors.to_sentence.to_json) %>).addClass('text-danger');
 <% end %>

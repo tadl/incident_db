@@ -1,5 +1,5 @@
 <% if @errors %>
-  $('#patron_messages_<%= @patron.id %>').text('<%= escape_javascript(@errors.to_sentence) %>').addClass('text-danger');
+  $('#patron_messages_<%= @patron.id %>').text(<%= raw json_escape(@errors.to_sentence.to_json) %>).addClass('text-danger');
 <% elsif @editing_without_incident %>
   window.location.assign('<%= patrons_view_path(id: @patron.id) %>');
 <% elsif @edit %>

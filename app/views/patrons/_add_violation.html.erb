@@ -1,8 +1,8 @@
 <section id="patron_<%= patron.id %>" class="patron_violation_form card mb-3">
   <div class="card-body">
     <div id="patron_image_<%= patron.id %>">
-      <% if patron.images.first %>
-        <%= image_tag private_thumbnail_path(patron.images.first), class: 'img-thumbnail' %>
+      <% if (picture = patron.images.first) %>
+        <%= render "shared/image_thumbnail", attachment: picture, label: "Patron image", compact: true %>
       <% end %>
     </div>
     <h2 class="h4"><%= patron.full_name %></h2>

@@ -1,7 +1,8 @@
 <% content_for :title, "Patrons" %>
 
-<h1><%= @title %></h1>
+<%= render "shared/section_heading", glyph: "person", heading: @title %>
 <%= render "section_links" %>
+<%= render "shared/list_pagination", records: @patrons, position: "top" %>
 <% @patrons.each do |patron| %>
   <article class="card record-card mb-3">
     <div class="card-body">
@@ -10,4 +11,4 @@
   </article>
 <% end %>
 <%= render "shared/empty_results", message: "No patrons in this view." if @patrons.empty? %>
-<%= render "shared/list_pagination", records: @patrons %>
+<%= render "shared/list_pagination", records: @patrons, position: "bottom" %>

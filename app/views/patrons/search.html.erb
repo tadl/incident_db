@@ -1,6 +1,6 @@
 <% content_for :title, "Search patrons" %>
 
-<h1>Search Patrons</h1>
+<%= render "shared/section_heading", glyph: "person", heading: "Search Patrons" %>
 <%= render "section_links" %>
 <%= form_with url: patrons_search_path, method: :post, local: true, class: "staff-search" do %>
   <%= render "shared/search_fields", label: "Patron name or keywords", field_id: "patron-query" %>
@@ -9,6 +9,8 @@
     <%= label_tag :unknown_only, "Only patrons with an unknown name", class: "form-check-label" %>
   </div>
 <% end %>
+<%= render "shared/search_pagination", results: @patrons, path: patrons_search_path,
+           filters: { query: @query, unknown_only: @unknown_only }, position: "top" %>
 <% @patrons.each do |patron| %>
   <article class="card record-card mb-3">
     <div class="card-body">
@@ -20,4 +22,4 @@
   <%= render "shared/empty_results", message: "No patrons match your search." %>
 <% end %>
 <%= render "shared/search_pagination", results: @patrons, path: patrons_search_path,
-           filters: { query: @query, unknown_only: @unknown_only } %>
+           filters: { query: @query, unknown_only: @unknown_only }, position: "bottom" %>

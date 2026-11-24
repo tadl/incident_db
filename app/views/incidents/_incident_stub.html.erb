@@ -1,9 +1,7 @@
 <article class="card record-card mb-3">
   <div class="card-body">
     <div class="record-preview">
-      <% if (picture = i.primary_pic) %>
-        <%= image_tag private_thumbnail_path(picture), alt: "", class: "record-thumbnail", loading: "lazy", decoding: "async", width: 112, height: 112 %>
-      <% end %>
+      <%= render "shared/image_thumbnail", attachment: i.primary_pic, label: "Report ##{i.id}", record_path: incidents_view_path(id: i.id) %>
       <div class="record-preview-content">
         <div class="record-title-row">
           <h2 class="card-title"><%= link_to i.title.presence || "Incident report", incidents_view_path(id: i.id) %></h2>

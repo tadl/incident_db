@@ -1,11 +1,10 @@
-<% patron.images.each do |i| %>
-    <div class="col-lg-3 col-md-6">
-        <a href="<%= private_attachment_path(i) %>" target="_blank">
-            <%= image_tag private_thumbnail_path(i), class: 'img-thumbnail' %>
-        </a>
-        <br>
-        <button type="button" class="btn btn-danger btn-sm mb-1 mt-1" data-patron-action="delete-image" data-image-id="<%= i.id %>" data-patron-id="<%= patron.id %>">
-            <%= icon('fa-solid', 'trash') %> Delete Image
-        </button>
+<% patron.images.each_with_index do |attachment, index| %>
+  <div class="col-auto mb-2">
+    <%= render "shared/image_thumbnail", attachment: attachment, label: "Patron image #{index + 1}" %>
+    <div class="mt-1">
+      <button type="button" class="btn btn-danger btn-sm" data-patron-action="delete-image" data-image-id="<%= attachment.id %>" data-patron-id="<%= patron.id %>">
+        <%= icon('fa-solid', 'trash') %> Delete Image
+      </button>
     </div>
+  </div>
 <% end %>
