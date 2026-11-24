@@ -51,8 +51,10 @@ class DestructiveActionsTest < ActionDispatch::SystemTestCase
     ActionController::Base.allow_forgery_protection = true
 
     with_google_auth(user) do
-      visit incidents_view_path(id: incident.id)
+      report_path = incidents_view_path(id: incident.id)
+      visit report_path
       click_button "Sign in with Google"
+      assert_current_path report_path
       within(card) { find("summary", text: "Edit comment").click }
 
       within(card) { click_button "Delete comment" }
@@ -62,7 +64,11 @@ class DestructiveActionsTest < ActionDispatch::SystemTestCase
 
       within(card) { click_button "Delete comment" }
       within(CONFIRMATION) { click_button "Delete comment" }
-      assert_no_text comment.description
+      # The form redirects back to the same URL. Wait for the card to leave the DOM
+      # without asking Chrome to inspect visibility in the document being replaced.
+      assert_no_selector card, visible: :all
+      assert_current_path report_path
+      assert_selector "#comments-heading", visible: :all
       assert_not Comment.exists?(comment.id)
     end
   ensure
