@@ -136,7 +136,7 @@ class IncidentMailerTest < ActionMailer::TestCase
 
     with_addresses do
       mail = IncidentMailer.suspension_expired(@suspension)
-      assert_envelope(mail, "Suspension expired ##{@suspension.id}")
+      assert_envelope(mail, "Suspension expired ##{@suspension.id}", "suspensions@example.org")
       assert_mail_contains(mail, "Fixture Patron", "12/03/2026",
         "http://www.example.com/incidents/view?id=#{@incident.id}", "http://www.example.com/patrons/view?id=#{@patron.id}",
         "http://www.example.com/attachments/#{photo.id}")
@@ -175,7 +175,8 @@ class IncidentMailerTest < ActionMailer::TestCase
 
   def with_addresses(&block)
     with_env("EMAIL_FROM" => "notices@example.org", "EMAIL_TO" => "reports@example.org",
-      "COMMENT_EMAIL_TO" => "comments@example.org", &block)
+      "COMMENT_EMAIL_TO" => "comments@example.org", "CAN_SUSPEND" => "suspensions@example.org",
+      "UNSUSPEND_EMAIL_TO" => nil, &block)
   end
 
   def assert_envelope(mail, subject, recipient = "reports@example.org")

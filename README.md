@@ -58,12 +58,14 @@ Edit and delete actions are available from record detail pages when permitted. E
 | --- | --- | --- |
 | New incident | `EMAIL_TO` | First publication, including publishing a saved draft. |
 | New suspension | `EMAIL_TO` | Once the suspension is active and its incident is published. |
-| Suspension expired | `EMAIL_TO` | The day after the recorded end date of a patron’s latest published suspension. |
+| Suspension expired | `UNSUSPEND_EMAIL_TO`, or `CAN_SUSPEND` if unset | The day after the recorded end date of a patron’s latest published suspension. |
 | New comment | `COMMENT_EMAIL_TO` | A new comment on a published incident or a patron record. |
 
 Messages include HTML and plain text, record links, and subjects that identify the event. New incident subjects include the title and report number so reports with the same title have distinct subjects. Report notices are sent only on first publication, and comment notices only when the comment is added. A letter attached when a new suspension notice is sent is available through a staff-only link. A later upload appears on the record without resending the notice.
 
 Incident and suspension notices can include small inline photo thumbnails that render without signing in to the app. Those copies are part of the email. Links to originals and suspension letters still require staff sign-in.
+
+Set `UNSUSPEND_EMAIL_TO` to a comma-separated list to override the recipients of expiration notices, or set it to an empty value to turn off those notices. Leave it unset to follow changes to the `CAN_SUSPEND` staff list.
 
 ## Development
 

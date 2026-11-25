@@ -95,6 +95,39 @@ class NotificationJobsTest < ActiveJob::TestCase
     end
   end
 
+  test "expiration notices use the override recipients or fall back to suspension staff" do
+    @suspension.update_columns(until: Date.yesterday)
+
+    with_notification_addresses do
+      with_env("UNSUSPEND_EMAIL_TO" => " expired@example.org, , backup@example.org, EXPIRED@example.org ") do
+        assert_emails(1) { CheckExpiredSuspensions.new.perform }
+        assert_equal %w[expired@example.org backup@example.org], ActionMailer::Base.deliveries.last.smtp_envelope_to
+        assert @suspension.reload.expired_email_sent?
+      end
+
+      @suspension.update_columns(expired_email_sent: false)
+      assert_emails(1) { CheckExpiredSuspensions.new.perform }
+      assert_equal ["suspensions@example.org"], ActionMailer::Base.deliveries.last.smtp_envelope_to
+      assert @suspension.reload.expired_email_sent?
+    end
+  end
+
+  test "expiration notices skip an empty recipient list without being marked sent" do
+    @suspension.update_columns(until: Date.yesterday)
+
+    with_notification_addresses do
+      with_env("UNSUSPEND_EMAIL_TO" => "") do
+        assert_no_emails { CheckExpiredSuspensions.new.perform }
+        refute @suspension.reload.expired_email_sent?
+      end
+
+      with_env("CAN_SUSPEND" => nil) do
+        assert_no_emails { CheckExpiredSuspensions.new.perform }
+        refute @suspension.reload.expired_email_sent?
+      end
+    end
+  end
+
   test "jobs skip draft incidents and comments deleted while queued" do
     deleted_comment = IncidentComment.create!(incident: @incident, description: "Synthetic staff comment")
     serialized_job = CommentAddedJob.new(deleted_comment).serialize
@@ -122,6 +155,8 @@ class NotificationJobsTest < ActiveJob::TestCase
   private
 
   def with_notification_addresses(&block)
-    with_env("EMAIL_FROM" => "notices@example.org", "EMAIL_TO" => "reports@example.org", "COMMENT_EMAIL_TO" => "comments@example.org", &block)
+    with_env("EMAIL_FROM" => "notices@example.org", "EMAIL_TO" => "reports@example.org",
+      "COMMENT_EMAIL_TO" => "comments@example.org", "CAN_SUSPEND" => "suspensions@example.org",
+      "UNSUSPEND_EMAIL_TO" => nil, &block)
   end
 end

@@ -9,6 +9,10 @@ class IncidentMailer < ApplicationMailer
   MAX_INLINE_TOTAL_BYTES = 640.kilobytes
   MAX_SUBJECT_TITLE_BYTES = 200
 
+  def self.suspension_expiration_recipients
+    ENV.fetch("UNSUSPEND_EMAIL_TO", ENV["CAN_SUSPEND"]).to_s.split(",").map(&:strip).reject(&:empty?).uniq(&:downcase)
+  end
+
   def incident_published(incident)
     @incident = incident
     @record_url = incidents_view_url(id: incident.id)
@@ -30,9 +34,12 @@ class IncidentMailer < ApplicationMailer
   end
 
   def suspension_expired(suspension)
+    recipients = self.class.suspension_expiration_recipients
+    return if recipients.empty?
+
     set_suspension_details(suspension)
 
-    mail(to: ENV["EMAIL_TO"], subject: "Suspension expired ##{suspension.id}")
+    mail(to: recipients, subject: "Suspension expired ##{suspension.id}")
   end
 
   def comment_added(comment)

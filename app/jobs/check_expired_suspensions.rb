@@ -3,6 +3,7 @@ class CheckExpiredSuspensions
 
   def perform
     return unless IncidentMailer.perform_deliveries
+    return if IncidentMailer.suspension_expiration_recipients.empty?
 
     expiration_date = Date.yesterday
     Suspension.published.where(until: expiration_date, expired_email_sent: [false, nil]).includes(:patron).find_each do |suspension|
