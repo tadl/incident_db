@@ -30,11 +30,25 @@ class Patron < ApplicationRecord
 
   def self.currently_suspended(call_911: false)
     published = Suspension.published.active
-    expiration_dates = published.group(:patron_id).select(:patron_id, "MAX(suspensions.until) AS expires_on")
-    patrons = joins("INNER JOIN (#{expiration_dates.to_sql}) AS active_suspensions ON active_suspensions.patron_id = patrons.id")
+    patrons = with_suspension_end_dates(published)
     patrons = patrons.where(id: published.where(call_police: true).select(:patron_id)) if call_911
-    patrons.order("active_suspensions.expires_on ASC", :id)
+    patrons.order("suspension_dates.ends_on ASC", :id)
   end
+
+  def self.suspensions_ending_between(dates)
+    # Later suspensions must stay in the aggregate so a shorter overlap does not appear.
+    published = Suspension.published.where(until: dates.begin..)
+    with_suspension_end_dates(published)
+      .where(suspension_dates: { ends_on: ..dates.end })
+      .select("patrons.*", "suspension_dates.ends_on AS suspension_end_date")
+      .order("suspension_dates.ends_on ASC", :id)
+  end
+
+  def self.with_suspension_end_dates(suspensions)
+    dates = suspensions.group(:patron_id).select(:patron_id, "MAX(suspensions.until) AS ends_on")
+    joins("INNER JOIN (#{dates.to_sql}) AS suspension_dates ON suspension_dates.patron_id = patrons.id")
+  end
+  private_class_method :with_suspension_end_dates
 
   def full_name(show_call_911: true)
     name = [first_name, middle_name, last_name].compact_blank.join(" ")

@@ -1,0 +1,85 @@
+<% content_for :title, "Suspension calendar" %>
+
+<%= render "shared/section_heading", glyph: "calendar-days", heading: "Suspension Calendar" %>
+<%= render "section_links" %>
+
+<% current_month = @today.beginning_of_month %>
+<% first_day = @month.beginning_of_week(:sunday) %>
+<% last_day = @month.end_of_month.end_of_week(:sunday) %>
+<% patron_links = @patrons_by_date.transform_values do |patrons|
+     patrons.map do |patron|
+       link_to patron.full_name(show_call_911: false).presence || "Unknown patron", patrons_view_path(id: patron.id)
+     end
+   end %>
+
+<section aria-labelledby="suspension-month">
+  <div class="suspension-calendar-toolbar">
+    <h2 id="suspension-month"><%= @month.strftime("%B %Y") %></h2>
+    <nav class="suspension-calendar-navigation" aria-label="Calendar months">
+      <% if @month > current_month %>
+        <%= link_to "Previous month", patrons_suspension_calendar_path(month: @month.prev_month.strftime("%Y-%m")),
+                    class: "btn btn-sm btn-outline-primary" %>
+      <% else %>
+        <span class="btn btn-sm btn-outline-primary disabled" role="link" aria-disabled="true">Previous month</span>
+      <% end %>
+      <%= link_to "This month", patrons_suspension_calendar_path(month: current_month.strftime("%Y-%m")),
+                  class: "btn btn-sm btn-outline-primary" %>
+      <%= link_to "Next month", patrons_suspension_calendar_path(month: @month.next_month.strftime("%Y-%m")),
+                  class: "btn btn-sm btn-outline-primary" %>
+    </nav>
+  </div>
+
+  <% if patron_links.empty? %>
+    <%= render "shared/empty_results", message: "No upcoming suspension end dates this month." %>
+  <% end %>
+
+  <table class="suspension-month-grid table table-bordered d-none d-lg-table" aria-labelledby="suspension-month">
+    <thead>
+      <tr>
+        <% Date::DAYNAMES.each do |day_name| %>
+          <th scope="col"><%= day_name %></th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <% (first_day..last_day).each_slice(7) do |week| %>
+        <tr>
+          <% week.each do |date| %>
+            <% if date.month == @month.month %>
+              <% links = patron_links[date] %>
+              <td data-date="<%= date.iso8601 %>"
+                  class="<%= class_names("suspension-calendar-past" => date < @today, "suspension-calendar-populated" => links.present?) %>">
+                <%= tag.time datetime: date.iso8601, class: "suspension-calendar-date", aria: { current: ("date" if date == @today) } do %>
+                  <span aria-hidden="true"><%= date.day %></span>
+                  <span class="visually-hidden"><%= date.strftime("%A, %B %-d") %></span>
+                <% end %>
+                <% if links.present? %>
+                  <ul class="suspension-calendar-patrons" role="list">
+                    <%= safe_join(links.map { |link| tag.li(link) }) %>
+                  </ul>
+                <% end %>
+              </td>
+            <% else %>
+              <td class="suspension-calendar-outside"></td>
+            <% end %>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <% if patron_links.present? %>
+    <ol class="suspension-agenda list-unstyled d-lg-none" role="list">
+      <% patron_links.sort.each do |date, links| %>
+        <li data-date="<%= date.iso8601 %>">
+          <h3 class="h5">
+            <%= tag.time date.strftime("%A, %B %-d"), datetime: date.iso8601, aria: { current: ("date" if date == @today) } %>
+          </h3>
+          <ul class="suspension-calendar-patrons" role="list">
+            <%= safe_join(links.map { |link| tag.li(link) }) %>
+          </ul>
+        </li>
+      <% end %>
+    </ol>
+  <% end %>
+</section>

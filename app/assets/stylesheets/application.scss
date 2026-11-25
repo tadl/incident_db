@@ -603,6 +603,96 @@ a,
   color: var(--bs-secondary-color);
 }
 
+.suspension-calendar-toolbar,
+.suspension-calendar-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+}
+
+.suspension-calendar-toolbar {
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.suspension-calendar-toolbar h2 {
+  margin: 0;
+}
+
+.suspension-month-grid {
+  --bs-table-bg: var(--staff-surface);
+  table-layout: fixed;
+  margin-top: 1rem;
+}
+
+.suspension-month-grid th {
+  padding: .625rem;
+  background: var(--staff-surface-soft);
+  color: var(--tadl-navy);
+  font-size: .875rem;
+}
+
+.suspension-month-grid td {
+  height: 6rem;
+  padding: .625rem;
+  vertical-align: top;
+}
+
+.suspension-month-grid .suspension-calendar-past,
+.suspension-month-grid .suspension-calendar-outside {
+  background: var(--bs-body-bg);
+  color: var(--bs-secondary-color);
+}
+
+.suspension-month-grid .suspension-calendar-populated {
+  background: var(--staff-surface-soft);
+  box-shadow: inset 0 2px var(--tadl-teal);
+}
+
+.suspension-calendar-date {
+  display: inline-grid;
+  min-width: 1.5rem;
+  min-height: 1.5rem;
+  place-items: center;
+  border-radius: .375rem;
+  font-size: .875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.suspension-calendar-date[aria-current="date"] {
+  background: var(--tadl-teal);
+  color: #fff;
+}
+
+.suspension-calendar-patrons {
+  padding: 0;
+  margin: .375rem 0 0;
+  list-style: none;
+  overflow-wrap: anywhere;
+}
+
+.suspension-calendar-patrons li + li {
+  margin-top: .25rem;
+}
+
+.suspension-month-grid .suspension-calendar-patrons {
+  font-size: .875rem;
+}
+
+.suspension-agenda > li {
+  padding: .875rem 1rem;
+  margin-bottom: .75rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius-lg);
+  background: var(--staff-surface);
+}
+
+.suspension-agenda time[aria-current="date"] {
+  color: var(--tadl-teal);
+}
+
 .staff-sign-in {
   max-width: 31rem;
   margin: clamp(1rem, 6vw, 4rem) auto 0;

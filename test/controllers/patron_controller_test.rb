@@ -209,6 +209,69 @@ class PatronControllerTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, "Limited"
   end
 
+  test "the suspension calendar requires a staff session" do
+    open_session do |signed_out|
+      signed_out.get patrons_suspension_calendar_path(month: "2026-11")
+      signed_out.assert_redirected_to sign_in_path
+    end
+  end
+
+  test "the suspension calendar defaults to this month and accepts future months" do
+    travel_to Time.zone.local(2026, 11, 25, 12) do
+      [nil, "2026-10", "2026-13", "2026-2", { year: "2026" }].each do |month|
+        get patrons_suspension_calendar_path, params: { month: month }
+        assert_response :success
+        assert_select "#suspension-month", text: "November 2026"
+      end
+
+      get patrons_suspension_calendar_path(month: "2027-01")
+      assert_response :success
+      assert_select "#suspension-month", text: "January 2027"
+      assert_select ".empty-results", text: "No upcoming suspension end dates this month."
+    end
+  end
+
+  test "the calendar lists each patron once on their latest published suspension end date" do
+    travel_to Time.zone.local(2026, 11, 25, 12) do
+      today = Date.current
+      last_day = today.end_of_month
+      next_month = today.next_month.beginning_of_month
+      ending_today = calendar_patron("Ends today", today)
+      ending_last_day = calendar_patron("Ends on final day", last_day)
+      overlapping = calendar_patron("Overlapping dates", today + 1)
+      expired = calendar_patron("Already expired", today - 1)
+      undated = calendar_patron("End date unavailable", nil)
+      draft_only = calendar_patron("Only a draft", today + 1, incident: incidents(:two))
+
+      incidents(:two).update!(published: false, draft: true)
+      add_calendar_suspension(overlapping, next_month.next_month, incidents(:two))
+      ["Synthetic calendar incident A", "Synthetic calendar incident B"].each do |title|
+        published = Incident.create!(title: title, description: "Synthetic test report", location: "Woodmere",
+          date_of: Time.current, published: true)
+        add_calendar_suspension(overlapping, next_month, published)
+      end
+
+      get patrons_suspension_calendar_path
+      assert_response :success
+      assert_calendar_patron(ending_today, today)
+      assert_calendar_patron(ending_last_day, last_day)
+      assert_select ".suspension-month-grid" do
+        [overlapping, expired, undated, draft_only].each do |patron|
+          assert_select "a[href=?]", patrons_view_path(id: patron.id), count: 0
+        end
+      end
+
+      get patrons_suspension_calendar_path(month: next_month.strftime("%Y-%m"))
+      assert_response :success
+      assert_calendar_patron(overlapping, next_month)
+      assert_select ".suspension-month-grid" do
+        [ending_today, ending_last_day, expired, undated, draft_only].each do |patron|
+          assert_select "a[href=?]", patrons_view_path(id: patron.id), count: 0
+        end
+      end
+    end
+  end
+
   test "incident and patron details keep historical emergency flags without active instructions" do
     suspension = suspensions(:one)
     patron = suspension.patron
@@ -255,6 +318,27 @@ class PatronControllerTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  def calendar_patron(name, end_date, incident: @incident)
+    Patron.create!(known_as: name).tap do |patron|
+      add_calendar_suspension(patron, end_date, incident)
+    end
+  end
+
+  def add_calendar_suspension(patron, end_date, incident)
+    incident.patrons << patron
+    suspension = incident.suspensions.create!(patron:, until: end_date || Date.current)
+    suspension.update_column(:until, nil) unless end_date
+  end
+
+  def assert_calendar_patron(patron, date)
+    patron_path = patrons_view_path(id: patron.id)
+    assert_select ".suspension-month-grid" do
+      assert_select "a[href=?]", patron_path, count: 1
+      assert_select "td[data-date=?] a[href=?]", date.iso8601, patron_path
+    end
+    assert_select ".suspension-agenda li[data-date=?] a[href=?]", date.iso8601, patron_path
+  end
 
   def ids
     { incident_id: @incident.id, patron_id: @patron.id }

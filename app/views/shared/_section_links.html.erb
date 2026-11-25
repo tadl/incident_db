@@ -1,9 +1,22 @@
 <nav aria-label="<%= label %>" class="section-navigation">
   <ul class="nav">
-    <% links.each do |text, path, active| %>
-      <li class="nav-item">
-        <%= link_to text, path, class: ["nav-link", ("is-current" if active)],
-                    aria: { current: ("page" if active) } %>
+    <% links.each do |text, path, active, sublinks| %>
+      <li class="<%= class_names("nav-item", dropdown: sublinks.present?) %>">
+        <% if sublinks.present? %>
+          <%= button_tag text, type: "button", class: ["nav-link", "dropdown-toggle", ("is-current" if active)],
+                         data: { bs_toggle: "dropdown" }, aria: { expanded: false } %>
+          <ul class="dropdown-menu">
+            <% sublinks.each do |label, destination, current| %>
+              <li>
+                <%= link_to label, destination, class: ["dropdown-item", ("active" if current)],
+                            aria: { current: ("page" if current) } %>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <%= link_to text, path, class: ["nav-link", ("is-current" if active)],
+                      aria: { current: ("page" if active) } %>
+        <% end %>
       </li>
     <% end %>
   </ul>

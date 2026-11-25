@@ -28,6 +28,7 @@ Rails.application.routes.draw do
   match "patrons/edit", to: "patrons#edit", via: [:get, :post]
   get "patrons/view"
   get "patrons/list"
+  get "patrons/suspension_calendar"
   match "patrons/search", to: "patrons#search", via: [:get, :post]
   post "patrons/remove_patron_from_incident"
   post "patrons/delete_image"

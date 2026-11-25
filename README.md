@@ -21,7 +21,8 @@ Browse and search results offer page controls above and below longer lists and c
 ## Suspensions and letters
 
 - In the incident editor, staff with suspension permission can choose **Suspend patron** or **Edit suspension** for a linked patron. Set an end date and, where applicable, record **Call 911 if seen on library property**. Each patron can have one suspension per incident and overlapping suspensions across incidents.
-- The **Suspended** and **Call 911** lists use published incidents and end dates after today in Eastern time. A patron’s **Suspended until** summary shows the latest active end date. An active Call 911 flag on any of their suspensions triggers the alert. Draft and expired suspensions retain the recorded flag in the individual incident details.
+- Open **Patrons**, then **Suspended**, to choose **Suspension List** or **Suspension Calendar**. The calendar shows upcoming dates, including today, and links to each patron’s record. When a patron has overlapping published suspensions, the calendar uses their latest end date.
+- The **Suspension List** and **Call 911** views use published incidents and end dates after today in Eastern time. A patron’s **Suspended until** summary shows the latest active end date. An active Call 911 flag on any of their suspensions triggers the alert. Draft and expired suspensions retain the recorded flag in the individual incident details.
 - Prepare and mail the suspension letter outside the app. **Add Suspension Letter** accepts one optional PDF up to 5 MiB when issuing or editing the suspension. **Letter Sent** records the mailing status manually. Authorized staff can download the letter from the incident or its entry on the patron record.
 - Removing an attached PDF retains the suspension and its mailed status. **Revoke Suspension** removes the suspension and its letter. Removing a patron link that has a suspension also requires suspension permission.
 

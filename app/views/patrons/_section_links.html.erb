@@ -1,8 +1,13 @@
 <% suspended = params[:suspended] == "true" %>
 <% call_911 = params[:call_911] == "true" %>
+<% suspension_list = action_name == "list" && suspended && !call_911 %>
+<% suspension_calendar = action_name == "suspension_calendar" %>
 <%= render "shared/section_links", label: "Patron views", links: [
   ["All patrons", patrons_list_path, action_name == "list" && !suspended],
-  ["Suspended", patrons_list_path(suspended: true), action_name == "list" && suspended && !call_911],
+  ["Suspended", nil, suspension_list || suspension_calendar, [
+    ["Suspension List", patrons_list_path(suspended: true), suspension_list],
+    ["Suspension Calendar", patrons_suspension_calendar_path, suspension_calendar]
+  ]],
   ["Call 911", patrons_list_path(suspended: true, call_911: true), action_name == "list" && suspended && call_911],
   ["Search", patrons_search_path, action_name == "search"]
 ] %>

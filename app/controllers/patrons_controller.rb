@@ -1,5 +1,5 @@
 class PatronsController < ApplicationController
-  before_action :require_script_request, except: [:edit, :list, :view, :search]
+  before_action :require_script_request, except: [:edit, :list, :view, :search, :suspension_calendar]
   before_action :load_editable_incident, only: [:add_existing_to_incident, :remove_patron_from_incident, :load_patron_search, :load_new_patron_form]
   before_action :load_optional_editable_incident, only: [:save, :edit, :delete_image, :search]
   before_action :load_suspension_incident, only: [:load_suspension_form, :save_suspension, :delete_suspension, :delete_letter]
@@ -41,6 +41,13 @@ class PatronsController < ApplicationController
       patrons = Patron.order(created_at: :desc, id: :desc)
     end
     @patrons = patrons.includes(suspensions: :incident).paginate(page: params[:page], per_page: 10)
+  end
+
+  def suspension_calendar
+    @today = Date.current
+    @month = [requested_suspension_month || @today, @today].max.beginning_of_month
+    dates = [@month, @today].max..@month.end_of_month
+    @patrons_by_date = Patron.suspensions_ending_between(dates).group_by(&:suspension_end_date)
   end
 
   def view
@@ -135,6 +142,13 @@ class PatronsController < ApplicationController
   end
 
   private
+
+  def requested_suspension_month
+    value = params[:month]
+    return unless value.is_a?(String) && value.match?(/\A[0-9]{4}-(0[1-9]|1[0-2])\z/)
+
+    Date.iso8601("#{value}-01")
+  end
 
   def require_script_request
     head :not_acceptable unless request.xhr? && request.format.js?
