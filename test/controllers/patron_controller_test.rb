@@ -162,6 +162,23 @@ class PatronControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "incident and patron records label the suspension end date" do
+    suspension = suspensions(:one)
+    patron = suspension.patron
+    @incident.patrons << patron
+
+    [incidents_view_path(id: @incident.id), patrons_view_path(id: patron.id)].each do |path|
+      get path
+      assert_response :success
+      assert_select "p.record-related", text: /Suspended until\s+08\/16\/2022\./
+    end
+
+    suspension.update_column(:until, nil)
+    get incidents_view_path(id: @incident.id)
+    assert_response :success
+    assert_select "p.record-related", text: /Suspension\s+End date unavailable\./
+  end
+
   test "plain incident link removal preserves a suspension unless authorized to revoke it" do
     @incident.patrons << @patron
     @incident.suspensions.create!(patron: @patron, until: Date.current + 2)

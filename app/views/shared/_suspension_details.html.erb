@@ -1,5 +1,5 @@
-<% if patron.suspension_for(incident_id) %>
-  <p class="record-related"><strong>Suspension</strong> <%= patron.suspension_for_details(incident_id) %></p>
+<% if (suspension = patron.suspension_for(incident_id)) %>
+  <p class="record-related"><strong><%= suspension.until ? "Suspended until" : "Suspension" %></strong> <%= patron.suspension_for_details(incident_id) %></p>
   <% if (letter = patron.suspension_for_letter(incident_id)) %>
     <%= link_to "Download suspension letter", private_attachment_path(letter.attachment) %>
   <% end %>
