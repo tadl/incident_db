@@ -5,6 +5,8 @@
     <title><%= [content_for(:title).presence, "TADL Incident Reports"].compact.join(" · ") %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
+    <%= favicon_link_tag "/favicon.ico", sizes: "16x16 32x32 48x48" %>
+    <%= favicon_link_tag "favicon.svg", type: "image/svg+xml", sizes: "any" %>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= stylesheet_link_tag "application" %>
